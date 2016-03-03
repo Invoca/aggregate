@@ -13,7 +13,7 @@ module Aggregate
         self.class.convert_to_boolean(value)
       end
 
-      TRUE_VALUES = ['1', 't', 'T', 'true', 'TRUE'].to_set
+      TRUE_VALUES = %w(1 t T true TRUE).to_set
 
       def self.convert_to_boolean(value)
         if value.is_a?(::String)

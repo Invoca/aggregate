@@ -34,11 +34,12 @@ class Aggregate::Attribute::NestedAggregate < Aggregate::Attribute::Base
 
   def validation_errors(value)
     super + [
-      ( value.errors.to_a.map { |v| [v].flatten.join(" ") } if value && !value.valid? )
+      (value.errors.to_a.map { |v| [v].flatten.join(" ") } if value && !value.valid?)
     ].flatten.compact
   end
 
   private
+
   def klass
     @klass ||= class_name.to_s.constantize
   end

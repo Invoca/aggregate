@@ -2,12 +2,11 @@ require_relative '../../test_helper'
 
 class Aggregate::Attribute::ForeignKeyTest < ActiveSupport::TestCase
 
-
   context "foreign_key" do
     should "handle foreign_keys" do
       passport = sample_passport
 
-      ad = Aggregate::AttributeHandler.belongs_to_factory("testme", {:class_name=>"Passport"})
+      ad = Aggregate::AttributeHandler.belongs_to_factory("testme", class_name: "Passport")
 
       assert_equal passport,         ad.from_value(passport)
       assert_equal passport,         ad.from_value(passport.id)

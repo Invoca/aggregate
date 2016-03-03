@@ -12,9 +12,8 @@ class Aggregate::Attribute::StringTest < ActiveSupport::TestCase
   end
 
   should "enforce maximum size" do
-    ad = Aggregate::AttributeHandler.factory("testme", :string, :size => 100)
+    ad = Aggregate::AttributeHandler.factory("testme", :string, size: 100)
     expected = ["String is too long (maximum is 100 characters)"]
-    assert_equal_with_diff expected, ad.validation_errors("1"*101)
+    assert_equal expected, ad.validation_errors("1" * 101)
   end
-
 end

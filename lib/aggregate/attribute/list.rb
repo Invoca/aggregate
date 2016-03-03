@@ -7,8 +7,8 @@ class Aggregate::Attribute::List < Aggregate::Attribute::Base
     ]
   end
 
-  def initialize( name, element_helper, options )
-    super(name,options)
+  def initialize(name, element_helper, options)
+    super(name, options)
     @element_helper = element_helper
     @list = []
   end

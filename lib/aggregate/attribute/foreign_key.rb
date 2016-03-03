@@ -25,6 +25,7 @@ class Aggregate::Attribute::ForeignKey < Aggregate::Attribute::Base
   end
 
   private
+
   def klass
     @klass ||= options[:class_name].to_s.constantize
   end

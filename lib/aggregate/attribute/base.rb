@@ -21,26 +21,26 @@ module Aggregate
         options.assert_valid_keys(*self.class.available_options)
       end
 
-      def from_value(value)
+      def from_value(_value)
         raise NotImplemented
       end
 
-      def from_store(value)
+      def from_store(_value)
         raise NotImplemented
       end
 
-      def to_store(value)
+      def to_store(_value)
         raise NotImplemented
       end
 
-      def new(*args)
+      def new(*_args)
         raise NotImplemented
       end
 
       def validation_errors(value)
         [
           ("is not in list (#{value.inspect} not in #{options[:limit].inspect})" if value && options[:limit] && !value.in?(options[:limit])),
-          ("must be set" if !value && options[:required]),
+          ("must be set" if !value && options[:required])
         ].compact
       end
 

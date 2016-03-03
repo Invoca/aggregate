@@ -11,16 +11,16 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
 
   class ErrorsStub
     attr_accessor :messages
-    def add(attr,message)
-      (@messages ||= [] ) << [attr,message]
+    def add(attr, message)
+      (@messages ||= []) << [attr, message]
     end
   end
 
   context "aggregate_attribute" do
     setup do
-      @store = Class.new() {}
-      @store.send(:include,Aggregate::AggregateStore)
-      @store.aggregate_attribute(:name,:string)
+      @store = Class.new {}
+      @store.send(:include, Aggregate::AggregateStore)
+      @store.aggregate_attribute(:name, :string)
     end
 
     should "define methods on the class when called" do
@@ -37,11 +37,11 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
     context "an instance" do
       setup do
         @instance = @store.new
-        @store.send(:attr_accessor, :new_record, :errors )
+        @store.send(:attr_accessor, :new_record, :errors)
         @store.send(:define_method, :aggregate_owner) { @aggregate_owner ||= OwnerStub.new }
-        @store.send(:define_method, :decoded_aggregate_store) { { "name" => "abc" }}
+        @store.send(:define_method, :decoded_aggregate_store) { { "name" => "abc" } }
         @store.send(:define_method, :new_record?) { @new_record }
-        @store.send(:define_method, :run_callbacks) { |foo| true }
+        @store.send(:define_method, :run_callbacks) { |_foo| true }
       end
 
       should "respond to changed? apropriately when the instance is a active record object" do
@@ -54,7 +54,7 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
         passport = Passport.find(passport.id)
 
         # change trigged by a aggregate attribute change
-        passport.foreign_visits = [ ForeignVisit.new(country: "Canada"), ForeignVisit.new(country: "Mexico") ]
+        passport.foreign_visits = [ForeignVisit.new(country: "Canada"), ForeignVisit.new(country: "Mexico")]
         assert passport.changed?
 
         passport = Passport.find(passport.id)
@@ -100,7 +100,7 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
 
       should "marshal the attributes in to_store" do
         expected = { "name" => "abc" }
-        assert_equal_with_diff expected, @instance.to_store
+        assert_equal expected, @instance.to_store
       end
 
       context "validate_aggregates" do
@@ -112,28 +112,28 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
           @instance.new_record = true
           mock.instance_of(Aggregate::Attribute::String).validation_errors("abc") { ["had_error"] }
           @instance.validate_aggregates
-          assert_equal [["name","had_error"]], @instance.errors.messages
+          assert_equal [%w(name had_error)], @instance.errors.messages
         end
 
         should "validate aggregates if they force it" do
           mock.instance_of(Aggregate::Attribute::String).force_validation? { true }
           mock.instance_of(Aggregate::Attribute::String).validation_errors("abc") { ["had_error"] }
           @instance.validate_aggregates
-          assert_equal [["name","had_error"]], @instance.errors.messages
+          assert_equal [%w(name had_error)], @instance.errors.messages
         end
 
         should "validate aggregates if it changed" do
           @instance.name = "godzilla"
           mock.instance_of(Aggregate::Attribute::String).validation_errors("godzilla") { ["had_error"] }
           @instance.validate_aggregates
-          assert_equal [["name","had_error"]], @instance.errors.messages
+          assert_equal [%w(name had_error)], @instance.errors.messages
         end
 
         should "validate aggregates if was accessed" do
           @instance.name
           mock.instance_of(Aggregate::Attribute::String).validation_errors("abc") { ["had_error"] }
           @instance.validate_aggregates
-          assert_equal [["name","had_error"]], @instance.errors.messages
+          assert_equal [%w(name had_error)], @instance.errors.messages
         end
 
         should "not validate an aggregate otherwise" do
@@ -144,17 +144,17 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
 
       context "has_many aggregates" do
         setup do
-          @store = Class.new() {}
-          @store.send(:include,Aggregate::AggregateStore)
-          @store.aggregate_has_many(:names,:string)
+          @store = Class.new {}
+          @store.send(:include, Aggregate::AggregateStore)
+          @store.aggregate_has_many(:names, :string)
         end
 
         should "default to an empty list" do
           @instance = @store.new
           @store.send(:define_method, :aggregate_owner) { @aggregate_owner ||= OwnerStub.new }
-          @store.send(:define_method, :decoded_aggregate_store) { { "names" => nil }}
+          @store.send(:define_method, :decoded_aggregate_store) { { "names" => nil } }
           @store.send(:define_method, :new_record?) { @new_record }
-          @store.send(:define_method, :run_callbacks) { |foo| true }
+          @store.send(:define_method, :run_callbacks) { |_foo| true }
 
           assert_equal [], @instance.names
         end
@@ -162,53 +162,53 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
         should "allow assignment" do
           @instance = @store.new
           @store.send(:define_method, :aggregate_owner) { @aggregate_owner ||= OwnerStub.new }
-          @store.send(:define_method, :decoded_aggregate_store) { { "names" => nil }}
+          @store.send(:define_method, :decoded_aggregate_store) { { "names" => nil } }
           @store.send(:define_method, :new_record?) { @new_record }
-          @store.send(:define_method, :run_callbacks) { |foo| true }
+          @store.send(:define_method, :run_callbacks) { |_foo| true }
 
-          @instance.names = ["manny","moe","jack"]
-          assert_equal ["manny","moe","jack"], @instance.names
+          @instance.names = %w(manny moe jack)
+          assert_equal %w(manny moe jack), @instance.names
         end
 
         should "allow lists to be saved to disk" do
           @store.send(:define_method, :aggregate_owner) { @aggregate_owner ||= OwnerStub.new }
-          @store.send(:define_method, :decoded_aggregate_store) { { "names" => nil }}
+          @store.send(:define_method, :decoded_aggregate_store) { { "names" => nil } }
           @store.send(:define_method, :new_record?) { @new_record }
-          @store.send(:define_method, :run_callbacks) { |foo| true }
+          @store.send(:define_method, :run_callbacks) { |_foo| true }
           @instance = @store.new
 
-          @instance.names = ["manny","moe","jack"]
-          assert_equal ["manny","moe","jack"], @instance.names
+          @instance.names = %w(manny moe jack)
+          assert_equal %w(manny moe jack), @instance.names
 
-          expected = { "names" => ["manny","moe","jack"] }
+          expected = { "names" => %w(manny moe jack) }
 
           assert_equal expected, @instance.to_store
         end
 
         should "allow lists to be loaded from to disk" do
           @store.send(:define_method, :aggregate_owner) { @aggregate_owner ||= OwnerStub.new }
-          @store.send(:define_method, :decoded_aggregate_store) { { "names" => ["manny","moe","jack"] }}
+          @store.send(:define_method, :decoded_aggregate_store) { { "names" => %w(manny moe jack) } }
           @store.send(:define_method, :new_record?) { @new_record }
-          @store.send(:define_method, :run_callbacks) { |foo| true }
+          @store.send(:define_method, :run_callbacks) { |_foo| true }
           @instance = @store.new
 
-          assert_equal ["manny","moe","jack"], @instance.names
+          assert_equal %w(manny moe jack), @instance.names
         end
 
         context "lists of aggregates" do
           setup do
             @agg = Class.new(Aggregate::Base) {}
-            @agg.attribute(:name,:string)
-            @agg.attribute(:address,:string)
-            @agg.attribute(:zip,:integer)
+            @agg.attribute(:name, :string)
+            @agg.attribute(:address, :string)
+            @agg.attribute(:zip, :integer)
             silence_warnings { ::MyTestClass = @agg }
-            @store.aggregate_has_many( :things, MyTestClass.name )
+            @store.aggregate_has_many(:things, MyTestClass.name)
 
-            @store.send(:attr_accessor, :new_record, :errors )
+            @store.send(:attr_accessor, :new_record, :errors)
             @store.send(:define_method, :aggregate_owner) { @aggregate_owner ||= OwnerStub.new }
-            @store.send(:define_method, :decoded_aggregate_store) { { "things" => [ { "name" => "Moe" }, {"name" => "Larry"}, {"name" => "Curly"}] } }
+            @store.send(:define_method, :decoded_aggregate_store) { { "things" => [{ "name" => "Moe" }, { "name" => "Larry" }, { "name" => "Curly" }] } }
             @store.send(:define_method, :new_record?) { @new_record }
-            @store.send(:define_method, :run_callbacks) { |foo| true }
+            @store.send(:define_method, :run_callbacks) { |_foo| true }
 
             @instance = @store.new
           end
@@ -221,7 +221,7 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
           end
 
           should "set the owner on the aggregate owner when assigned" do
-            @instance.things = [ MyTestClass.new(:name => "Moe"), MyTestClass.new(:name => "Larry"), MyTestClass.new(:name => "Curly")]
+            @instance.things = [MyTestClass.new(name: "Moe"), MyTestClass.new(name: "Larry"), MyTestClass.new(name: "Curly")]
 
             @instance.things.each do |saved_thing|
               assert_equal @instance, saved_thing.aggregate_owner
@@ -232,12 +232,12 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
 
       context "belongs_to aggregates" do
         setup do
-          @store = Class.new() {}
-          @store.send(:include,Aggregate::AggregateStore)
-          @store.aggregate_belongs_to(:passport, :class_name => "Passport")
+          @store = Class.new {}
+          @store.send(:include, Aggregate::AggregateStore)
+          @store.aggregate_belongs_to(:passport, class_name: "Passport")
           @store.send(:define_method, :aggregate_owner) { @aggregate_owner ||= OwnerStub.new }
-          @store.send(:define_method, :decoded_aggregate_store) { { "names" => nil }}
-          @store.send(:define_method, :run_callbacks) { |foo| true }
+          @store.send(:define_method, :decoded_aggregate_store) { { "names" => nil } }
+          @store.send(:define_method, :run_callbacks) { |_foo| true }
           @store.send(:define_method, :new_record?) { @new_record }
           @passport = sample_passport
           @instance = @store.new
@@ -266,20 +266,20 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
 
       context "schema versioning" do
         should "allow a schema version to be defined." do
-          @store = Class.new() {}
+          @store = Class.new {}
           [:save, :save!, :create_or_update, :create, :update, :destroy, :valid?].each do |method|
-            @store.send(:define_method,method) { raise "call #{method} on containing class" }
+            @store.send(:define_method, method) { raise "call #{method} on containing class" }
           end
 
           @store.send(:include, Aggregate::AggregateStore)
           @store.send(:include, ActiveRecord::Callbacks)
-          @store.send(:define_callbacks,:before_validation, :after_aggregate_load, :aggregate_load_check_schema)
+          @store.send(:define_callbacks, :before_validation, :after_aggregate_load, :aggregate_load_check_schema)
           @store.send(:define_method, :aggregate_owner) { @aggregate_owner ||= OwnerStub.new }
-          @store.send(:define_method, :decoded_aggregate_store) { { "names" => nil }}
-          @store.send(:define_method, :run_callbacks) { |foo| true }
+          @store.send(:define_method, :decoded_aggregate_store) { { "names" => nil } }
+          @store.send(:define_method, :run_callbacks) { |_foo| true }
           @store.send(:define_method, :new_record?) { @new_record }
-          @store.send(:define_method, :fixup_schema) { |current_version| @fixed_from_current_version }
-          @store.send(:define_method, :run_callbacks) { |foo| true }
+          @store.send(:define_method, :fixup_schema) { |_current_version| @fixed_from_current_version }
+          @store.send(:define_method, :run_callbacks) { |_foo| true }
           @store.aggregate_schema_version("1.0", :fixup_schema)
 
           @instance = @store.new

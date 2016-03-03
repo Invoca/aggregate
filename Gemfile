@@ -16,4 +16,3 @@ group :test do
 end
 
 gem 'rubocop', require: false
-

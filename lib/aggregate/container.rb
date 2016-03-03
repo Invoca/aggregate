@@ -7,9 +7,9 @@ module Aggregate
     include Aggregate::AggregateStore
 
     included do
-      large_text_field             :aggregate_store
+      large_text_field :aggregate_store
       set_callback(:large_text_field_save, :before, :write_aggregates)
-      validate                     :validate_aggregates
+      validate :validate_aggregates
       send(:define_callbacks, :aggregate_load)
       send(:define_callbacks, :aggregate_load_schema)
       send(:define_callbacks, :aggregate_load_check_schema)

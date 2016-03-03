@@ -5,7 +5,6 @@ class Passport < ActiveRecord::Base
 
   attr_accessible :gender, :city, :state, :birthdate, :height, :weight, :photo
 
-
   include Aggregate::Container
 
   aggregate_attribute :gender,           :enum, limit: [:male, :female], required: true

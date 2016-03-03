@@ -17,28 +17,27 @@ class Aggregate::Attribute::BaseTest < ActiveSupport::TestCase
       end
 
       should "validate constructor arguments" do
-        assert_raises(ArgumentError){ Aggregate::AttributeHandler.factory(:testme, :string, :not_an_option => false )}
+        assert_raises(ArgumentError) { Aggregate::AttributeHandler.factory(:testme, :string, not_an_option: false) }
       end
     end
-
 
     context "validations" do
       should "allow nil if not required" do
         ad = Aggregate::AttributeHandler.factory("testme", :decimal, {})
         expected = []
-        assert_equal_with_diff expected, ad.validation_errors(nil)
+        assert_equal expected, ad.validation_errors(nil)
       end
 
       should "enforce required fields" do
-        ad = Aggregate::AttributeHandler.factory("testme", :decimal, :required => true)
+        ad = Aggregate::AttributeHandler.factory("testme", :decimal, required: true)
         expected = ["must be set"]
-        assert_equal_with_diff expected, ad.validation_errors(nil)
+        assert_equal expected, ad.validation_errors(nil)
       end
 
       should "enforce limit" do
-        ad = Aggregate::AttributeHandler.factory("testme", :enum, :limit => [:red,:blue,:green])
+        ad = Aggregate::AttributeHandler.factory("testme", :enum, limit: [:red, :blue, :green])
         expected = ["is not in list (:azure not in [:red, :blue, :green])"]
-        assert_equal_with_diff expected, ad.validation_errors(:azure)
+        assert_equal expected, ad.validation_errors(:azure)
       end
     end
 
@@ -46,10 +45,10 @@ class Aggregate::Attribute::BaseTest < ActiveSupport::TestCase
       ad = Aggregate::AttributeHandler.factory("testme", "string", {})
       assert_equal nil, ad.default
 
-      ad = Aggregate::AttributeHandler.factory("testme", "string", :default => "abc")
+      ad = Aggregate::AttributeHandler.factory("testme", "string", default: "abc")
       assert_equal "abc", ad.default
 
-      ad = Aggregate::AttributeHandler.factory("testme", "string", :default => lambda { "def" })
+      ad = Aggregate::AttributeHandler.factory("testme", "string", default: -> { "def" })
       assert_equal "def", ad.default
     end
 
@@ -57,7 +56,7 @@ class Aggregate::Attribute::BaseTest < ActiveSupport::TestCase
       ad = Aggregate::AttributeHandler.factory("testme", "string", {})
       assert !ad.force_validation?
 
-      ad = Aggregate::AttributeHandler.factory("testme", "string", :force_validation => true)
+      ad = Aggregate::AttributeHandler.factory("testme", "string", force_validation: true)
       assert ad.force_validation?
     end
   end

@@ -1,13 +1,12 @@
 module Aggregate
   module AggregateStore
-
-    REQUIRED_METHODS = [ :aggregate_owner, :decoded_aggregate_store, :new_record?, :errors, :run_callbacks]
+    REQUIRED_METHODS = [:aggregate_owner, :decoded_aggregate_store, :new_record?, :errors, :run_callbacks]
 
     module ClassMethods
       def aggregate_attribute(name, class_name, options = {})
         aggregated_attributes << (agg_attribute = Aggregate::AttributeHandler.factory(name, class_name, options))
 
-        # TODO - I think the agg_attribute should define these methods so that different types can define additonal accessors.  ( Like list and belongs to.)
+        # TODO: - I think the agg_attribute should define these methods so that different types can define additonal accessors.  ( Like list and belongs to.)
         define_method(name)                       { load_aggregate_attribute(agg_attribute) }
         define_method("#{name}=")                 { |value| save_aggregate_attribute(agg_attribute, value) }
         define_method("#{name}_changed?")         { aggregate_attribute_changed?(agg_attribute) }
@@ -34,7 +33,7 @@ module Aggregate
       end
 
       def aggregate_schema_version(version_number, update_callback)
-        aggregated_attributes << (agg_attribute = Aggregate::Attribute::SchemaVersion.new(version_number,update_callback))
+        aggregated_attributes << (agg_attribute = Aggregate::Attribute::SchemaVersion.new(version_number, update_callback))
         define_method("data_schema_version") { load_aggregate_attribute(agg_attribute) }
 
         set_callback(:aggregate_load_check_schema, :after, :check_schema_version)
@@ -66,7 +65,7 @@ module Aggregate
 
     def to_store
       self.class.aggregated_attributes.build_hash do |aa|
-        [aa.name, aa.to_store(load_aggregate_attribute(aa))];
+        [aa.name, aa.to_store(load_aggregate_attribute(aa))]
       end
     end
 
@@ -83,7 +82,7 @@ module Aggregate
     def inspect_aggregates(level = 1)
       self.class.aggregated_attributes.map do |aa|
         value = load_aggregate_attribute(aa)
-        "#{'    '*level}:#{aa.name} => #{value.respond_to?(:inspect_aggregates) ? "\n" + value.inspect_aggregates(level+1) : value.inspect }"
+        "#{'    ' * level}:#{aa.name} => #{value.respond_to?(:inspect_aggregates) ? "\n" + value.inspect_aggregates(level + 1) : value.inspect}"
       end.join("\n")
     end
 
@@ -107,7 +106,7 @@ module Aggregate
     private
 
     def load_aggregate_attribute(agg_attribute)
-      if aggregate_values.has_key?(agg_attribute.name)
+      if aggregate_values.key?(agg_attribute.name)
         aggregate_values[agg_attribute.name]
       else
         value =
@@ -177,12 +176,11 @@ module Aggregate
     end
 
     def aggregate_attribute_loaded?(agg_attribute)
-      aggregate_initial_values.has_key?(agg_attribute.name)
+      aggregate_initial_values.key?(agg_attribute.name)
     end
 
-    def set_aggregate_owner(agg_attribute, aggregate_value)
+    def set_aggregate_owner(_agg_attribute, aggregate_value)
       [aggregate_value].flatten.each { |v| v.try.aggregate_owner = self }
     end
-
   end
 end

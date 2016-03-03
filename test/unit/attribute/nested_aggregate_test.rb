@@ -19,8 +19,8 @@ class Aggregate::Attribute::NestedAggregateTest < ActiveSupport::TestCase
 
     def errors
       [
-        [ :cats, "have wiskers"],
-        [ :dogs, "do too"]
+        [:cats, "have wiskers"],
+        [:dogs, "do too"]
       ]
     end
 
@@ -45,6 +45,6 @@ class Aggregate::Attribute::NestedAggregateTest < ActiveSupport::TestCase
   should "delegate to the class for validation" do
     ad = Aggregate::AttributeHandler.factory("testme", TestNestedAggregate.name, {})
     expected = ["cats have wiskers", "dogs do too"]
-    assert_equal_with_diff expected, ad.validation_errors(TestNestedAggregate.new("test_value"))
+    assert_equal expected, ad.validation_errors(TestNestedAggregate.new("test_value"))
   end
 end

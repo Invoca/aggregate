@@ -11,27 +11,25 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20160302225123) do
-
-  create_table "documents", :force => true do |t|
+ActiveRecord::Schema.define(version: 20_160_302_225_123) do
+  create_table "documents", force: true do |t|
     t.string   "name"
-    t.datetime "created_at", :null => false
-    t.datetime "updated_at", :null => false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
-  create_table "large_text_fields", :force => true do |t|
-    t.string  "field_name",                     :null => false
-    t.text    "value",      :limit => 16777215
-    t.integer "owner_id",                       :null => false
-    t.string  "owner_type",                     :null => false
+  create_table "large_text_fields", force: true do |t|
+    t.string  "field_name", null: false
+    t.text    "value", limit: 16_777_215
+    t.integer "owner_id",                       null: false
+    t.string  "owner_type",                     null: false
   end
 
-  add_index "large_text_fields", ["owner_type", "owner_id", "field_name"], :name => "large_text_field_by_owner_field", :unique => true
+  add_index "large_text_fields", %w(owner_type owner_id field_name), name: "large_text_field_by_owner_field", unique: true
 
-  create_table "passports", :force => true do |t|
+  create_table "passports", force: true do |t|
     t.string   "name"
-    t.datetime "created_at", :null => false
-    t.datetime "updated_at", :null => false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
-
 end

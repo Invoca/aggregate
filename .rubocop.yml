@@ -21,6 +21,15 @@ Style/ClassAndModuleChildren:
 Style/Documentation:
   Enabled: false
 
+Style/PredicateName:
+  Enabled: false
+
+Style/DoubleNegation:
+  Enabled: false
+
+Style/Next:
+  Enabled: false
+
 Lint/EmptyInterpolation:
   Enabled: false
 
@@ -46,10 +55,13 @@ Style/StringLiterals:
   Enabled: false
 
 Metrics/AbcSize:
-  Max: 20
+  Max: 50
 
 Metrics/MethodLength:
-  Max: 30
+  Max: 50
 
 Metrics/ClassLength:
+  Max: 600
+
+Metrics/ModuleLength:
   Max: 300

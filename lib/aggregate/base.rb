@@ -1,6 +1,6 @@
 module Aggregate
   class Base
-    attr_accessor :decoded_aggregate_store, :aggregate_owner #, :aggregate_store
+    attr_accessor :decoded_aggregate_store, :aggregate_owner # , :aggregate_store
 
     include Aggregate::AggregateStore
 
@@ -18,12 +18,12 @@ module Aggregate
     define_callbacks :before_validation, :aggregate_load, :aggregate_load_check_schema
 
     def initialize(arguments = {})
-      arguments.each { |k,v| send( "#{k}=", v ) }
+      arguments.each { |k, v| send("#{k}=", v) }
     end
 
-    def <=>(rhs)
+    def <=>(other)
       self.class.aggregated_attributes.map_and_find do |attr|
-        compare(send(attr.name), rhs.send(attr.name)).nonzero?
+        compare(send(attr.name), other.send(attr.name)).nonzero?
       end || 0
     end
 
@@ -53,7 +53,7 @@ module Aggregate
     end
 
     # Required by ActiveRecord::CallBacks
-    def respond_to_without_attributes?(*args)
+    def respond_to_without_attributes?(*_args)
     end
 
     # Methods required by error messages for
@@ -62,10 +62,10 @@ module Aggregate
     end
 
     def self.human_name
-      self.to_s.humanize
+      to_s.humanize
     end
 
-    def self.human_attribute_name(attribute, options={})
+    def self.human_attribute_name(attribute, _options = {})
       attribute.to_s.humanize
     end
 
@@ -76,22 +76,22 @@ module Aggregate
 
     private
 
-    def compare(right,left)
+    def compare(right, left)
       safe_compare(right) <=> safe_compare(left)
     end
 
     def safe_compare(value)
       case value
       when NilClass
-        [3,0]
+        [3, 0]
       when TrueClass
-        [2,1]
+        [2, 1]
       when FalseClass
-        [2,0]
+        [2, 0]
       when Symbol
-        [1,value.to_s]
+        [1, value.to_s]
       else
-        [0,value]
+        [0, value]
       end
     end
   end

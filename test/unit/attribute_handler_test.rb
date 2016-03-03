@@ -24,15 +24,14 @@ class Aggregate::AttributeHandlerTest < ActiveSupport::TestCase
   end
 
   context "aggregate attribute definitions" do
-
     should "allow defaults" do
       ad = Aggregate::AttributeHandler.factory("testme", "string", {})
       assert_equal nil, ad.default
 
-      ad = Aggregate::AttributeHandler.factory("testme", "string", :default => "abc")
+      ad = Aggregate::AttributeHandler.factory("testme", "string", default: "abc")
       assert_equal "abc", ad.default
 
-      ad = Aggregate::AttributeHandler.factory("testme", "string", :default => lambda { "def" })
+      ad = Aggregate::AttributeHandler.factory("testme", "string", default: -> { "def" })
       assert_equal "def", ad.default
     end
 
@@ -40,10 +39,9 @@ class Aggregate::AttributeHandlerTest < ActiveSupport::TestCase
       ad = Aggregate::AttributeHandler.factory("testme", TestNestedAggregate.name, {})
       assert !ad.force_validation?
 
-      ad = Aggregate::AttributeHandler.factory("testme", TestNestedAggregate.name, :force_validation => true)
+      ad = Aggregate::AttributeHandler.factory("testme", TestNestedAggregate.name, force_validation: true)
       assert ad.force_validation?
     end
-
 
     should "construct has_many objects" do
       has_many = Aggregate::AttributeHandler.has_many_factory(:foo, :string, {})
@@ -55,8 +53,6 @@ class Aggregate::AttributeHandlerTest < ActiveSupport::TestCase
       belongs_to = Aggregate::AttributeHandler.belongs_to_factory(:foo, {})
       assert_equal "Aggregate::Attribute::ForeignKey", belongs_to.class.to_s
     end
-
   end
-
 
 end

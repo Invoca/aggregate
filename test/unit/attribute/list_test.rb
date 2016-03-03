@@ -17,34 +17,33 @@ class Aggregate::Attribute::ListTest < ActiveSupport::TestCase
   should "handle basic marshalling" do
     ad = Aggregate::AttributeHandler.has_many_factory("testme", "string", {})
 
-    assert_equal ["manny","moe","jack"], ad.from_value( ["manny","moe","jack"] )
-    assert_equal ["manny","moe","jack"], ad.from_value( [:manny,"moe","jack"] )
+    assert_equal %w(manny moe jack), ad.from_value(%w(manny moe jack))
+    assert_equal %w(manny moe jack), ad.from_value([:manny, "moe", "jack"])
 
-    assert_equal ["manny","moe","jack"], ad.to_store( ["manny","moe","jack"] )
-    assert_equal ["manny","moe","jack"], ad.from_store( ["manny","moe","jack"] )
+    assert_equal %w(manny moe jack), ad.to_store(%w(manny moe jack))
+    assert_equal %w(manny moe jack), ad.from_store(%w(manny moe jack))
   end
 
   should "delegate to the class for validation" do
-    ad = Aggregate::AttributeHandler.has_many_factory("testme", "string", :size => 10)
+    ad = Aggregate::AttributeHandler.has_many_factory("testme", "string", size: 10)
 
-    assert_equal_with_diff [], ad.validation_errors(["manny","moe","jack"])
+    assert_equal [], ad.validation_errors(%w(manny moe jack))
 
     expected = ["is invalid"]
-    assert_equal_with_diff expected, ad.validation_errors(["manny","moe","jack","this_is_too_long"])
+    assert_equal expected, ad.validation_errors(%w(manny moe jack this_is_too_long))
   end
 
   should "collapse errors to the base class if specified" do
-    ad = Aggregate::AttributeHandler.has_many_factory("testme", "string", :size => 10, :collapse_errors => true)
+    ad = Aggregate::AttributeHandler.has_many_factory("testme", "string", size: 10, collapse_errors: true)
 
-    assert_equal_with_diff [], ad.validation_errors(["manny","moe","jack"])
+    assert_equal [], ad.validation_errors(%w(manny moe jack))
     expected = ["String is too long (maximum is 10 characters)"]
-    assert_equal_with_diff expected, ad.validation_errors(["manny","moe","jack","this_is_too_long", "this is way too long too"])
+    assert_equal expected, ad.validation_errors(["manny", "moe", "jack", "this_is_too_long", "this is way too long too"])
   end
 
   should "convert the name to a string" do
-    ad = Aggregate::AttributeHandler.has_many_factory(:testme, "string", :size => 10)
+    ad = Aggregate::AttributeHandler.has_many_factory(:testme, "string", size: 10)
     assert_equal "testme", ad.name
   end
-
 
 end

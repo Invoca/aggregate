@@ -3,7 +3,7 @@ require_relative '../../../test_helper'
 class PassportTest < ActiveSupport::TestCase
   context "initialization" do
     should "be able to constuct a class with aggregates" do
-      passport = Passport.create!(
+      Passport.create!(
         name: "Millie",
         gender: :female,
         birthdate: Time.parse("2011-8-11"),
@@ -25,12 +25,12 @@ class PassportTest < ActiveSupport::TestCase
     should "be able to build aggregates" do
       passport = sample_passport
 
-      passport.foreign_visits = [ ForeignVisit.new(country: "Canada"), ForeignVisit.new(country: "Mexico") ]
+      passport.foreign_visits = [ForeignVisit.new(country: "Canada"), ForeignVisit.new(country: "Mexico")]
 
       passport.save!
       passport = Passport.find(passport.id)
 
-      assert_equal ["Canada", "Mexico"], passport.foreign_visits.map(&:country)
+      assert_equal %w(Canada Mexico), passport.foreign_visits.map(&:country)
     end
   end
 end

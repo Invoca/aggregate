@@ -8,22 +8,22 @@ class Aggregate::CombinedStringFieldTest < ActiveSupport::TestCase
   context "combined_string_fields" do
     setup do
       @parent_class = Class.new
-      @parent_class.send(:attr_accessor, :storage_attribute,:method_calls)
-      @parent_class.send(:define_method,"read_attribute") do |attribute_name|
+      @parent_class.send(:attr_accessor, :storage_attribute, :method_calls)
+      @parent_class.send(:define_method, "read_attribute") do |attribute_name|
         @method_calls ||= []
         @method_calls << ["read_attribute", attribute_name]
         @storage_attribute
       end
-      @parent_class.send(:define_method,"write_attribute") do |attribute_name,value|
+      @parent_class.send(:define_method, "write_attribute") do |attribute_name, value|
         @method_calls ||= []
-        @method_calls << ["write_attribute", attribute_name,value]
+        @method_calls << ["write_attribute", attribute_name, value]
         @storage_attribute = value
       end
 
       @class = Class.new(@parent_class)
       @class.extend ActiveRecordStub
       @class.extend Aggregate::CombinedStringField
-      @class.combine_string_fields([:first,:second,:third,[:truthy,:boolean]], :store_on => :storage_attribute )
+      @class.combine_string_fields([:first, :second, :third, [:truthy, :boolean]], store_on: :storage_attribute)
       @instance = @class.new
     end
 
@@ -65,7 +65,7 @@ class Aggregate::CombinedStringFieldTest < ActiveSupport::TestCase
 
       assert_equal "abc\ndef\nghi\ntrue", @instance.storage_attribute
 
-      @instance.truthy  = false
+      @instance.truthy = false
       assert_equal "abc\ndef\nghi\nfalse", @instance.storage_attribute
     end
 
@@ -75,12 +75,16 @@ class Aggregate::CombinedStringFieldTest < ActiveSupport::TestCase
     end
 
     should "raise if an error if a newline is used in an input" do
-      assert_raise(ArgumentError, /Cannot store newlines in combined fields storing \"abc\\n123\" in first/) { @instance.first  = "abc\n123" }
+      begin
+        @instance.first = "abc\n123"
+      rescue ArgumentError => ex
+        ex.message =~ /Cannot store newlines in combined fields storing \"abc\\n123\" in first/
+      end
     end
 
     should "report if an attribute changed" do
       assert !@instance.first_changed?
-      @instance.first  = "abc"
+      @instance.first = "abc"
       assert @instance.first_changed?
     end
 
@@ -95,4 +99,3 @@ class Aggregate::CombinedStringFieldTest < ActiveSupport::TestCase
     end
   end
 end
-
