@@ -1,17 +1,19 @@
 source "https://rubygems.org"
-
-# Declare your gem's dependencies in aggregate.gemspec.
-# Bundler will treat runtime dependencies like base dependencies, and
-# development dependencies will be added by default to the :development group.
 gemspec
 
 # jquery-rails is used by the dummy application
 gem "jquery-rails"
 
-# Declare any dependencies that are still in development here instead of in
-# your gemspec. These might include edge Rails or gems from your path or
-# Git. Remember to move these dependencies to your gemspec before releasing
-# your gem to rubygems.org.
+gem 'hobo_support',          '2.0.1',    git: 'git@github.com:Invoca/hobosupport'
+gem 'large_text_field',      '0.0.1',    git: 'git@github.com:Invoca/large_text_field.git', ref: '583a6051194e88d637591f981d602d386d7099ec'
 
-# To use debugger
-# gem 'debugger'
+group :test do
+  gem 'test-unit', '3.1.3'
+  gem 'minitest', '~> 4.7.5'
+  gem 'rr', '1.1.2'
+  gem 'shoulda', '3.5.0'
+  gem 'pry'
+end
+
+gem 'rubocop', require: false
+

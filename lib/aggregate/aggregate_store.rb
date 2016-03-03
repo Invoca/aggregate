@@ -1,0 +1,188 @@
+module Aggregate
+  module AggregateStore
+
+    REQUIRED_METHODS = [ :aggregate_owner, :decoded_aggregate_store, :new_record?, :errors, :run_callbacks]
+
+    module ClassMethods
+      def aggregate_attribute(name, class_name, options = {})
+        aggregated_attributes << (agg_attribute = Aggregate::AttributeHandler.factory(name, class_name, options))
+
+        # TODO - I think the agg_attribute should define these methods so that different types can define additonal accessors.  ( Like list and belongs to.)
+        define_method(name)                       { load_aggregate_attribute(agg_attribute) }
+        define_method("#{name}=")                 { |value| save_aggregate_attribute(agg_attribute, value) }
+        define_method("#{name}_changed?")         { aggregate_attribute_changed?(agg_attribute) }
+        define_method("build_#{name}")            { |*args| save_aggregate_attribute(agg_attribute, agg_attribute.new(*args)) }
+        define_method("#{name}_before_type_cast") { aggregate_attribute_before_type_cast(agg_attribute) }
+      end
+
+      def aggregate_has_many(name, class_name, options = {})
+        aggregated_attributes << (agg_attribute = Aggregate::AttributeHandler.has_many_factory(name, class_name, options))
+
+        define_method(name)                       { load_aggregate_attribute(agg_attribute) }
+        define_method("#{name}=")                 { |value| save_aggregate_attribute(agg_attribute, value) }
+        define_method("#{name}_changed?")         { aggregate_attribute_changed?(agg_attribute) }
+      end
+
+      def aggregate_belongs_to(name, options = {})
+        aggregated_attributes << (agg_attribute = Aggregate::AttributeHandler.belongs_to_factory("#{name}_id", options))
+
+        define_method(name)                       { load_aggregate_attribute(agg_attribute) }
+        define_method("#{name}_id")               { load_aggregate_attribute(agg_attribute).id }
+        define_method("#{name}=")                 { |value| save_aggregate_attribute(agg_attribute, value) }
+        define_method("#{name}_id=")              { |value| save_aggregate_attribute(agg_attribute, value) }
+        define_method("#{name}_changed?")         { aggregate_attribute_changed?(agg_attribute) }
+      end
+
+      def aggregate_schema_version(version_number, update_callback)
+        aggregated_attributes << (agg_attribute = Aggregate::Attribute::SchemaVersion.new(version_number,update_callback))
+        define_method("data_schema_version") { load_aggregate_attribute(agg_attribute) }
+
+        set_callback(:aggregate_load_check_schema, :after, :check_schema_version)
+        define_method(:check_schema_version) do
+          if data_schema_version != version_number
+            send(update_callback, data_schema_version)
+          end
+        end
+      end
+
+      def aggregated_attributes
+        @aggregated_attributes ||= []
+      end
+    end
+
+    def self.included(model_class)
+      attr_accessor :aggregate_list
+      model_class.extend ClassMethods
+    end
+
+    def changed?
+      (defined?(super) && super) || @changed
+    end
+
+    def set_changed
+      @changed = true
+      aggregate_owner._?.set_changed
+    end
+
+    def to_store
+      self.class.aggregated_attributes.build_hash do |aa|
+        [aa.name, aa.to_store(load_aggregate_attribute(aa))];
+      end
+    end
+
+    def validate_aggregates
+      self.class.aggregated_attributes.each do |aa|
+        if new_record? || aa.force_validation? || aggregate_attribute_loaded?(aa) || aggregate_attribute_changed?(aa)
+          aa.validation_errors(load_aggregate_attribute(aa)).each do |error|
+            errors.add(aa.name, error)
+          end
+        end
+      end
+    end
+
+    def inspect_aggregates(level = 1)
+      self.class.aggregated_attributes.map do |aa|
+        value = load_aggregate_attribute(aa)
+        "#{'    '*level}:#{aa.name} => #{value.respond_to?(:inspect_aggregates) ? "\n" + value.inspect_aggregates(level+1) : value.inspect }"
+      end.join("\n")
+    end
+
+    def aggregate_attributes
+      self.class.aggregated_attributes.build_hash do |attr|
+        value  = load_aggregate_attribute(attr)
+        result = value.is_a?(Aggregate::AggregateStore) ? value.aggregate_attributes : value
+        [attr.name, result]
+      end
+    end
+
+    def reload
+      result = super
+      @aggregate_values = nil
+      @aggregate_initial_values = nil
+      @aggregate_changes = nil
+      @aggregate_values_before_cast = nil
+      result
+    end
+
+    private
+
+    def load_aggregate_attribute(agg_attribute)
+      if aggregate_values.has_key?(agg_attribute.name)
+        aggregate_values[agg_attribute.name]
+      else
+        value =
+          if decoded_aggregate_store
+            load_aggregate_from_store(agg_attribute)
+          else
+            agg_attribute.default
+          end
+        aggregate_values[agg_attribute.name] = value
+        aggregate_initial_values[agg_attribute.name] = value
+
+        # Fire the callback.  It MAY change the value, so fetch again from the hash.
+        notify_if_first_access
+        aggregate_values[agg_attribute.name]
+      end
+    end
+
+    def notify_if_first_access
+      unless @notify_if_first_access_done
+        @notify_if_first_access_done = true
+        run_callbacks(:aggregate_load_check_schema)
+        run_callbacks(:aggregate_load)
+      end
+    end
+
+    def save_aggregate_attribute(agg_attribute, value)
+      aggregate = agg_attribute.from_value(value)
+      if aggregate != load_aggregate_attribute(agg_attribute)
+        aggregate_values_before_cast[agg_attribute.name] = value
+        aggregate_values[agg_attribute.name] = aggregate
+        aggregate_changes[agg_attribute.name] = true
+        set_aggregate_owner(agg_attribute, aggregate)
+        set_changed
+      end
+      value
+    end
+
+    def aggregate_attribute_changed?(agg_attribute)
+      aggregate_changes[agg_attribute.name] || aggregate_values[agg_attribute.name].try.changed?
+    end
+
+    def aggregate_attribute_before_type_cast(agg_attribute)
+      load_aggregate_attribute(agg_attribute)
+      aggregate_values_before_cast[agg_attribute.name] || aggregate_initial_values[agg_attribute.name]
+    end
+
+    def load_aggregate_from_store(agg_attribute)
+      agg_attribute.from_store(decoded_aggregate_store[agg_attribute.name.to_s]).tap do |aggregate|
+        set_aggregate_owner(agg_attribute, aggregate)
+      end
+    end
+
+    def aggregate_values
+      @aggregate_values ||= {}
+    end
+
+    def aggregate_initial_values
+      @aggregate_initial_values ||= {}
+    end
+
+    def aggregate_changes
+      @aggregate_changes ||= {}
+    end
+
+    def aggregate_values_before_cast
+      @aggregate_values_before_cast ||= {}
+    end
+
+    def aggregate_attribute_loaded?(agg_attribute)
+      aggregate_initial_values.has_key?(agg_attribute.name)
+    end
+
+    def set_aggregate_owner(agg_attribute, aggregate_value)
+      [aggregate_value].flatten.each { |v| v.try.aggregate_owner = self }
+    end
+
+  end
+end

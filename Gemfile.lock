@@ -1,8 +1,26 @@
+GIT
+  remote: git@github.com:Invoca/hobosupport
+  revision: 06838aaf6a7be463f8e54d1b177b52a4b13fdbb6
+  specs:
+    hobo_support (2.0.1)
+      rails (~> 3.2.0)
+
+GIT
+  remote: git@github.com:Invoca/large_text_field.git
+  revision: 583a6051194e88d637591f981d602d386d7099ec
+  ref: 583a6051194e88d637591f981d602d386d7099ec
+  specs:
+    large_text_field (0.0.1)
+      hobo_support (= 2.0.1)
+      rails (~> 3.2.22)
+
 PATH
   remote: .
   specs:
     aggregate (0.0.1)
-      rails (~> 3.2.22.1)
+      hobo_support (= 2.0.1)
+      large_text_field (= 0.0.1)
+      rails (~> 3.2.22)
 
 GEM
   remote: https://rubygems.org/
@@ -35,10 +53,15 @@ GEM
       i18n (~> 0.6, >= 0.6.4)
       multi_json (~> 1.0)
     arel (3.0.3)
+    ast (2.1.0)
+    astrolabe (1.3.1)
+      parser (~> 2.2)
     builder (3.0.4)
+    coderay (1.1.0)
     erubis (2.7.0)
     hike (1.2.3)
     i18n (0.7.0)
+    invoca-utils (0.0.2)
     journey (1.0.4)
     jquery-rails (3.1.4)
       railties (>= 3.0, < 5.0)
@@ -47,9 +70,19 @@ GEM
     mail (2.5.4)
       mime-types (~> 1.16)
       treetop (~> 1.4.8)
+    method_source (0.8.2)
     mime-types (1.25.1)
+    minitest (4.7.5)
     multi_json (1.11.2)
+    parser (2.2.2.6)
+      ast (>= 1.1, < 3.0)
     polyglot (0.3.5)
+    power_assert (0.2.7)
+    powerpack (0.1.1)
+    pry (0.10.3)
+      coderay (~> 1.1.0)
+      method_source (~> 0.8.1)
+      slop (~> 3.4)
     rack (1.4.7)
     rack-cache (1.6.1)
       rack (>= 0.4)
@@ -72,15 +105,33 @@ GEM
       rake (>= 0.8.7)
       rdoc (~> 3.4)
       thor (>= 0.14.6, < 2.0)
+    rainbow (2.0.0)
     rake (10.5.0)
     rdoc (3.12.2)
       json (~> 1.4)
+    rr (1.1.2)
+    rubocop (0.34.2)
+      astrolabe (~> 1.3)
+      parser (>= 2.2.2.5, < 3.0)
+      powerpack (~> 0.1)
+      rainbow (>= 1.99.1, < 3.0)
+      ruby-progressbar (~> 1.4)
+    ruby-progressbar (1.7.5)
+    shoulda (3.5.0)
+      shoulda-context (~> 1.0, >= 1.0.1)
+      shoulda-matchers (>= 1.4.1, < 3.0)
+    shoulda-context (1.2.1)
+    shoulda-matchers (2.8.0)
+      activesupport (>= 3.0.0)
+    slop (3.6.0)
     sprockets (2.2.3)
       hike (~> 1.2)
       multi_json (~> 1.0)
       rack (~> 1.0)
       tilt (~> 1.1, != 1.3.0)
     sqlite3 (1.3.11)
+    test-unit (3.1.3)
+      power_assert
     thor (0.19.1)
     tilt (1.4.1)
     treetop (1.4.15)
@@ -93,5 +144,14 @@ PLATFORMS
 
 DEPENDENCIES
   aggregate!
+  hobo_support (= 2.0.1)!
+  invoca-utils (= 0.0.2)
   jquery-rails
+  large_text_field (= 0.0.1)!
+  minitest (~> 4.7.5)
+  pry
+  rr (= 1.1.2)
+  rubocop
+  shoulda (= 3.5.0)
   sqlite3
+  test-unit (= 3.1.3)

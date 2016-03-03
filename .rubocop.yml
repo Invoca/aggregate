@@ -1,0 +1,55 @@
+# Examples of how to specifically exclude certain things
+AllCops:
+  Exclude:
+    - '**/*.yml'
+    - '**/*.sql'
+    - 'config/**/*'
+    - !ruby/regexp /old_and_unused\.rb$/
+
+# Configure cops for styles that we do not adhere to or are not agreed upon
+# Default settings and options can be viewed here: https://raw.githubusercontent.com/bbatsov/rubocop/master/config/default.yml
+# Please add new configurations in alphabetical order
+Metrics/LineLength:
+  Enabled: false
+
+Style/AndOr:
+  EnforcedStyle: conditionals
+
+Style/ClassAndModuleChildren:
+  Enabled: false
+
+Style/Documentation:
+  Enabled: false
+
+Lint/EmptyInterpolation:
+  Enabled: false
+
+Style/EmptyLinesAroundClassBody:
+  Enabled: false
+
+Style/EndOfLine:
+  Enabled: false
+
+Style/GuardClause:
+  Enabled: false
+
+Style/IfUnlessModifier:
+  Enabled: false
+
+Style/SignalException:
+  Enabled: false
+
+Style/SingleSpaceBeforeFirstArg:
+  Enabled: false
+
+Style/StringLiterals:
+  Enabled: false
+
+Metrics/AbcSize:
+  Max: 20
+
+Metrics/MethodLength:
+  Max: 30
+
+Metrics/ClassLength:
+  Max: 300
