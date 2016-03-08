@@ -41,11 +41,22 @@ class PassportPhoto < Aggregate::Base
   attribute :color,     :boolean
 end
 ```
+Note, when defining aggregate attributes on aggregate classes, you can drop the aggregate_ prefix in front of many methods.
 
 Aggregate classes can use all of the built in Rails validations.  The aggregate class is validated and saved when the containing class is saved. 
 
 ### Lists
 If you need to store a list of attributes, declare the list using **aggregate_has_many**.  For example, the passport has a list of foreign visits.
+
+### Referencing other models
+If you have an aggregate that needs to refer to another rails model, you can use **aggregate_belongs_to** to declare the association.  For example, if a PassportPhoto needs a reference to a model named "PhotoProvider" you could declare the association as follows. 
+
+```ruby
+class PassportPhoto < Aggregate::Base
+  belongs_to :provided_by, class_name: "PhotoProvider"
+end
+```
+You could then set and navigate the association.  
 
 ### Schema Migrations
 Changes to aggregates do not require database schema migrations.  If you add a new attribute and you load a model that does not have that attribute it will be at its default value.  If you load a model and it has an attribute that has been deleted, the extra attributes will be ignored.  
@@ -68,4 +79,13 @@ end
 ```
 
 ### Design
+When an model includes **Aggregate::Container**, a LargeTextField named **aggregate_store** is added to the model.  Aggregates are marshalled to and from this store using the **before_validate** and **before_large_text_field_save** callbacks.   
+
+Things to note:
+
+* **Aggregate::Store** provides methods for defining a collection of attributes associated with an instance of the class.
+* The classes in blue below are a part of the public interface.  The remaining are parts of the implementation.  
+* **Attribute::Base** defines an interface for saving, restoring and validating an attribute.  All of the classes derived from this provide support attributes of one type. 
+
+
 ![Diagram from yuml.me](docs/class_diagram.png)
