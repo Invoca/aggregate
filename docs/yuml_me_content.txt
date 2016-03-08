@@ -1,0 +1,21 @@
+[Store{bg:lightsteelblue}]^-[Base{bg:lightsteelblue}],
+[Store]^-[Container{bg:lightsteelblue}],
+[Store]uses -.->[AttributeHandler],
+[AttributeHandler]constructs -.->[Attribute],
+[Attribute]^-[NestedAttribute],
+[Attribute]^-[BuiltIn],
+[BuiltIn]^-[Enum],
+[BuiltIn]^-[Decimal],
+[BuiltIn]^-[Float],
+[BuiltIn]^-[Integer],
+[BuiltIn]^-[String],
+[BuiltIn]^-[Boolean],
+[BuiltIn]^-[DateTime],
+[Attribute]^-[ForeignKey],
+[Attribute]^-[SchemaVersion],
+[Attribute]^-[List],
+[Store]<>->*[Attribute],
+[note: all aggregate classes derive from this class{bg:cornsilk}]-.->[Base],
+[note: Mix into rails models that want to contain aggregate attributes{bg:cornsilk}]-.->[Container]
+
+
