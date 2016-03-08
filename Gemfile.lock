@@ -19,7 +19,7 @@ PATH
   specs:
     aggregate (0.0.1)
       hobo_support (= 2.0.1)
-      large_text_field (= 0.0.1)
+      large_text_field (~> 0.0.1)
       rails (~> 3.2.22)
 
 GEM
