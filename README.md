@@ -6,7 +6,9 @@ This Gem allows a no-sql style document store to be stored on your rails models 
 
 In you Gemfile add:
 
+```
   gem aggregate
+```
 
 If you were not already using large_text_fields, there will be a schema migration.  Go ahead and run that.  It is fast.
 
