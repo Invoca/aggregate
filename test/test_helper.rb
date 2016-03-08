@@ -1,15 +1,20 @@
 # Configure Rails Environment
 ENV["RAILS_ENV"] = "test"
 
-require File.expand_path("../dummy/config/environment.rb",  __FILE__)
+require File.expand_path("../dummy/config/environment.rb", __FILE__)
 require "rails/test_help"
+require "invoca/utils"
+require "rr"
+require "shoulda"
+require "minitest/unit"
+require "pry"
 
-Rails.backtrace_cleaner.remove_silencers!
-
-# Load support files
-Dir["#{File.dirname(__FILE__)}/support/**/*.rb"].each { |f| require f }
-
-# Load fixtures from the engine
-if ActiveSupport::TestCase.method_defined?(:fixture_path=)
-  ActiveSupport::TestCase.fixture_path = File.expand_path("../fixtures", __FILE__)
+def sample_passport
+  Passport.create!(
+    name: "Millie",
+    gender: :female,
+    birthdate: Time.parse("2011-8-11"),
+    city: "Santa Barbara",
+    state: "California"
+  )
 end
