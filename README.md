@@ -12,7 +12,7 @@ In you Gemfile add:
 
 If you were not already using large_text_fields, there will be a schema migration.  Go ahead and run that.  It is fast.
 
-### Defining Aggregates
+### Defining Aggregates on Rails Models
 To add aggregated attributes to an existing rails model, include **Aggregate::Container** on the model and then define the aggregate attributes you want.   For example, the following adds some attributes to a passport class.
 
 ```ruby
@@ -32,6 +32,7 @@ class Passport < ActiveRecord::Base
 end
 ```
 
+### Nesting Aggregate classes
 Aggregate attributes can be full ruby classes with their own attributes and validations.  For example, the passport above has a "photo" attribute of type "PassportPhoto".  This is an aggregate class.  To define aggregate class, create a ruby class that derives from Aggregate::Base and defines attributes.  For example here is the definition of passport photo.
 
 ```ruby
@@ -42,6 +43,9 @@ end
 ```
 
 Aggregate classes can use all of the built in Rails validations.  The aggregate class is validated and saved when the containing class is saved. 
+
+### Lists
+If you need to store a list of attributes, declare the list using **aggregate_has_many**.  For example, the passport has a list of foreign visits.
 
 ### Schema Migrations
 Changes to aggregates do not require database schema migrations.  If you add a new attribute and you load a model that does not have that attribute it will be at its default value.  If you load a model and it has an attribute that has been deleted, the extra attributes will be ignored.  
