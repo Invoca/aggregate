@@ -302,21 +302,25 @@ class Aggregate::ContainerTest < ActiveSupport::TestCase
 
         expected = {
           "data_schema_version" => "2.0",
-          "test_string" => nil,
-          "second_shipment" => nil,
-          "first_shipment" =>             { "ship_from" =>               { "zip" => "93101",
-                                                                           "address_two" => "",
-                                                                           "phone_number" => nil,
-                                                                           "address_one" => "1812 Clearview Road",
-                                                                           "full_name" => "Lisa Smith" },
-                                            "tracking_number" => "1245",
-                                            "weight_in_ounces" => 5,
-                                            "shipping_method" => nil,
-                                            "signature_required" => nil,
-                                            "shipped_at" => nil,
-                                            "postage_due" => nil,
-                                            "ship_to" => nil } }
-
+          "test_string"         => nil,
+          "second_shipment"     => nil,
+          "first_shipment"      => {
+              "ship_from" => {
+                  "zip" => "93101",
+                  "address_two" => "",
+                  "phone_number" => nil,
+                  "address_one" => "1812 Clearview Road",
+                  "full_name" => "Lisa Smith"
+              },
+              "tracking_number" => "1245",
+              "weight_in_ounces" => 5,
+              "shipping_method" => nil,
+              "signature_required" => nil,
+              "shipped_at" => nil,
+              "postage_due" => nil,
+              "ship_to" => nil
+          }
+        }
         assert_equal expected, @doc.to_store
 
         @doc.write_aggregates
@@ -377,21 +381,24 @@ class Aggregate::ContainerTest < ActiveSupport::TestCase
 
           expected = {
             "data_schema_version" => "2.0",
-            "test_string" => nil,
-            "second_shipment" => nil,
-            "first_shipment" =>               { "ship_from" =>                 { "zip" => "93101",
-                                                                                 "address_two" => "",
-                                                                                 "phone_number" => nil,
-                                                                                 "address_one" => "1812 Clearview Road",
-                                                                                 "full_name" => "Lisa Smith" },
-                                                "tracking_number" => "1245",
-                                                "weight_in_ounces" => 5,
-                                                "shipping_method" => "UPS",
-                                                "postage_due" => nil,
-                                                "signature_required" => nil,
-                                                "shipped_at" => nil,
-                                                "ship_to" => nil } }
-
+            "test_string"         => nil,
+            "second_shipment"     => nil,
+            "first_shipment"      => {
+                "ship_from" => {
+                    "zip" => "93101",
+                    "address_two" => "",
+                    "phone_number" => nil,
+                    "address_one" => "1812 Clearview Road",
+                    "full_name" => "Lisa Smith"
+                },
+                "tracking_number" => "1245",
+                "weight_in_ounces" => 5,
+                "shipping_method" => "UPS",
+                "postage_due" => nil,
+                "signature_required" => nil,
+                "shipped_at" => nil,
+                "ship_to" => nil }
+          }
           assert_equal expected, @doc.to_store
 
           # Don't explode when assigned an empty string.
@@ -441,21 +448,25 @@ class Aggregate::ContainerTest < ActiveSupport::TestCase
 
           expected = {
             "data_schema_version" => "2.0",
-            "test_string" => nil,
-            "second_shipment" => nil,
-            "first_shipment" =>               { "ship_from" =>                 { "zip" => "93101",
-                                                                                 "address_two" => "",
-                                                                                 "phone_number" => nil,
-                                                                                 "address_one" => "1812 Clearview Road",
-                                                                                 "full_name" => "Lisa Smith" },
-                                                "tracking_number" => "1245",
-                                                "weight_in_ounces" => 5,
-                                                "shipping_method" => "UsPostal",
-                                                "postage_due" => nil,
-                                                "signature_required" => true,
-                                                "shipped_at" => nil,
-                                                "ship_to" => nil } }
-
+            "test_string"         => nil,
+            "second_shipment"     => nil,
+            "first_shipment"      => {
+                "ship_from" => {
+                    "zip" => "93101",
+                    "address_two" => "",
+                    "phone_number" => nil,
+                    "address_one" => "1812 Clearview Road",
+                    "full_name" => "Lisa Smith"
+                },
+                "tracking_number" => "1245",
+                "weight_in_ounces" => 5,
+                "shipping_method" => "UsPostal",
+                "postage_due" => nil,
+                "signature_required" => true,
+                "shipped_at" => nil,
+                "ship_to" => nil
+            }
+          }
           assert_equal expected, @doc.to_store
         end
       end
@@ -546,21 +557,25 @@ class Aggregate::ContainerTest < ActiveSupport::TestCase
 
           expected = {
             "data_schema_version" => "2.0",
-            "test_string" => nil,
-            "second_shipment" => nil,
-            "first_shipment" =>               { "ship_from" =>                 { "zip" => "93101",
-                                                                                 "address_two" => "",
-                                                                                 "phone_number" => nil,
-                                                                                 "address_one" => "1812 Clearview Road",
-                                                                                 "full_name" => "Lisa Smith" },
-                                                "tracking_number" => "1245",
-                                                "weight_in_ounces" => 5,
-                                                "shipping_method" => "UsPostal",
-                                                "postage_due" => '50.2',
-                                                "signature_required" => nil,
-                                                "shipped_at" => nil,
-                                                "ship_to" => nil } }
-
+            "test_string"         => nil,
+            "second_shipment"     => nil,
+            "first_shipment"      => {
+                "ship_from" => {
+                    "zip" => "93101",
+                    "address_two" => "",
+                    "phone_number" => nil,
+                    "address_one" => "1812 Clearview Road",
+                    "full_name" => "Lisa Smith"
+                },
+                "tracking_number" => "1245",
+                "weight_in_ounces" => 5,
+                "shipping_method" => "UsPostal",
+                "postage_due" => '50.2',
+                "signature_required" => nil,
+                "shipped_at" => nil,
+                "ship_to" => nil
+            }
+          }
           assert_equal expected, @doc.to_store
         end
       end
