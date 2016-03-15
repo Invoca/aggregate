@@ -38,7 +38,7 @@ class Aggregate::ContainerTest < ActiveSupport::TestCase
   end
 
   class TestShippingRecord < Aggregate::Base
-    attribute :tracking_number,     :string,                        default: -> { "default_tracking_number" }, required: true
+    attribute :tracking_number,     :string, default: -> { "default_tracking_number" }, required: true
     attribute :ship_from,           "Aggregate::ContainerTest::TestAddress", force_validation: true
     attribute :ship_to,             "Aggregate::ContainerTest::TestAddress"
     attribute :weight_in_ounces,    :integer, required: true
@@ -301,25 +301,25 @@ class Aggregate::ContainerTest < ActiveSupport::TestCase
         @doc = TestPurchase.new(json)
 
         expected = {
-          "data_schema_version" => "2.0",
-          "test_string"         => nil,
-          "second_shipment"     => nil,
-          "first_shipment"      => {
-              "ship_from" => {
-                  "zip" => "93101",
-                  "address_two" => "",
-                  "phone_number" => nil,
-                  "address_one" => "1812 Clearview Road",
-                  "full_name" => "Lisa Smith"
-              },
-              "tracking_number" => "1245",
-              "weight_in_ounces" => 5,
-              "shipping_method" => nil,
-              "signature_required" => nil,
-              "shipped_at" => nil,
-              "postage_due" => nil,
-              "ship_to" => nil
-          }
+            "data_schema_version" => "2.0",
+            "test_string"         => nil,
+            "second_shipment"     => nil,
+            "first_shipment"      => {
+                "ship_from" => {
+                    "zip"          => "93101",
+                    "address_two"  => "",
+                    "phone_number" => nil,
+                    "address_one"  => "1812 Clearview Road",
+                    "full_name"    => "Lisa Smith"
+                },
+                "tracking_number"    => "1245",
+                "weight_in_ounces"   => 5,
+                "shipping_method"    => nil,
+                "signature_required" => nil,
+                "shipped_at"         => nil,
+                "postage_due"        => nil,
+                "ship_to"            => nil
+            }
         }
         assert_equal expected, @doc.to_store
 
@@ -385,19 +385,20 @@ class Aggregate::ContainerTest < ActiveSupport::TestCase
             "second_shipment"     => nil,
             "first_shipment"      => {
                 "ship_from" => {
-                    "zip" => "93101",
-                    "address_two" => "",
+                    "zip"          => "93101",
+                    "address_two"  => "",
                     "phone_number" => nil,
-                    "address_one" => "1812 Clearview Road",
-                    "full_name" => "Lisa Smith"
+                    "address_one"  => "1812 Clearview Road",
+                    "full_name"    => "Lisa Smith"
                 },
-                "tracking_number" => "1245",
-                "weight_in_ounces" => 5,
-                "shipping_method" => "UPS",
-                "postage_due" => nil,
+                "tracking_number"    => "1245",
+                "weight_in_ounces"   => 5,
+                "shipping_method"    => "UPS",
+                "postage_due"        => nil,
                 "signature_required" => nil,
-                "shipped_at" => nil,
-                "ship_to" => nil }
+                "shipped_at"         => nil,
+                "ship_to"            => nil
+            }
           }
           assert_equal expected, @doc.to_store
 
