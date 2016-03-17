@@ -151,7 +151,7 @@ class Aggregate::ContainerTest < ActiveSupport::TestCase
       end
 
       should "know which field the aggregate data is stored in" do
-        assert_nil TestPurchase.new.aggregate_storage_field
+        assert_equal :aggregate_store, TestPurchase.new.aggregate_storage_field
         TestPurchase.aggregate_container_options[:use_storage_field] = :aggregate_field_store
         assert_equal :aggregate_field_store, TestPurchase.new.aggregate_storage_field        
       end

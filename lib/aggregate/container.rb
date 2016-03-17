@@ -52,21 +52,21 @@ module Aggregate
                          ''
                        end
 
-        if uses_aggregate_storage_field?
-          send("#{aggregate_storage_field}=", encoded_data)
-        else
-          self.aggregate_store = encoded_data
-        end
+        send("#{aggregate_storage_field}=", encoded_data)
       end
     end
 
 
     def uses_aggregate_storage_field?
-      !!aggregate_storage_field.presence
+      !!self.class.aggregate_container_options[:use_storage_field].presence
     end
 
     def aggregate_storage_field
-      self.class.aggregate_container_options[:use_storage_field]
+      if uses_aggregate_storage_field?
+        self.class.aggregate_container_options[:use_storage_field]
+      else
+        :aggregate_store
+      end
     end
 
     def failover_to_large_text_field?
@@ -76,16 +76,11 @@ module Aggregate
     private
 
     def aggregate_store_data
-      if uses_aggregate_storage_field?
-        if (field_data = send(aggregate_storage_field)) && field_data.present?
-          field_data
-        elsif failover_to_large_text_field?
-          self.aggregate_store
-        end
-      else
+      if (field_data = send(aggregate_storage_field)) && field_data.present?
+        field_data
+      elsif failover_to_large_text_field?
         self.aggregate_store
       end
     end
-
   end
 end
