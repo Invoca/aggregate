@@ -7,19 +7,19 @@ GIT
 
 GIT
   remote: git@github.com:Invoca/large_text_field.git
-  revision: 583a6051194e88d637591f981d602d386d7099ec
-  ref: 583a6051194e88d637591f981d602d386d7099ec
+  revision: 702cdd6223813072ee208b5a390ffe841ddfb75c
+  ref: 702cdd6223813072ee208b5a390ffe841ddfb75c
   specs:
-    large_text_field (0.0.1)
+    large_text_field (0.0.2)
       hobo_support (= 2.0.1)
       rails (~> 3.2.22)
 
 PATH
   remote: .
   specs:
-    aggregate (0.0.1)
+    aggregate (0.0.3)
       hobo_support (= 2.0.1)
-      large_text_field (~> 0.0.1)
+      large_text_field (= 0.0.2)
       rails (~> 3.2.22)
 
 GEM
@@ -147,7 +147,7 @@ DEPENDENCIES
   hobo_support (= 2.0.1)!
   invoca-utils (= 0.0.2)
   jquery-rails
-  large_text_field (= 0.0.1)!
+  large_text_field (= 0.0.2)!
   minitest (~> 4.7.5)
   pry
   rr (= 1.1.2)
