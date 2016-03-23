@@ -56,7 +56,7 @@ class PassportPhoto < Aggregate::Base
   belongs_to :provided_by, class_name: "PhotoProvider"
 end
 ```
-You could then set and navigate the association.  
+You could then set and navigate the association.
 
 ### Schema Migrations
 Changes to aggregates do not require database schema migrations.  If you add a new attribute and you load a model that does not have that attribute it will be at its default value.  If you load a model and it has an attribute that has been deleted, the extra attributes will be ignored.  
@@ -79,7 +79,16 @@ end
 ```
 
 ### Design
-When an model includes **Aggregate::Container**, a LargeTextField named **aggregate_store** is added to the model.  Aggregates are marshalled to and from this store using the **before_validate** and **before_large_text_field_save** callbacks.   
+By default, when an model includes **Aggregate::Container**, a LargeTextField named **aggregate_store** is added to the model.  Aggregates are marshalled to
+and from this store using the **before_validate** and **before_large_text_field_save** callbacks.
+
+The model class is also given a hash **aggregate_container_options** with the options **:use_storage_field** and **:use_large_text_field_as_failover**.
+These options are defaulted to *nil* and *false* respectively, and this specifies that the container will simply use the aforementioned **aggregate_store**
+foreign key relation to **large_text_fields**. If **:use_storage_field** is instead set to the name of a field in the model (a **:text** field is recommended),
+the aggregate data will be loaded and saved in the specified field/column. When **:use_large_text_field_as_failover** is set to true (and **:use_storage_field**
+is non-blank), the container will load the aggregate data from the field specified by **:use_storage_field** but if the data is missing or blank it will then
+attempt to load the data from the **aggregate_store** large text field. Once the data is loaded however, it will save it as usual in the field specified by
+**:use_storage_field**.
 
 Things to note:
 
