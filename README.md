@@ -84,11 +84,12 @@ and from this store using the **before_validate** and **before_large_text_field_
 
 The model class is also given a hash **aggregate_container_options** with the options **:use_storage_field** and **:use_large_text_field_as_failover**.
 These options are defaulted to **nil** and **false** respectively, and this specifies that the container will simply use the aforementioned **aggregate_store**
-foreign key relation to **large_text_fields**. If **:use_storage_field** is instead set to the name of a field in the model (a **:text** field is recommended),
-the aggregate data will be loaded and saved in the specified field/column. When **:use_large_text_field_as_failover** is set to true (and **:use_storage_field**
-is non-blank), the container will load the aggregate data from the field specified by **:use_storage_field** but if the data is missing or blank it will then
-attempt to load the data from the **aggregate_store** large text field. Once the data is loaded however, it will save it as usual in the field specified by
-**:use_storage_field**.
+foreign key relation to **large_text_fields**.
+
+If **:use_storage_field** is instead set to the name of a field in the model (a **:text** field is recommended), the aggregate data will be loaded and saved
+in the specified field/column. When **:use_large_text_field_as_failover** is set to true (and **:use_storage_field** is non-blank), the container will load
+the aggregate data from the field specified by **:use_storage_field** but if the data is missing or blank it will then attempt to load the data from the
+**aggregate_store** large text field. Once the data is loaded however, it will save it as usual in the field specified by **:use_storage_field**.
 
 Things to note:
 
