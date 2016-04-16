@@ -9,6 +9,10 @@ require "shoulda"
 require "minitest/unit"
 require "pry"
 
+Rails.backtrace_cleaner.remove_silencers!
+# Rails.backtrace_cleaner.add_silencer { |line| line =~ /active_support/}
+# Rails.backtrace_cleaner.add_silencer { |line| line =~ /shoulda/}
+
 def sample_passport
   Passport.create!(
     name: "Millie",

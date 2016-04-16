@@ -78,7 +78,7 @@ class Aggregate::CombinedStringFieldTest < ActiveSupport::TestCase
       begin
         @instance.first = "abc\n123"
       rescue ArgumentError => ex
-        ex.message =~ /Cannot store newlines in combined fields storing \"abc\\n123\" in first/
+        assert ex.message =~ /Cannot store newlines in combined fields storing \"abc\\n123\" in first/
       end
     end
 

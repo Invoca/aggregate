@@ -1,3 +1,5 @@
+require "aggregate/bitfield"
+
 require "aggregate/attribute/base"
 require "aggregate/attribute/builtin"
 require "aggregate/attribute/string"
@@ -11,6 +13,7 @@ require "aggregate/attribute/nested_aggregate"
 require "aggregate/attribute/schema_version"
 require "aggregate/attribute/foreign_key"
 require "aggregate/attribute/list"
+require "aggregate/attribute/bitfield"
 
 require "aggregate/engine"
 require "aggregate/aggregate_store"
