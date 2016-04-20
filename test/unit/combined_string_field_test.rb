@@ -75,11 +75,10 @@ class Aggregate::CombinedStringFieldTest < ActiveSupport::TestCase
     end
 
     should "raise if an error if a newline is used in an input" do
-      begin
+      ex = assert_raises ArgumentError do
         @instance.first = "abc\n123"
-      rescue ArgumentError => ex
-        ex.message =~ /Cannot store newlines in combined fields storing \"abc\\n123\" in first/
       end
+      assert ex.message =~ /Cannot store newlines in combined fields storing \"abc\\n123\" in first/
     end
 
     should "report if an attribute changed" do
