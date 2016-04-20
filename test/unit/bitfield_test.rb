@@ -21,6 +21,7 @@ class Aggregate::BitfieldTest < ActiveSupport::TestCase
       bitfield = Aggregate::Bitfield.new("")
 
       bitfield[10] = true
+      assert_equal [nil]*10+[true], (0..10).map { |i| bitfield[i] }
     end
 
     should "trim trailing nils when reporting the string value" do
@@ -40,23 +41,19 @@ class Aggregate::BitfieldTest < ActiveSupport::TestCase
       should "warn when reading from to bitfields outside the limit" do
         bitfield = Aggregate::Bitfield.limit(5).new("")
 
-        begin
+        ex = assert_raises ArgumentError do
           bitfield[5]
-          fail "Didn't raise like I expected"
-        rescue ArgumentError => ex
-          assert_equal "index out of bounds, index(5) >= limit(5)", ex.message
         end
+        assert_equal "index out of bounds, index(5) >= limit(5)", ex.message
       end
 
       should "warn when writing to bitfields outside the limit" do
         bitfield = Aggregate::Bitfield.limit(5).new("")
 
-        begin
+        ex = assert_raises ArgumentError do
           bitfield[5] = false
-          fail "Didn't raise like I expected"
-        rescue ArgumentError => ex
-          assert_equal "index out of bounds, index(5) >= limit(5)", ex.message
         end
+        assert_equal "index out of bounds, index(5) >= limit(5)", ex.message
       end
 
 

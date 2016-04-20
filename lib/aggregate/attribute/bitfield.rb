@@ -2,7 +2,7 @@ class Aggregate::Attribute::Bitfield < Aggregate::Attribute::Base
 
   def self.available_options
     super + [
-      :limit #
+      :limit
     ]
   end
 

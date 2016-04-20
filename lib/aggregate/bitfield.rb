@@ -15,9 +15,7 @@ module Aggregate
 
     def []=(index, value)
       check_index_limit(index)
-      if index > @string.size
-        @string = @string.ljust(index)
-      end
+      @string = @string.ljust(index)
       @string[index] = to_character(value)
     end
 
@@ -48,9 +46,7 @@ module Aggregate
         true
       when 'f'
         false
-      when ' '
-        nil
-      when nil
+      when ' ', nil
         nil
       else
         raise "Unexpeced value in bitfield: (#{@string.inspect})"
