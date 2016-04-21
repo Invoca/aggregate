@@ -5,7 +5,7 @@ gemspec
 gem "jquery-rails"
 
 gem 'hobo_support',          '2.0.1',    git: 'git@github.com:Invoca/hobosupport'
-gem 'large_text_field',      '0.0.2',    git: 'git@github.com:Invoca/large_text_field.git', ref: '702cdd6223813072ee208b5a390ffe841ddfb75c'
+gem 'large_text_field',      '0.0.2',    git: 'git@github.com:Invoca/large_text_field.git', ref: '344f89c3a550daebd2513bf3f1d5b1d826d7d9bc'
 
 group :test do
   gem 'test-unit', '3.1.3'
