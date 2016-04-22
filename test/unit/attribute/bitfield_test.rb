@@ -16,4 +16,16 @@ class Aggregate::Attribute::BitfieldTest < ActiveSupport::TestCase
     assert_equal "tf t",    ad.to_store(Aggregate::Bitfield.limit(4).new("tf t"))
   end
 
+  should "provide a default" do
+    ad = Aggregate::AttributeHandler.factory("testme", :bitfield, limit: 4)
+
+    assert_equal Aggregate::Bitfield.limit(4).new(""), ad.default
+
+  end
+
+  should "be valid" do
+    ad = Aggregate::AttributeHandler.factory("testme", :bitfield, limit: 4)
+    assert_equal [], ad.validation_errors("")
+  end
+
 end

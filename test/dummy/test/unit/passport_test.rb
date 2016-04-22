@@ -32,5 +32,20 @@ class PassportTest < ActiveSupport::TestCase
 
       assert_equal %w(Canada Mexico), passport.foreign_visits.map(&:country)
     end
+
+    should "be able to access bitfields" do
+      passport = sample_passport
+
+      passport.stamps[0] = true
+      passport.stamps[5] = false
+
+      passport.save!
+      passport = Passport.find(passport.id)
+
+      assert_equal true, passport.stamps[0]
+      assert_equal false, passport.stamps[5]
+      assert_equal nil, passport.stamps[4]
+
+    end
   end
 end

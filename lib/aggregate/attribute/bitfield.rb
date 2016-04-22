@@ -15,7 +15,16 @@ class Aggregate::Attribute::Bitfield < Aggregate::Attribute::Base
   end
 
   def to_store(value)
-    value.to_s if value
+    value.to_s if value && value != ""
+  end
+
+  def default
+    klass.new("")
+  end
+
+  # Overrides default
+  def validation_errors(value)
+    []
   end
 
   private

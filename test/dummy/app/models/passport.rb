@@ -15,4 +15,6 @@ class Passport < ActiveRecord::Base
   aggregate_attribute :weight,           :decimal
   aggregate_attribute :photo,            "PassportPhoto"
   aggregate_has_many  :foreign_visits,   "ForeignVisit"
+  aggregate_attribute :stamps,           :bitfield, limit: 10
+
 end
