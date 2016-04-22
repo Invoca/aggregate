@@ -49,7 +49,7 @@ module Aggregate
       when ' ', nil
         nil
       else
-        raise "Unexpeced value in bitfield: (#{@string.inspect})"
+        raise "Unexpected value in bitfield: (#{@string.inspect})"
       end
     end
 
