@@ -47,5 +47,25 @@ class PassportTest < ActiveSupport::TestCase
       assert_equal nil, passport.stamps[4]
 
     end
+
+    should "not write default values" do
+      passport = sample_passport
+
+      passport.foreign_visits = [ForeignVisit.new(country: "Canada"), ForeignVisit.new(country: "Mexico")]
+
+      passport.save!
+
+      expected =
+        {
+          "birthdate"=>"Thu, 11 Aug 2011 07:00:00 -0000",
+          "city"=>"Santa Barbara",
+          "foreign_visits"=>[{"country"=>"Canada"},{"country"=>"Mexico"}],
+          "gender"=>"female",
+          "state"=>"California"
+        }
+
+      assert_equal expected, passport.to_store
+
+    end
   end
 end

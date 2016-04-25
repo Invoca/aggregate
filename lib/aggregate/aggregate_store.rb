@@ -65,7 +65,11 @@ module Aggregate
 
     def to_store
       self.class.aggregated_attributes.build_hash do |aa|
-        [aa.name, aa.to_store(load_aggregate_attribute(aa))]
+        agg_value = load_aggregate_attribute(aa)
+        # If schema versioning is in use, write out the values (Some clients depend on this)
+        if respond_to?(:data_schema_version) || agg_value != aa.default
+          [aa.name, aa.to_store(agg_value)]
+        end
       end
     end
 
