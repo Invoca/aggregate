@@ -13,12 +13,6 @@
 
 ActiveRecord::Schema.define(:version => 20160316211434) do
 
-  create_table "documents", :force => true do |t|
-    t.string   "name"
-    t.datetime "created_at", :null => false
-    t.datetime "updated_at", :null => false
-  end
-
   create_table "large_text_fields", :force => true do |t|
     t.string  "field_name",                     :null => false
     t.text    "value",      :limit => 16777215

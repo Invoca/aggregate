@@ -45,7 +45,16 @@ class PassportTest < ActiveSupport::TestCase
       assert_equal true, passport.stamps[0]
       assert_equal false, passport.stamps[5]
       assert_equal nil, passport.stamps[4]
+    end
 
+    should "be able to save and restore empty bitfields" do
+      passport = sample_passport
+
+      passport.save!
+      passport = Passport.find(passport.id)
+
+      passport.stamps[0] = true
+      assert_equal true, passport.stamps[0]
     end
 
     should "not write default values" do

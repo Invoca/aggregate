@@ -11,7 +11,7 @@ class Aggregate::Attribute::Bitfield < Aggregate::Attribute::Base
   end
 
   def from_store(value)
-    klass.new(value)
+    klass.new(value || "")
   end
 
   def to_store(value)
