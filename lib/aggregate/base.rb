@@ -35,6 +35,15 @@ module Aggregate
       new.tap { |instance| instance._set_store(decoded_aggregate_store) }
     end
 
+    def self.from_json(hash)
+      decoded_hash = hash.presence && ActiveSupport::JSON.decode(hash)
+      new.tap { |instance| instance._set_store(decoded_hash.presence, false) }
+    end
+
+    def to_json
+      ActiveSupport::JSON.encode(to_store)
+    end
+
     def self.attribute(*args)
       aggregate_attribute(*args)
     end
@@ -69,9 +78,9 @@ module Aggregate
       attribute.to_s.humanize
     end
 
-    def _set_store(decoded_aggregate_store)
+    def _set_store(decoded_aggregate_store, from_store = true)
       self.decoded_aggregate_store = decoded_aggregate_store
-      @loaded_from_store = true
+      @loaded_from_store = from_store
     end
 
     private
