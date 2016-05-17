@@ -6,9 +6,11 @@ class Aggregate::BaseTest < ActiveSupport::TestCase
     setup do
       @agg = Class.new(Aggregate::Base) {}
       @agg.attribute(:name, :string)
-      @agg.attribute(:address, :string)
+      @agg.attribute(:address, :string, default: "no address")
       @agg.attribute(:zip, :integer)
       silence_warnings { MyTestClass = @agg }
+
+      @decoded_aggregate_store = { "name" => "Bob", "address" => "1812 clearview", "zip" => 93_101 }
     end
 
     should "raise if an unsupported method is called" do
@@ -30,13 +32,76 @@ class Aggregate::BaseTest < ActiveSupport::TestCase
       assert @instance.new_record?
     end
 
+    should "raise if invalid attribute specified in the constructor" do
+      assert_raise(NoMethodError) { @agg.new(name: "Bob", address: "1812 clearview", invalid: 93_101) }
+    end
+
     should "allow an instance to be initialized from a store" do
-      decoded_aggregate_store = { "name" => "Bob", "address" => "1812 clearview", "zip" => 93_101 }
-      @instance = @agg.from_store(decoded_aggregate_store)
+      @instance = @agg.from_store(@decoded_aggregate_store)
       assert_equal "Bob", @instance.name
       assert_equal "1812 clearview", @instance.address
       assert_equal 93_101, @instance.zip
       assert !@instance.new_record?
+    end
+
+    context "to_json" do
+      should "generate a string with all attributes" do
+        @instance = @agg.new(name: "Bob", address: "1812 clearview", zip: 93_101)
+        expected_json_string = ActiveSupport::JSON.encode(@decoded_aggregate_store)
+        assert_equal expected_json_string, @instance.to_json
+      end
+    end
+
+    context "from_json" do
+      should "create an instance from a json with valid keys" do
+        aggregate_data = ActiveSupport::JSON.encode({ "name" => "Bob", "address" => "1812 clearview", "zip" => 93_101 })
+        @instance = @agg.from_json(aggregate_data)
+
+        assert_equal "Bob", @instance.name
+        assert_equal "1812 clearview", @instance.address
+        assert_equal 93_101, @instance.zip
+        assert @instance.new_record?
+      end
+
+      should "create an instance from a json with invalid keys" do
+        hash = ActiveSupport::JSON.encode({ "invalid_key1" => "Bob", "invalid_key2" => "1812 clearview" })
+        @instance = @agg.from_json(hash)
+
+        assert_equal nil, @instance.name
+        assert_equal nil, @instance.address
+        assert_equal nil, @instance.zip
+        assert @instance.new_record?
+      end
+
+      should "create an instance from a json with partial valid keys" do
+        hash = ActiveSupport::JSON.encode({ "name" => "Bob", "invalid_key2" => "1812 clearview", "zip" => 93_101 })
+        @instance = @agg.from_json(hash)
+
+        assert_equal "Bob", @instance.name
+        assert_equal nil, @instance.address
+        assert_equal 93_101, @instance.zip
+        assert @instance.new_record?
+      end
+
+      should "create an instance with default values for an empty json" do
+        hash = ActiveSupport::JSON.encode({})
+        @instance = @agg.from_json(hash)
+
+        assert_equal nil, @instance.name
+        assert_equal 'no address', @instance.address
+        assert_equal nil, @instance.zip
+        assert @instance.new_record?
+      end
+
+      should "create an instance with default values if no json provided" do
+        hash = ActiveSupport::JSON.encode(nil)
+        @instance = @agg.from_json(hash)
+
+        assert_equal nil, @instance.name
+        assert_equal 'no address', @instance.address
+        assert_equal nil, @instance.zip
+        assert @instance.new_record?
+      end
     end
 
     should "provide support methods needed by validatable and by callbacks" do
