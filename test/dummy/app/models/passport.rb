@@ -12,7 +12,7 @@ class Passport < ActiveRecord::Base
   aggregate_attribute :state,            :string,   required: true
   aggregate_attribute :birthdate,        :datetime, required: true
   aggregate_attribute :height,           :decimal
-  aggregate_attribute :weight,           :decimal
+  aggregate_attribute :weight,           :decimal, default: 100
   aggregate_attribute :photo,            "PassportPhoto"
   aggregate_has_many  :foreign_visits,   "ForeignVisit"
   aggregate_attribute :stamps,           :bitfield, limit: 10

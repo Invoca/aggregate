@@ -70,11 +70,16 @@ class PassportTest < ActiveSupport::TestCase
           "city"=>"Santa Barbara",
           "foreign_visits"=>[{"country"=>"Canada"},{"country"=>"Mexico"}],
           "gender"=>"female",
-          "state"=>"California"
+          "stamps" => nil,
+          "state"=>"California",
+          "weight" => "100"
         }
 
       assert_equal expected, passport.to_store
 
+      # Should re-assert the defaults when loaded.
+      passport = Passport.find(passport.id)
+      assert_equal 100, passport.weight
     end
   end
 end
