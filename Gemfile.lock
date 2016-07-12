@@ -7,8 +7,8 @@ GIT
 
 GIT
   remote: git@github.com:Invoca/large_text_field.git
-  revision: 344f89c3a550daebd2513bf3f1d5b1d826d7d9bc
-  ref: 344f89c3a550daebd2513bf3f1d5b1d826d7d9bc
+  revision: f83b33f2c68854b70c41b81d8ac7b7e307bc4312
+  ref: f83b33f2c68854b70c41b81d8ac7b7e307bc4312
   specs:
     large_text_field (0.0.2)
       hobo_support (= 2.0.1)
