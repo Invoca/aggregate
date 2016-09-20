@@ -11,6 +11,7 @@ module Aggregate
 
     include ActiveRecord::Validations
     include ActiveRecord::Callbacks
+    include ActiveRecord::Reflection
     include Comparable
 
     validate :validate_aggregates
