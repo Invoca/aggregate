@@ -73,6 +73,12 @@ module Aggregate
       !!(uses_aggregate_storage_field? && self.class.aggregate_container_options[:use_large_text_field_as_failover])
     end
 
+    def reload
+      result = super
+      @decoded_aggregate_store_loaded = nil
+      result
+    end
+
     private
 
     def aggregate_store_data

@@ -106,7 +106,6 @@ module Aggregate
       @aggregate_initial_values = nil
       @aggregate_changes = nil
       @aggregate_values_before_cast = nil
-      @decoded_aggregate_store_loaded = nil
       result
     end
 
