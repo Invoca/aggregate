@@ -3,7 +3,7 @@ class Passport < ActiveRecord::Base
   # This is stored in the database
   attr_accessible :name
 
-  attr_accessible :gender, :city, :state, :birthdate, :height, :weight, :photo
+  attr_accessible :gender, :city, :state, :birthdate, :height, :weight, :photo, :foreign_visits, :stamps
 
   include Aggregate::Container
 
