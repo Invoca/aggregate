@@ -84,8 +84,6 @@ class Aggregate::BitfieldTest < ActiveSupport::TestCase
         passport.stamps[5] = false
 
         passport.save!
-        passport = Passport.find(passport.id)
-
 
         passport2 = Passport.new(passport.aggregate_attributes)
         passport2.save!
