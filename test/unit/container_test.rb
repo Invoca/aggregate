@@ -2,25 +2,29 @@ require_relative '../test_helper'
 
 class Aggregate::ContainerTest < ActiveSupport::TestCase
 
-  module ActiveRecordStub
+  class ActiveRecordStub
     # Faking out active record things to get the large text field to work.
-    def reflections
+    def self.reflections
       {}
     end
 
-    def has_many(*args)
+    def self.has_many(*args)
       @has_many_args ||= []
       @has_many_args << args
     end
 
-    def validate(*args)
+    def self.validate(*args)
       @validate_args ||= []
       @validate_args << args
     end
 
-    def before_save(*args)
+    def self.before_save(*args)
       @before_save ||= []
       @before_save << args
+    end
+
+    def reload
+      @reload_called = true
     end
   end
 
@@ -50,8 +54,7 @@ class Aggregate::ContainerTest < ActiveSupport::TestCase
     validates_numericality_of :postage_due, greater_than_or_equal_to: 0, less_than_or_equal_to: 100
   end
 
-  class TestPurchase # analog: Campaign::CampaignTerms
-    extend ActiveRecordStub
+  class TestPurchase < ActiveRecordStub
     include Aggregate::Container
 
     attr_accessor :fixup1_called, :fixup2_called, :value_at_fixup1, :upgraded_from_schema_version, :value_at_upgrade
@@ -90,8 +93,7 @@ class Aggregate::ContainerTest < ActiveSupport::TestCase
     aggregate_attribute :second_shipment,  "Aggregate::ContainerTest::TestShippingRecord"
   end
 
-  class TestPurchaseNoVersion # analog: Campaign::CampaignTerms
-    extend ActiveRecordStub
+  class TestPurchaseNoVersion < ActiveRecordStub
     include Aggregate::Container
 
     attr_accessor :fixup1_called, :fixup2_called, :value_at_fixup1, :upgraded_from_schema_version, :value_at_upgrade
@@ -859,6 +861,23 @@ class Aggregate::ContainerTest < ActiveSupport::TestCase
 
         assert_equal "initial value", @doc.value_at_upgrade
       end
+    end
+
+    should "forget cached aggregate store on reload" do
+      @doc = TestPurchase.new
+      @doc.aggregate_store = { "test_string" => "12345"}.to_json
+      assert_equal nil, @doc.first_shipment
+      assert_equal "12345", @doc.test_string
+
+      @doc.first_shipment = TestShippingRecord.new(tracking_number: '1245', weight_in_ounces: 5)
+      assert_equal '1245', @doc.first_shipment.tracking_number
+
+      @doc.aggregate_store = { "test_string" => "56789"}.to_json
+
+      @doc.reload
+      assert_equal nil, @doc.first_shipment
+      assert_equal true, @doc.instance_variable_get("@reload_called")
+      assert_equal "56789", @doc.test_string
     end
   end
 end

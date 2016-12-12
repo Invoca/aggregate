@@ -285,6 +285,32 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
           @instance = @store.new
         end
       end
+
+      should "clear assignments after reload" do
+          @base_class = Class.new {}
+          @base_class.send(:define_method, :reload) { @reload_called = true}
+
+          @store = Class.new(@base_class) {}
+          @store.send(:include, Aggregate::AggregateStore)
+          @store.aggregate_belongs_to(:passport, class_name: "Passport")
+          @store.send(:define_method, :aggregate_owner) { @aggregate_owner ||= OwnerStub.new }
+          @store.send(:define_method, :run_callbacks) { |_foo| true }
+          @store.send(:define_method, :new_record?) { @new_record }
+          @store.send(:attr_accessor, :decoded_aggregate_store )
+          @passport = sample_passport
+          @instance = @store.new
+
+          @instance.decoded_aggregate_store = {}
+          @instance.passport = @passport
+
+          expected = { "passport_id" => @passport.id }
+          assert_equal expected, @instance.to_store
+
+          @instance.reload
+          expected = {}
+          assert_equal expected, @instance.to_store
+          assert_equal true, @instance.instance_variable_get("@reload_called")
+      end
     end
   end
 end

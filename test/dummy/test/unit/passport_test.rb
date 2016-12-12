@@ -66,7 +66,7 @@ class PassportTest < ActiveSupport::TestCase
 
       expected =
         {
-          "birthdate"=>"Thu, 11 Aug 2011 07:00:00 -0000",
+          "birthdate"=>Time.parse("2011-8-11"),
           "city"=>"Santa Barbara",
           "foreign_visits"=>[{"country"=>"Canada"},{"country"=>"Mexico"}],
           "gender"=>"female",
