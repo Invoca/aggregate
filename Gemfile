@@ -10,7 +10,7 @@ gem 'large_text_field',      '0.0.2',  git: 'git@github.com:Invoca/large_text_fi
 
 group :test do
   gem 'test-unit', '3.1.3'
-  gem 'minitest', '~> 4.7.5'
+  gem 'minitest', '~> 5.1'
   gem 'rr', '1.1.2'
   gem 'shoulda', '3.5.0'
   gem 'pry'

@@ -22,3 +22,7 @@ def sample_passport
     state: "California"
   )
 end
+
+def assert_false(actual, message = nil)
+  assert_equal false, actual, message
+end
