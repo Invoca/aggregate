@@ -76,6 +76,18 @@ class Aggregate::BitfieldTest < ActiveSupport::TestCase
         first[0] = true
         assert_not_equal first, second
       end
+
+      should "allow aggregates containing bitfields to be copied" do
+        passport = sample_passport
+
+        passport.stamps[0] = true
+        passport.stamps[5] = false
+
+        passport.save!
+
+        passport2 = Passport.new(passport.aggregate_attributes)
+        passport2.save!
+      end
     end
   end
 
