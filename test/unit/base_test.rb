@@ -58,6 +58,14 @@ class Aggregate::BaseTest < ActiveSupport::TestCase
         expected_json_string = ActiveSupport::JSON.encode(@decoded_aggregate_store)
         assert_equal expected_json_string, test_instance.to_json
       end
+
+      should "generate a string with all the attributes after just being built from json and is in an array" do
+        @instance = @agg.new(name: "Bob", address: "1812 clearview", zip: 93_101)
+        test_instance = [@agg.from_json(@instance.to_json)]
+
+        expected_json_string = ActiveSupport::JSON.encode([@decoded_aggregate_store])
+        assert_equal expected_json_string, test_instance.to_json
+      end
     end
 
     context "from_json" do

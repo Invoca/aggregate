@@ -41,13 +41,10 @@ module Aggregate
     end
 
     def to_json
-      ActiveSupport::JSON.encode(as_json)
+      ActiveSupport::JSON.encode(to_store)
     end
 
-    def as_json
-      to_store
-    end
-    alias_method :to_hash, :as_json
+    alias_method :to_hash, :to_store
 
     def self.attribute(*args)
       aggregate_attribute(*args)
