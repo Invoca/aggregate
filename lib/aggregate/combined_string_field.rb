@@ -60,11 +60,13 @@ module Aggregate::CombinedStringField
       end
     end
 
-    define_method("read_attribute") do |name|
-      if name.in?(attribute_list.map { |a| [a].flatten.first.to_s })
-        send(name)
-      else
-        super(name)
+    %w(read_attribute _read_attribute).each do |method_name|
+      define_method(method_name) do |name|
+        if name.in?(attribute_list.map { |a| [a].flatten.first.to_s })
+          send(name)
+        else
+          super(name)
+        end
       end
     end
 
