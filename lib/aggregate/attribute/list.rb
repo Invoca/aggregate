@@ -18,11 +18,13 @@ class Aggregate::Attribute::List < Aggregate::Attribute::Base
     value._?.map { |v| @element_helper.from_value(v) } || []
   end
 
+  # decrypt
   def from_store(value)
     assert_is_list(value)
     value._?.map { |v| @element_helper.from_store(v) } || []
   end
 
+  # encrypt
   def to_store(value)
     assert_is_list(value)
     value._?.map { |v| @element_helper.to_store(v) } || []
