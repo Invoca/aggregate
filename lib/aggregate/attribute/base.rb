@@ -33,14 +33,6 @@ module Aggregate
         raise NotImplemented
       end
 
-      def to_store_encrypted
-        raise NotImplemented
-      end
-
-      def from_store_decrypted
-        raise NotImplemented
-      end
-
       def new(*_args)
         raise NotImplemented
       end

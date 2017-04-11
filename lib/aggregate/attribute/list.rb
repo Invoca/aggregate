@@ -28,16 +28,6 @@ class Aggregate::Attribute::List < Aggregate::Attribute::Base
     value._?.map { |v| @element_helper.to_store(v) } || []
   end
 
-  def to_store_and_encrypt(value)
-    assert_is_list(value)
-    value._?.map { |v| @element_helper.to_store(v) } || []
-  end
-
-  def decrypt_from_store(value)
-    assert_is_list(value)
-    value._?.map { |v| @element_helper.from_store(v) } || []
-  end
-
   def force_validation?
     @element_helper.force_validation?
   end
