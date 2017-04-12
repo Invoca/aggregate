@@ -32,6 +32,17 @@ class Aggregate::BaseTest < ActiveSupport::TestCase
       assert @instance.new_record?
     end
 
+    should "return encryption key and iv" do
+      Aggregate.configure do |config|
+        config.encryption_key = "AES-this_is_a_test"
+        config.iv = "This_is_also_bogus"
+      end
+
+      aggregate = Aggregate::Base.new
+      assert_equal "AES-this_is_a_test", aggregate.encryption_key
+      assert_equal "This_is_also_bogus", aggregate.iv
+    end
+
     should "raise if invalid attribute specified in the constructor" do
       assert_raise(NoMethodError) { @agg.new(name: "Bob", address: "1812 clearview", invalid: 93_101) }
     end

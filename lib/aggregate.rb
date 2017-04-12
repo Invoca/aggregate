@@ -23,4 +23,30 @@ require "aggregate/combined_string_field"
 require "aggregate/container"
 
 module Aggregate
+  class << self
+    attr_writer :configuration
+
+
+    def configuration
+      @configuration ||= Configuration.new
+    end
+
+    def configure
+      yield(configuration)
+    end
+
+    def reset
+      @configuration = Configuration.new
+    end
+  end
+
+  end
+  class Configuration
+    attr_accessor :encryption_key, :iv
+
+    def initialize
+      @encryption_key = nil
+      @iv = nil
+    end
+  end
 end

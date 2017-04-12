@@ -28,6 +28,14 @@ module Aggregate
       end || 0
     end
 
+    def encryption_key
+      Aggregate.configuration.encryption_key
+    end
+
+    def iv
+      Aggregate.configuration.iv
+    end
+
     def root_aggregate_owner
       !aggregate_owner ? self : aggregate_owner.root_aggregate_owner
     end
