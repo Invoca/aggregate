@@ -40,7 +40,6 @@ module Aggregate
     end
   end
 
-  end
   class Configuration
     attr_accessor :encryption_key, :iv
 
