@@ -11,7 +11,7 @@ class Aggregate::Attribute::String < Aggregate::Attribute::Builtin
     secret_key = nil # TODO set secret key in the config
     iv = nil # TODO set this in the config also
 
-    :encrypted ? Encryptor.decrypt(value: value, key: secret_key, iv: iv) : value.to_s
+    options[:encrypted] ? Encryptor.decrypt(value: value, key: secret_key, iv: iv) : value.to_s
   end
 
   def encrypt(value)
@@ -22,7 +22,7 @@ class Aggregate::Attribute::String < Aggregate::Attribute::Builtin
   end
 
   def store(value)
-    :encrypted ? encrypt(value) : value
+    options[:encrypted] ? encrypt(value) : value
   end
 
   def assign(value)
