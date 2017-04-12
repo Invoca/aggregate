@@ -81,5 +81,46 @@ class PassportTest < ActiveSupport::TestCase
       passport = Passport.find(passport.id)
       assert_equal 100, passport.weight
     end
+
+    context "encrypted field" do
+      setup do
+        Aggregate.reset
+        @secret_key = SecureRandom.random_bytes(32)
+        @iv =SecureRandom.random_bytes(12)
+      end
+
+      should "fail encryption if secret isn't set" do
+        assert_raise(ArgumentError,/must specify a key/ ) do
+          @passport = Passport.create!(
+            name: "Millie",
+            gender: :female,
+            birthdate: Time.parse("2011-8-11"),
+            city: "Santa Barbara",
+            state: "California",
+            password: "ThisIsATestPassword"
+          )
+        end
+      end
+
+      should "encrypt password when secret is available" do
+        Aggregate.configure do |config|
+          config.encryption_key = @secret_key
+          config.iv = @iv
+        end
+
+        @passport = Passport.create!(
+          name: "Millie",
+          gender: :female,
+          birthdate: Time.parse("2011-8-11"),
+          city: "Santa Barbara",
+          state: "California",
+          password: "ThisIsATestPassword"
+        )
+      end
+
+      should "decrypt password when secret is available" do
+
+      end
+    end
   end
 end

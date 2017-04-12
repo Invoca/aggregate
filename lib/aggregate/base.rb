@@ -28,11 +28,11 @@ module Aggregate
       end || 0
     end
 
-    def encryption_key
+    def self.encryption_key
       Aggregate.configuration.encryption_key
     end
 
-    def iv
+    def self.iv
       Aggregate.configuration.iv
     end
 

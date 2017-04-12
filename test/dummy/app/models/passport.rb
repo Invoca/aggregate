@@ -3,7 +3,7 @@ class Passport < ActiveRecord::Base
   # This is stored in the database
   attr_accessible :name
 
-  attr_accessible :gender, :city, :state, :birthdate, :height, :weight, :photo, :foreign_visits, :stamps
+  attr_accessible :gender, :city, :state, :birthdate, :height, :weight, :photo, :foreign_visits, :stamps, :password
 
   include Aggregate::Container
 
@@ -16,5 +16,6 @@ class Passport < ActiveRecord::Base
   aggregate_attribute :photo,            "PassportPhoto"
   aggregate_has_many  :foreign_visits,   "ForeignVisit"
   aggregate_attribute :stamps,           :bitfield, limit: 10
+  aggregate_attribute :password,         :string,   encrypted: true
 
 end
