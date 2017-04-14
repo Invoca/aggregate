@@ -28,12 +28,12 @@ module Aggregate
       end || 0
     end
 
-    def self.encryption_key
-      Aggregate.configuration.encryption_key
-    end
-
-    def self.iv
-      Aggregate.configuration.iv
+    def self.hashed_keys
+      if Aggregate.configuration.keys_list.is_a?(Hash)
+        Aggregate.configuration.keys_list
+      elsif Aggregate.configuration.keys_list.is_a?(String)
+        { secret_key: Aggregate.configuration.keys_list }
+      end
     end
 
     def root_aggregate_owner

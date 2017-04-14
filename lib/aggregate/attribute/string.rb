@@ -1,5 +1,7 @@
 class Aggregate::Attribute::String < Aggregate::Attribute::Builtin
 
+  class Aggregate::EncryptionError < StandardError; end;
+
   def self.available_options
     Aggregate::Attribute::Builtin.available_options + [
       :size, # The maximum length of the string
@@ -15,14 +17,29 @@ class Aggregate::Attribute::String < Aggregate::Attribute::Builtin
     # get string, convert to hash, read decoded iv, decode value, decrypt with iv and value
     hash = ActiveSupport::JSON.decode value
 
-    Encryptor.decrypt(value: Base64.urlsafe_decode64(hash["encrypted_data"]), key: Aggregate::Base.encryption_key, iv: Base64.urlsafe_decode64(hash["initilization_vector"]))
+    find_decrypted_value(Base64.urlsafe_decode64(hash["encrypted_data"]), Base64.urlsafe_decode64(hash["initilization_vector"]))
+  end
+
+  def find_decrypted_value(value, iv)
+    encrypted_value = nil
+    Aggregate::Base.hashed_keys.each do |k, v|
+      begin
+        encrypted_value = Encryptor.decrypt(value: value, key: v, iv: iv)
+      rescue OpenSSL::Cipher::CipherError
+        nil
+      end
+    end
+    encrypted_value.presence or raise Aggregate::EncryptionError, "correct key not found"
+    encrypted_value
   end
 
   def encrypt(value)
+    Aggregate::Base.hashed_keys.presence or raise Aggregate::EncryptionError, "must specify a key"
 
     # Generate random iv, store as hash, encode into JSON safe string
     iv = SecureRandom.random_bytes(12)
-    encrypted_data = Encryptor.encrypt(value: value, key: Aggregate::Base.encryption_key, iv: iv)
+
+    encrypted_data = Encryptor.encrypt(value: value, key: Aggregate::Base.hashed_keys.first.last, iv: iv)
 
     ActiveSupport::JSON.encode({ encrypted_data: Base64.urlsafe_encode64(encrypted_data),
                                  initilization_vector: Base64.urlsafe_encode64(iv)

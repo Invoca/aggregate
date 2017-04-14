@@ -32,17 +32,6 @@ class Aggregate::BaseTest < ActiveSupport::TestCase
       assert @instance.new_record?
     end
 
-    should "return encryption key and iv" do
-      Aggregate.configure do |config|
-        config.encryption_key = "AES-this_is_a_test"
-        config.iv = "This_is_also_bogus"
-      end
-
-      aggregate = Aggregate::Base.new
-      assert_equal "AES-this_is_a_test", aggregate.encryption_key
-      assert_equal "This_is_also_bogus", aggregate.iv
-    end
-
     should "raise if invalid attribute specified in the constructor" do
       assert_raise(NoMethodError) { @agg.new(name: "Bob", address: "1812 clearview", invalid: 93_101) }
     end
@@ -211,6 +200,34 @@ class Aggregate::BaseTest < ActiveSupport::TestCase
         mock.instance_of(@agg).aggregate_loaded
         @instance = @agg.from_store(name: "loaded")
         @instance.name
+      end
+    end
+
+    context "secret keys" do
+      setup do
+        Aggregate.reset
+      end
+      should "return nil when keys_list is nil" do
+        assert_equal nil, Aggregate::Base.hashed_keys
+        Aggregate.reset
+      end
+
+      should "return nil when keys_list is something other than a string or hash" do
+        Aggregate.configure do |config|
+          config.keys_list = Object.new
+        end
+        assert_equal nil, Aggregate::Base.hashed_keys
+        Aggregate.reset
+      end
+
+      should "return a hash when keys_list is a string" do
+        Aggregate.configure do |config|
+          config.keys_list = "AES-this_is_a_test"
+        end
+
+        assert Aggregate.configuration.keys_list.is_a?(String)
+        assert Aggregate::Base.hashed_keys.is_a?(Hash)
+        Aggregate.reset
       end
     end
   end

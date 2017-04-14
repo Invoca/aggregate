@@ -8,11 +8,18 @@ class AggregateTest < ActiveSupport::TestCase
   context "configure" do
     should "configure an encryption key" do
       Aggregate.configure do |config|
-        config.encryption_key = "AES-this_is_a_test"
+        config.keys_list = "AES-this_is_a_test"
       end
 
-      aggregate = Aggregate::Base.new
-      assert_equal "AES-this_is_a_test", aggregate.encryption_key
+      assert_equal "AES-this_is_a_test", Aggregate.configuration.keys_list
+    end
+
+    should "reset configuration when called" do
+      assert_equal "AES-this_is_a_test", Aggregate.configuration.keys_list
+
+      Aggregate.reset
+
+      assert_equal nil, Aggregate.configuration.keys_list
     end
   end
 end

@@ -86,26 +86,27 @@ class PassportTest < ActiveSupport::TestCase
       setup do
         Aggregate.reset
         @secret_key = SecureRandom.random_bytes(32)
-        @iv =SecureRandom.random_bytes(12)
+        @secret_key_hash = { key_2017_04_14: "\x11\xD2\xA2\x8F\x8E\xC9!i\xF8\xEEr\x03A\xF3\xA7QvY\x8F\xBCzw\xA7\xE3\xA7;\x86\xAE\xD3\x13\x9F/",
+                             key_2017_04_11: "\xCAE\x1F\xC7<W\xEA\xB4[\xE4'\xCA'\a\x17&\xF2I\x87\x1A\x17\x9B?\x86\xB1A\a%9\xEBZ@",
+                             key_2017_03_29: "#\x13G\xFA\xE5\"\xC0\xCAzL\xE7\x9F\xB0=[\x17>\xF33\xC2\x85\xBF\x16%\a\xE8z:]\xCA1D" }
       end
 
       should "fail encryption if secret isn't set" do
-        assert_raise(ArgumentError,/must specify a key/ ) do
+        assert_raise(Aggregate::EncryptionError, /must specify a key/ ) do
           @passport = Passport.create!(
             name: "Millie",
             gender: :female,
             birthdate: Time.parse("2011-8-11"),
             city: "Santa Barbara",
             state: "California",
-            password: "ThisIsATestPassword"
+            password: "ThisIsATestPassword!"
           )
         end
       end
 
-      should "encrypt password when secret is available" do
+      should "encrypt and decrypt password when encryptetion_key is available secret is available" do
         Aggregate.configure do |config|
-          config.encryption_key = @secret_key
-          config.iv = @iv
+          config.keys_list = @secret_key
         end
 
         # binding.pry
@@ -115,22 +116,40 @@ class PassportTest < ActiveSupport::TestCase
           birthdate: Time.parse("2011-8-11"),
           city: "Santa Barbara",
           state: "California",
-          password: "ThisIsATestPassword"
+          password: "ThisIsATestPassword!@#$%^&*()_-+=1234567890qwertyuiop[]\asdfdghjkl;'zxcvbnm,.//*-~`'"
         )
 
         passport = Passport.find(passport.id)
-        assert_equal "ThisIsATestPassword", passport.password
+        assert_equal "ThisIsATestPassword!@#$%^&*()_-+=1234567890qwertyuiop[]\asdfdghjkl;'zxcvbnm,.//*-~`'", passport.password
 
         Aggregate.configure do |config|
-          config.encryption_key = SecureRandom.random_bytes(32)
+          config.keys_list = SecureRandom.random_bytes(32)
         end
 
         passport = Passport.find(passport.id)
-        assert_not_equal "ThisIsATestPassword", passport.password
+        assert_raise(Aggregate::EncryptionError, /correct key not found/) do
+          passport.password
+        end
+        Aggregate.reset
       end
 
-      should "decrypt password when secret is available" do
+      should "decrypt password when secret hash is available" do
+        Aggregate.configure do |config|
+          config.keys_list = @secret_key_hash
+        end
 
+        passport = Passport.create!(
+          name: "Millie",
+          gender: :female,
+          birthdate: Time.parse("2011-8-11"),
+          city: "Santa Barbara",
+          state: "California",
+          password: "ThisIsATestPassword!@#$%^&*()_-+=1234567890qwertyuiop[]\asdfdghjkl;'zxcvbnm,.//*-~`'"
+        )
+
+        assert_equal "ThisIsATestPassword!@#$%^&*()_-+=1234567890qwertyuiop[]\asdfdghjkl;'zxcvbnm,.//*-~`'", passport.password
+
+        Aggregate.reset
       end
     end
   end
