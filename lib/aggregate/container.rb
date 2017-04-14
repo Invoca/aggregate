@@ -47,7 +47,7 @@ module Aggregate
     def write_aggregates
       if @decoded_aggregate_store_loaded
         encoded_data = if has_schema_version? || any_non_default_values?
-                         ActiveSupport::JSON.encode(to_store) # FOUND IT
+                         ActiveSupport::JSON.encode(to_store)
                        else
                          ''
                        end
