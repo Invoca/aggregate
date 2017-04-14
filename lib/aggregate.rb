@@ -44,8 +44,20 @@ module Aggregate
     attr_accessor :encryption_key, :iv
 
     def initialize
+      # Should be a list made up of hashes that have:
+      #   - keys : to encrypt/decrypt
+      #     - where to find supported ciphers: https://github.com/attr-encrypted/encryptor
+      #
+      # Example:
+      #
+      #  [ {
+      #      key  : ''
+      #     }, ...
+      #  ]
+      #
+
+      @keys_list_hash = {}
       @encryption_key = nil
-      @iv = nil
     end
   end
 end

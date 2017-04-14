@@ -8,11 +8,25 @@ class Aggregate::Attribute::String < Aggregate::Attribute::Builtin
   end
 
   def load(value)
-    options[:encrypted] ? Encryptor.decrypt(value: value, key: Aggregate::Base.encryption_key, iv: Aggregate::Base.iv) : value.to_s
+    options[:encrypted] ? decrypt(value) : value.to_s
+  end
+
+  def decrypt(value)
+    # get string, convert to hash, read decoded iv, decode value, decrypt with iv and value
+    hash = ActiveSupport::JSON.decode value
+
+    Encryptor.decrypt(value: Base64.urlsafe_decode64(hash["encrypted_data"]), key: Aggregate::Base.encryption_key, iv: Base64.urlsafe_decode64(hash["initilization_vector"]))
   end
 
   def encrypt(value)
-    Encryptor.encrypt(value: value, key: Aggregate::Base.encryption_key, iv: Aggregate::Base.iv)
+
+    # Generate random iv, store as hash, encode into JSON safe string
+    iv = SecureRandom.random_bytes(12)
+    encrypted_data = Encryptor.encrypt(value: value, key: Aggregate::Base.encryption_key, iv: iv)
+
+    ActiveSupport::JSON.encode({ encrypted_data: Base64.urlsafe_encode64(encrypted_data),
+                                 initilization_vector: Base64.urlsafe_encode64(iv)
+    })
   end
 
   def store(value)

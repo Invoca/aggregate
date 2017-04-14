@@ -108,7 +108,8 @@ class PassportTest < ActiveSupport::TestCase
           config.iv = @iv
         end
 
-        @passport = Passport.create!(
+        # binding.pry
+        passport = Passport.create!(
           name: "Millie",
           gender: :female,
           birthdate: Time.parse("2011-8-11"),
@@ -116,6 +117,16 @@ class PassportTest < ActiveSupport::TestCase
           state: "California",
           password: "ThisIsATestPassword"
         )
+
+        passport = Passport.find(passport.id)
+        assert_equal "ThisIsATestPassword", passport.password
+
+        Aggregate.configure do |config|
+          config.encryption_key = SecureRandom.random_bytes(32)
+        end
+
+        passport = Passport.find(passport.id)
+        assert_not_equal "ThisIsATestPassword", passport.password
       end
 
       should "decrypt password when secret is available" do
