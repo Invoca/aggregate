@@ -44,17 +44,22 @@ module Aggregate
     attr_accessor :keys_list
 
     def initialize
-      # Should be a list of keys used for decryption or a single key
+      # Should be a list of base64 encoded keys used for decryption or a single key
       #   - keys : to encrypt/decrypt
       #
-      # Example:
+      # Example, the list of secret keys below:
       #
-      #  {
-      #     key_2017_04_14: "\x11\xD2\xA2\x8F\x8E\xC9!i\xF8\xEEr\x03A\xF3\xA7QvY\x8F\xBCzw\xA7\xE3\xA7;\x86\xAE\xD3\x13\x9F/",
-      #     key_2017_04_11: "\xCAE\x1F\xC7<W\xEA\xB4[\xE4'\xCA'\a\x17&\xF2I\x87\x1A\x17\x9B?\x86\xB1A\a%9\xEBZ@",
-      #     key_2017_03_29: "#\x13G\xFA\xE5\"\xC0\xCAzL\xE7\x9F\xB0=[\x17>\xF33\xC2\x85\xBF\x16%\a\xE8z:]\xCA1D"
-      #   }
+      # ["\x11\xD2\xA2\x8F\x8E\xC9!i\xF8\xEEr\x03A\xF3\xA7QvY\x8F\xBCzw\xA7\xE3\xA7;\x86\xAE\xD3\x13\x9F/",
+      #  "\xCAE\x1F\xC7<W\xEA\xB4[\xE4'\xCA'\a\x17&\xF2I\x87\x1A\x17\x9B?\x86\xB1A\a%9\xEBZ@",
+      #  "#\x13G\xFA\xE5\"\xC0\xCAzL\xE7\x9F\xB0=[\x17>\xF33\xC2\x85\xBF\x16%\a\xE8z:]\xCA1D"]
       #
+      # should be stored as:
+      #
+      # ["EdKij47JIWn47nIDQfOnUXZZj7x6d6fjpzuGrtMTny8=",
+      #  "ykUfxzxX6rRb5CfKJwcXJvJJhxoXmz+GsUEHJTnrWkA=",
+      # "IxNH+uUiwMp6TOefsD1bFz7zM8KFvxYlB+h6Ol3KMUQ="]
+      #
+      # * Note * you can set just one base64 encoded string.
 
       @keys_list = nil
     end
