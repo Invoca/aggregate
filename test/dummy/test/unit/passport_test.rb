@@ -130,10 +130,9 @@ class PassportTest < ActiveSupport::TestCase
         assert_raise(Aggregate::EncryptionError, /could not decrypt password because the correct decryption key is not found/) do
           passport.password
         end
-        Aggregate.reset
       end
 
-      should "raise when decrypting password when encryption_key is not available" do
+      should "raise when decrypting password when key is not available" do
         Aggregate.configure do |config|
           config.keys_list = @secret_key
         end
@@ -155,7 +154,6 @@ class PassportTest < ActiveSupport::TestCase
         assert_raise(Aggregate::EncryptionError, /must specify a key for decryption/) do
           passport.password
         end
-        Aggregate.reset
       end
 
       should "decrypt password when secret hash is available" do
@@ -173,8 +171,6 @@ class PassportTest < ActiveSupport::TestCase
         )
 
         assert_equal "ThisIsATestPassword!@#$%^&*()_-+=1234567890qwertyuiop[]\asdfdghjkl;'zxcvbnm,.//*-~`'", passport.password
-
-        Aggregate.reset
       end
 
       should "correctly store JSON with properly hashed fields for encrypted data" do
