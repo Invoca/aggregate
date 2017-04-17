@@ -208,7 +208,7 @@ class Aggregate::BaseTest < ActiveSupport::TestCase
         Aggregate.reset
       end
       should "return nil when keys_list is nil" do
-        assert_equal nil, Aggregate::Base.hashed_keys
+        assert_equal [], Aggregate::Base.secret_keys_from_config
         Aggregate.reset
       end
 
@@ -216,17 +216,27 @@ class Aggregate::BaseTest < ActiveSupport::TestCase
         Aggregate.configure do |config|
           config.keys_list = Object.new
         end
-        assert_equal nil, Aggregate::Base.hashed_keys
+        assert_equal [], Aggregate::Base.secret_keys_from_config
         Aggregate.reset
       end
 
-      should "return a hash when keys_list is a string" do
+      should "return a array when keys_list is a string" do
         Aggregate.configure do |config|
           config.keys_list = "AES-this_is_a_test"
         end
 
         assert Aggregate.configuration.keys_list.is_a?(String)
-        assert Aggregate::Base.hashed_keys.is_a?(Hash)
+        assert Aggregate::Base.secret_keys_from_config.is_a?(Array)
+        Aggregate.reset
+      end
+
+      should "return a array when keys_list is an array" do
+        Aggregate.configure do |config|
+          config.keys_list = ["AES-this_is_a_test", "AES-this_is_a_random_test"]
+        end
+
+        assert Aggregate.configuration.keys_list.is_a?(Array)
+        assert Aggregate::Base.secret_keys_from_config.is_a?(Array)
         Aggregate.reset
       end
     end

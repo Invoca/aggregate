@@ -17,14 +17,14 @@ class Aggregate::Attribute::String < Aggregate::Attribute::Builtin
     # get string, convert to hash, read decoded iv, decode value, decrypt with iv and value
     hash = ActiveSupport::JSON.decode value
 
-    find_decrypted_value(Base64.urlsafe_decode64(hash["encrypted_data"]), Base64.urlsafe_decode64(hash["initilization_vector"]))
+    find_decrypted_value(Base64.strict_decode64(hash["encrypted_data"]), Base64.strict_decode64(hash["initilization_vector"]))
   end
 
   def find_decrypted_value(value, iv)
     encrypted_value = nil
-    Aggregate::Base.hashed_keys.each do |k, v|
+    Aggregate::Base.secret_keys_from_config.find do |key|
       begin
-        encrypted_value = Encryptor.decrypt(value: value, key: v, iv: iv)
+        encrypted_value = Encryptor.decrypt(value: value, key: key, iv: iv)
       rescue OpenSSL::Cipher::CipherError
         nil
       end
@@ -34,15 +34,15 @@ class Aggregate::Attribute::String < Aggregate::Attribute::Builtin
   end
 
   def encrypt(value)
-    Aggregate::Base.hashed_keys.presence or raise Aggregate::EncryptionError, "must specify a key"
+    Aggregate::Base.secret_keys_from_config.empty? and raise Aggregate::EncryptionError, "must specify a key"
 
     # Generate random iv, store as hash, encode into JSON safe string
     iv = SecureRandom.random_bytes(12)
 
-    encrypted_data = Encryptor.encrypt(value: value, key: Aggregate::Base.hashed_keys.first.last, iv: iv)
+    encrypted_data = Encryptor.encrypt(value: value, key: Aggregate::Base.secret_keys_from_config.first, iv: iv)
 
-    ActiveSupport::JSON.encode({ encrypted_data: Base64.urlsafe_encode64(encrypted_data),
-                                 initilization_vector: Base64.urlsafe_encode64(iv)
+    ActiveSupport::JSON.encode({ encrypted_data: Base64.strict_encode64(encrypted_data),
+                                 initilization_vector: Base64.strict_encode64(iv)
     })
   end
 

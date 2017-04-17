@@ -28,11 +28,13 @@ module Aggregate
       end || 0
     end
 
-    def self.hashed_keys
-      if Aggregate.configuration.keys_list.is_a?(Hash)
+    def self.secret_keys_from_config
+      if Aggregate.configuration.keys_list.is_a?(Array)
         Aggregate.configuration.keys_list
       elsif Aggregate.configuration.keys_list.is_a?(String)
-        { secret_key: Aggregate.configuration.keys_list }
+        [ Aggregate.configuration.keys_list ]
+      else
+        []
       end
     end
 
