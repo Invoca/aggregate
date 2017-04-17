@@ -11,6 +11,7 @@ class AggregateTest < ActiveSupport::TestCase
         config.keys_list = "AES-this_is_a_test"
       end
     end
+
     should "configure an encryption key" do
       assert_equal "AES-this_is_a_test", Aggregate.configuration.keys_list
     end
