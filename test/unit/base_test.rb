@@ -222,7 +222,7 @@ class Aggregate::BaseTest < ActiveSupport::TestCase
 
       should "return a array when keys_list is a string" do
         Aggregate.configure do |config|
-          config.keys_list = "AES-this_is_a_test"
+          config.keys_list = "eAtJqKqF2IP0+djGMGq55Hk0vW017M+SEZISldB7Ofw="
         end
 
         assert Aggregate.configuration.keys_list.is_a?(String)
@@ -232,7 +232,7 @@ class Aggregate::BaseTest < ActiveSupport::TestCase
 
       should "return a array when keys_list is an array" do
         Aggregate.configure do |config|
-          config.keys_list = ["AES-this_is_a_test", "AES-this_is_a_random_test"]
+          config.keys_list = ["DGl+bcaIg4EQTsnEyfqLQtvY5Qkr8atsBaXUQpV3ga0=", "U22Rtb+/eSvPAp3MDI2Ze+MvXtUbwo3A4p/r91cW5jg="]
         end
 
         assert Aggregate.configuration.keys_list.is_a?(Array)

@@ -30,9 +30,9 @@ module Aggregate
 
     def self.secret_keys_from_config
       if Aggregate.configuration.keys_list.is_a?(Array)
-        Aggregate.configuration.keys_list
+        Aggregate.configuration.keys_list.map {|key| Base64.strict_decode64(key)}
       elsif Aggregate.configuration.keys_list.is_a?(String)
-        [ Aggregate.configuration.keys_list ]
+        [ Base64.strict_decode64(Aggregate.configuration.keys_list) ]
       else
         []
       end
