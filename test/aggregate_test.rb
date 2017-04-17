@@ -19,7 +19,7 @@ class AggregateTest < ActiveSupport::TestCase
 
       Aggregate.reset
 
-      assert_equal nil, Aggregate.configuration.keys_list
+      assert_nil Aggregate.configuration.keys_list
     end
   end
 end

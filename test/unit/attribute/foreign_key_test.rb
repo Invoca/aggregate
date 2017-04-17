@@ -13,9 +13,9 @@ class Aggregate::Attribute::ForeignKeyTest < ActiveSupport::TestCase
       assert_equal passport,         ad.from_store(passport.id)
       assert_equal passport.id,      ad.to_store(passport)
 
-      assert_equal nil,             ad.from_value(nil)
-      assert_equal nil,             ad.from_store(nil)
-      assert_equal nil,             ad.to_store(nil)
+      assert_nil             ad.from_value(nil)
+      assert_nil             ad.from_store(nil)
+      assert_nil             ad.to_store(nil)
     end
   end
 

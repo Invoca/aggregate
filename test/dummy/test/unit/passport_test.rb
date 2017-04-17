@@ -44,7 +44,7 @@ class PassportTest < ActiveSupport::TestCase
 
       assert_equal true, passport.stamps[0]
       assert_equal false, passport.stamps[5]
-      assert_equal nil, passport.stamps[4]
+      assert_nil passport.stamps[4]
     end
 
     should "be able to save and restore empty bitfields" do

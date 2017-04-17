@@ -83,9 +83,9 @@ class Aggregate::BaseTest < ActiveSupport::TestCase
         hash = ActiveSupport::JSON.encode({ "invalid_key1" => "Bob", "invalid_key2" => "1812 clearview" })
         @instance = @agg.from_json(hash)
 
-        assert_equal nil, @instance.name
-        assert_equal nil, @instance.address
-        assert_equal nil, @instance.zip
+        assert_nil @instance.name
+        assert_nil @instance.address
+        assert_nil @instance.zip
         assert @instance.new_record?
       end
 
@@ -94,7 +94,7 @@ class Aggregate::BaseTest < ActiveSupport::TestCase
         @instance = @agg.from_json(hash)
 
         assert_equal "Bob", @instance.name
-        assert_equal nil, @instance.address
+        assert_nil @instance.address
         assert_equal 93_101, @instance.zip
         assert @instance.new_record?
       end
@@ -103,9 +103,9 @@ class Aggregate::BaseTest < ActiveSupport::TestCase
         hash = ActiveSupport::JSON.encode({})
         @instance = @agg.from_json(hash)
 
-        assert_equal nil, @instance.name
+        assert_nil @instance.name
         assert_equal 'no address', @instance.address
-        assert_equal nil, @instance.zip
+        assert_nil @instance.zip
         assert @instance.new_record?
       end
 
@@ -113,9 +113,9 @@ class Aggregate::BaseTest < ActiveSupport::TestCase
         hash = ActiveSupport::JSON.encode(nil)
         @instance = @agg.from_json(hash)
 
-        assert_equal nil, @instance.name
+        assert_nil @instance.name
         assert_equal 'no address', @instance.address
-        assert_equal nil, @instance.zip
+        assert_nil @instance.zip
         assert @instance.new_record?
       end
     end
@@ -124,7 +124,7 @@ class Aggregate::BaseTest < ActiveSupport::TestCase
       assert_equal [@agg], @agg.self_and_descendants_from_active_record
       assert_equal "Aggregate::basetest::mytestclass", @agg.human_name
       assert_equal "Cheese burger", @agg.human_attribute_name(:cheese_burger)
-      assert_equal nil, @agg.new.respond_to_without_attributes?("could", "be", "anything")
+      assert_nil @agg.new.respond_to_without_attributes?("could", "be", "anything")
     end
 
     should "provide comparable methods for instances" do

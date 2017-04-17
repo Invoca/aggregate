@@ -189,7 +189,7 @@ class Aggregate::ContainerTest < ActiveSupport::TestCase
     context "basic construction" do
       should "be able to construct an instance using the assignment operator" do
         @doc = TestPurchase.new
-        assert_equal nil, @doc.first_shipment
+        assert_nil @doc.first_shipment
         @doc.first_shipment = TestShippingRecord.new(tracking_number: '1245', weight_in_ounces: 5)
         assert_equal '1245', @doc.first_shipment.tracking_number
         assert_equal 5,      @doc.first_shipment.weight_in_ounces
@@ -197,7 +197,7 @@ class Aggregate::ContainerTest < ActiveSupport::TestCase
 
       should "support build instead of assign" do
         @doc = TestPurchase.new
-        assert_equal nil, @doc.first_shipment
+        assert_nil @doc.first_shipment
         result = @doc.build_first_shipment(tracking_number: '1245', weight_in_ounces: 5)
         assert_equal "Aggregate::ContainerTest::TestShippingRecord", result.class.name
         assert_equal '1245', @doc.first_shipment.tracking_number
@@ -206,7 +206,7 @@ class Aggregate::ContainerTest < ActiveSupport::TestCase
 
       should "support nested attributes" do
         @doc = TestPurchase.new
-        assert_equal nil, @doc.first_shipment
+        assert_nil @doc.first_shipment
         @doc.build_first_shipment(tracking_number: '1245', weight_in_ounces: 5)
         @doc.first_shipment.build_ship_from(full_name: 'Lisa Smith', address_one: '1812 Clearview Road', address_two: '', zip: '93101')
         assert_equal 'Lisa Smith', @doc.first_shipment.ship_from.full_name
@@ -245,7 +245,7 @@ class Aggregate::ContainerTest < ActiveSupport::TestCase
         assert_equal 5,            @doc.first_shipment.weight_in_ounces
         assert_equal 'Lisa Smith', @doc.first_shipment.ship_from.full_name
 
-        assert_equal nil, @doc.second_shipment
+        assert_nil @doc.second_shipment
       end
 
       should "support default arguments" do
@@ -545,7 +545,7 @@ class Aggregate::ContainerTest < ActiveSupport::TestCase
 
           [nil, ''].each do |v|
             @doc.first_shipment.signature_required = v
-            assert_equal nil, @doc.first_shipment.signature_required, v.inspect
+            assert_nil @doc.first_shipment.signature_required, v.inspect
           end
 
           @doc.first_shipment.signature_required = true
@@ -615,7 +615,7 @@ class Aggregate::ContainerTest < ActiveSupport::TestCase
         should "handle assignment in various forms" do
           @doc = TestPurchase.new
           @doc.build_first_shipment
-          assert_equal nil, @doc.first_shipment.shipped_at
+          assert_nil @doc.first_shipment.shipped_at
           @doc.first_shipment.shipped_at = Time.now
 
           assert_equal "03/10/08  12:00 AM", @doc.first_shipment.shipped_at.to_s
@@ -625,12 +625,12 @@ class Aggregate::ContainerTest < ActiveSupport::TestCase
           assert_equal "Thu, 26 Apr 2012 07:00:00 -0000", @doc.to_store["first_shipment"]["shipped_at"]
 
           @doc.first_shipment.shipped_at = ''
-          assert_equal nil, @doc.first_shipment.shipped_at
-          assert_equal nil, @doc.to_store["first_shipment"]["shipped_at"]
+          assert_nil @doc.first_shipment.shipped_at
+          assert_nil @doc.to_store["first_shipment"]["shipped_at"]
 
           @doc.first_shipment.shipped_at = 'notvalid'
-          assert_equal nil, @doc.first_shipment.shipped_at
-          assert_equal nil, @doc.to_store["first_shipment"]["shipped_at"]
+          assert_nil @doc.first_shipment.shipped_at
+          assert_nil @doc.to_store["first_shipment"]["shipped_at"]
         end
       end
       context "decimal" do
@@ -811,7 +811,7 @@ class Aggregate::ContainerTest < ActiveSupport::TestCase
         @doc = TestPurchase.new(json)
         @doc.first_shipment
 
-        assert_equal nil, @doc.upgraded_from_schema_version
+        assert_nil @doc.upgraded_from_schema_version
       end
 
       should "not fire twice" do
@@ -836,7 +836,7 @@ class Aggregate::ContainerTest < ActiveSupport::TestCase
         @doc.upgraded_from_schema_version = nil
 
         @doc.second_shipment
-        assert_equal nil, @doc.upgraded_from_schema_version
+        assert_nil @doc.upgraded_from_schema_version
       end
 
       should "pass the schema value and not the assigned value when performing the upgrade" do
@@ -866,7 +866,7 @@ class Aggregate::ContainerTest < ActiveSupport::TestCase
     should "forget cached aggregate store on reload" do
       @doc = TestPurchase.new
       @doc.aggregate_store = { "test_string" => "12345"}.to_json
-      assert_equal nil, @doc.first_shipment
+      assert_nil @doc.first_shipment
       assert_equal "12345", @doc.test_string
 
       @doc.first_shipment = TestShippingRecord.new(tracking_number: '1245', weight_in_ounces: 5)
@@ -875,7 +875,7 @@ class Aggregate::ContainerTest < ActiveSupport::TestCase
       @doc.aggregate_store = { "test_string" => "56789"}.to_json
 
       @doc.reload
-      assert_equal nil, @doc.first_shipment
+      assert_nil @doc.first_shipment
       assert_equal true, @doc.instance_variable_get("@reload_called")
       assert_equal "56789", @doc.test_string
     end

@@ -26,7 +26,7 @@ class Aggregate::AttributeHandlerTest < ActiveSupport::TestCase
   context "aggregate attribute definitions" do
     should "allow defaults" do
       ad = Aggregate::AttributeHandler.factory("testme", "string", {})
-      assert_equal nil, ad.default
+      assert_nil ad.default
 
       ad = Aggregate::AttributeHandler.factory("testme", "string", default: "abc")
       assert_equal "abc", ad.default
