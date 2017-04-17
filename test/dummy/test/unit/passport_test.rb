@@ -44,7 +44,7 @@ class PassportTest < ActiveSupport::TestCase
 
       assert_equal true, passport.stamps[0]
       assert_equal false, passport.stamps[5]
-      assert_nil passport.stamps[4]
+      assert_equal nil, passport.stamps[4]
     end
 
     should "be able to save and restore empty bitfields" do
@@ -175,6 +175,27 @@ class PassportTest < ActiveSupport::TestCase
         assert_equal "ThisIsATestPassword!@#$%^&*()_-+=1234567890qwertyuiop[]\asdfdghjkl;'zxcvbnm,.//*-~`'", passport.password
 
         Aggregate.reset
+      end
+
+      should "correctly store JSON with properly hashed fields for encrypted data" do
+        stub(SecureRandom).random_bytes(12) { "\x8D\xE8E\x95\xB85\xF9~|$n#" }
+        expected_json =  "{\"gender\":\"female\",\"city\":\"Santa Barbara\",\"state\":\"California\",\"birthdate\":\"Thu, 11 Aug 2011 07:00:00 -0000\",\"weight\":\"100\",\"foreign_visits\":[],\"stamps\":null,\"password\":\"{\\\"encrypted_data\\\":\\\"ng3gws8rbrUB+fjMQEl6ALUgVxfGFZf/BRyucnyYGrI9Imbkh0ppMitF0nxboXNj8uXWZtLU2u+uE6/Q4vhIbG9eKGtvzWUbWmSxeG+rxSJvM477WNf1vknsZ5UPkQMOTG+1\\\",\\\"initilization_vector\\\":\\\"jehFlbg1+X58JG4j\\\"}\"}"
+
+        Aggregate.configure do |config|
+          config.keys_list = @secret_key_hash
+        end
+
+        passport = Passport.create!(
+          name: "Millie",
+          gender: :female,
+          birthdate: Time.parse("2011-8-11"),
+          city: "Santa Barbara",
+          state: "California",
+          password: "ThisIsATestPassword!@#$%^&*()_-+=1234567890qwertyuiop[]\asdfdghjkl;'zxcvbnm,.//*-~`'"
+        )
+
+        assert_equal expected_json, passport.aggregate_store
+        assert_equal "ThisIsATestPassword!@#$%^&*()_-+=1234567890qwertyuiop[]\asdfdghjkl;'zxcvbnm,.//*-~`'", passport.password
       end
     end
   end
