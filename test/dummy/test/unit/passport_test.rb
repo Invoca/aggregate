@@ -92,7 +92,7 @@ class PassportTest < ActiveSupport::TestCase
       end
 
       should "fail encryption if secret isn't set" do
-        assert_raise(Aggregate::EncryptionError, /must specify a key/ ) do
+        assert_raise(Aggregate::EncryptionError, /must specify a key for encryption/ ) do
           @passport = Passport.create!(
             name: "Millie",
             gender: :female,
@@ -104,12 +104,11 @@ class PassportTest < ActiveSupport::TestCase
         end
       end
 
-      should "encrypt and decrypt password when encryptetion_key is available secret is available" do
+      should "encrypt and decrypt password when encryption_key is available" do
         Aggregate.configure do |config|
           config.keys_list = @secret_key
         end
 
-        # binding.pry
         passport = Passport.create!(
           name: "Millie",
           gender: :female,
@@ -127,7 +126,32 @@ class PassportTest < ActiveSupport::TestCase
         end
 
         passport = Passport.find(passport.id)
-        assert_raise(Aggregate::EncryptionError, /correct key not found/) do
+        assert_raise(Aggregate::EncryptionError, /could not decrypt password because the correct decryption key is not found/) do
+          passport.password
+        end
+        Aggregate.reset
+      end
+
+      should "raise when decrypting password when encryption_key is not available" do
+        Aggregate.configure do |config|
+          config.keys_list = @secret_key
+        end
+
+        passport = Passport.create!(
+          name: "Millie",
+          gender: :female,
+          birthdate: Time.parse("2011-8-11"),
+          city: "Santa Barbara",
+          state: "California",
+          password: "ThisIsATestPassword!@#$%^&*()_-+=1234567890qwertyuiop[]\asdfdghjkl;'zxcvbnm,.//*-~`'"
+        )
+
+        Aggregate.configure do |config|
+          config.keys_list = nil
+        end
+
+        passport = Passport.find(passport.id)
+        assert_raise(Aggregate::EncryptionError, /must specify a key for decryption/) do
           passport.password
         end
         Aggregate.reset
