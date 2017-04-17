@@ -58,6 +58,25 @@ end
 ```
 You could then set and navigate the association.
 
+### Store on model instead of Large Text Field
+Sometimes you may want to store the aggregate on a model itself rather than in large_text_fields. This is useful, for example, because you can set its limit yourself.
+
+```
+class Passport < ActiveRecord::Base
+  ...
+  include Aggregate::Container
+  self.aggregate_container_options[:use_storage_field] = :aggregate_storage
+
+  fields do
+    ...
+    aggregate_storage :text, limit: MYSQL_LONG_TEXT_UTF8_LIMIT
+    ...
+  end
+
+  ...
+end
+```
+
 ### Schema Migrations
 Changes to aggregates do not require database schema migrations.  If you add a new attribute and you load a model that does not have that attribute it will be at its default value.  If you load a model and it has an attribute that has been deleted, the extra attributes will be ignored.  
 
