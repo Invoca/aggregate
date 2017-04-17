@@ -25,7 +25,7 @@ class Aggregate::Attribute::String < Aggregate::Attribute::Builtin
     encrypted_value = nil
     Aggregate::Base.secret_keys_from_config.find do |key|
       begin
-        encrypted_value = Encryptor.decrypt(value: value, key: key, iv: iv)
+        encrypted_value = Encryptor.decrypt(value: value, key: Base64.strict_decode64(key), iv: iv)
       rescue OpenSSL::Cipher::CipherError
         nil
       end
@@ -40,7 +40,7 @@ class Aggregate::Attribute::String < Aggregate::Attribute::Builtin
     # Generate random iv, store as hash, encode into JSON safe string
     iv = SecureRandom.random_bytes(12)
 
-    encrypted_data = Encryptor.encrypt(value: value, key: Aggregate::Base.secret_keys_from_config.first, iv: iv)
+    encrypted_data = Encryptor.encrypt(value: value, key: Base64.strict_decode64(Aggregate::Base.secret_keys_from_config.first), iv: iv)
 
     ActiveSupport::JSON.encode({ encrypted_data: Base64.strict_encode64(encrypted_data),
                                  initilization_vector: Base64.strict_encode64(iv)
