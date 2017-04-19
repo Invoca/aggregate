@@ -30,8 +30,7 @@ class Aggregate::Attribute::String < Aggregate::Attribute::Builtin
         nil
       end
     end
-    encrypted_value or raise Aggregate::EncryptionError, "could not decrypt #{name} because the correct decryption key is not found"
-    encrypted_value
+    encrypted_value.presence or raise Aggregate::EncryptionError, "could not decrypt #{name} because the correct decryption key is not found"
   end
 
   def encrypt(value)

@@ -29,11 +29,7 @@ module Aggregate
     end
 
     def self.secret_keys_from_config
-      if Aggregate.configuration.keys_list
-        Array(Aggregate.configuration.keys_list).map { |key| Base64.strict_decode64(key) }
-      else
-        []
-      end
+      Array(Aggregate.configuration.keys_list).map { |key| Base64.strict_decode64(key) }
     end
 
     def root_aggregate_owner
