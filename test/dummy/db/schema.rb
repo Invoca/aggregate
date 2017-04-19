@@ -29,6 +29,7 @@ ActiveRecord::Schema.define(version: 20160316211434) do
   end
 
   create_table "travel_itineraries", force: :cascade do |t|
+    t.string   "type"
     t.text     "aggregate_field"
     t.datetime "created_at"
     t.datetime "updated_at"

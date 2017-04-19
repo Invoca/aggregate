@@ -45,7 +45,12 @@ module Aggregate
       end
 
       def aggregated_attributes
-        @aggregated_attributes ||= []
+        @aggregated_attributes ||=
+            if superclass.respond_to?(:aggregated_attributes)
+              superclass.aggregated_attributes.dup
+            else
+              []
+            end
       end
     end
 
