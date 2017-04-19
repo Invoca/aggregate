@@ -83,9 +83,9 @@ class Aggregate::BaseTest < ActiveSupport::TestCase
         hash = ActiveSupport::JSON.encode({ "invalid_key1" => "Bob", "invalid_key2" => "1812 clearview" })
         @instance = @agg.from_json(hash)
 
-        assert_equal nil, @instance.name
-        assert_equal nil, @instance.address
-        assert_equal nil, @instance.zip
+        assert_nil @instance.name
+        assert_nil @instance.address
+        assert_nil @instance.zip
         assert @instance.new_record?
       end
 
@@ -94,7 +94,7 @@ class Aggregate::BaseTest < ActiveSupport::TestCase
         @instance = @agg.from_json(hash)
 
         assert_equal "Bob", @instance.name
-        assert_equal nil, @instance.address
+        assert_nil @instance.address
         assert_equal 93_101, @instance.zip
         assert @instance.new_record?
       end
@@ -103,9 +103,9 @@ class Aggregate::BaseTest < ActiveSupport::TestCase
         hash = ActiveSupport::JSON.encode({})
         @instance = @agg.from_json(hash)
 
-        assert_equal nil, @instance.name
+        assert_nil @instance.name
         assert_equal 'no address', @instance.address
-        assert_equal nil, @instance.zip
+        assert_nil @instance.zip
         assert @instance.new_record?
       end
 
@@ -113,9 +113,9 @@ class Aggregate::BaseTest < ActiveSupport::TestCase
         hash = ActiveSupport::JSON.encode(nil)
         @instance = @agg.from_json(hash)
 
-        assert_equal nil, @instance.name
+        assert_nil @instance.name
         assert_equal 'no address', @instance.address
-        assert_equal nil, @instance.zip
+        assert_nil @instance.zip
         assert @instance.new_record?
       end
     end
@@ -124,7 +124,7 @@ class Aggregate::BaseTest < ActiveSupport::TestCase
       assert_equal [@agg], @agg.self_and_descendants_from_active_record
       assert_equal "Aggregate::basetest::mytestclass", @agg.human_name
       assert_equal "Cheese burger", @agg.human_attribute_name(:cheese_burger)
-      assert_equal nil, @agg.new.respond_to_without_attributes?("could", "be", "anything")
+      assert_nil @agg.new.respond_to_without_attributes?("could", "be", "anything")
     end
 
     should "provide comparable methods for instances" do
@@ -200,6 +200,37 @@ class Aggregate::BaseTest < ActiveSupport::TestCase
         mock.instance_of(@agg).aggregate_loaded
         @instance = @agg.from_store(name: "loaded")
         @instance.name
+      end
+    end
+
+    context "secret keys" do
+      setup do
+        Aggregate.reset
+      end
+
+      should "return an empty array when keys_list is nil" do
+        assert_equal [], Aggregate::Base.secret_keys_from_config
+      end
+
+      should "return a array when keys_list is a string" do
+        Aggregate.configure do |config|
+          config.keys_list = "eAtJqKqF2IP0+djGMGq55Hk0vW017M+SEZISldB7Ofw="
+        end
+
+        assert_equal  "eAtJqKqF2IP0+djGMGq55Hk0vW017M+SEZISldB7Ofw=", Aggregate.configuration.keys_list
+        assert_equal true, Aggregate::Base.secret_keys_from_config.is_a?(Array)
+        assert_equal "eAtJqKqF2IP0+djGMGq55Hk0vW017M+SEZISldB7Ofw=", Base64.strict_encode64(Aggregate::Base.secret_keys_from_config.first)
+      end
+
+      should "return a array when keys_list is an array" do
+        Aggregate.configure do |config|
+          config.keys_list = ["DGl+bcaIg4EQTsnEyfqLQtvY5Qkr8atsBaXUQpV3ga0=", "U22Rtb+/eSvPAp3MDI2Ze+MvXtUbwo3A4p/r91cW5jg="]
+        end
+
+        assert_equal ["DGl+bcaIg4EQTsnEyfqLQtvY5Qkr8atsBaXUQpV3ga0=", "U22Rtb+/eSvPAp3MDI2Ze+MvXtUbwo3A4p/r91cW5jg="], Aggregate.configuration.keys_list
+        assert_equal true, Aggregate::Base.secret_keys_from_config.is_a?(Array)
+        assert_equal "DGl+bcaIg4EQTsnEyfqLQtvY5Qkr8atsBaXUQpV3ga0=", Base64.strict_encode64(Aggregate::Base.secret_keys_from_config.first)
+        assert_equal "U22Rtb+/eSvPAp3MDI2Ze+MvXtUbwo3A4p/r91cW5jg=", Base64.strict_encode64(Aggregate::Base.secret_keys_from_config.last)
       end
     end
   end

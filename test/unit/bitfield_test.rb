@@ -12,7 +12,7 @@ class Aggregate::BitfieldTest < ActiveSupport::TestCase
       assert_equal false, bitfield[1]
 
       bitfield[2] = nil
-      assert_equal nil, bitfield[2]
+      assert_nil bitfield[2]
 
       assert_equal "tf", bitfield.to_s
     end

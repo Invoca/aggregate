@@ -16,6 +16,13 @@ GIT
       protected_attributes
       rails (~> 4.0)
 
+GIT
+  remote: https://github.com/attr-encrypted/encryptor
+  revision: c3a62c4a9e74686dd95e0548f9dc2a361fdc95d1
+  ref: c3a62c4a9e74686dd95e0548f9dc2a361fdc95d1
+  specs:
+    encryptor (3.0.0)
+
 PATH
   remote: .
   specs:
@@ -165,6 +172,7 @@ PLATFORMS
 
 DEPENDENCIES
   aggregate!
+  encryptor (= 3.0.0)!
   hobo_support (= 2.0.1)!
   invoca-utils (= 0.0.2)
   jquery-rails
