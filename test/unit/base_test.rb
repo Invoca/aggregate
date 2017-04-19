@@ -217,8 +217,9 @@ class Aggregate::BaseTest < ActiveSupport::TestCase
           config.keys_list = "eAtJqKqF2IP0+djGMGq55Hk0vW017M+SEZISldB7Ofw="
         end
 
-        assert Aggregate.configuration.keys_list.is_a?(String)
-        assert Aggregate::Base.secret_keys_from_config.is_a?(Array)
+        assert_equal  "eAtJqKqF2IP0+djGMGq55Hk0vW017M+SEZISldB7Ofw=", Aggregate.configuration.keys_list
+        assert_equal true, Aggregate::Base.secret_keys_from_config.is_a?(Array)
+        assert_equal "eAtJqKqF2IP0+djGMGq55Hk0vW017M+SEZISldB7Ofw=", Base64.strict_encode64(Aggregate::Base.secret_keys_from_config.first)
       end
 
       should "return a array when keys_list is an array" do
@@ -226,8 +227,10 @@ class Aggregate::BaseTest < ActiveSupport::TestCase
           config.keys_list = ["DGl+bcaIg4EQTsnEyfqLQtvY5Qkr8atsBaXUQpV3ga0=", "U22Rtb+/eSvPAp3MDI2Ze+MvXtUbwo3A4p/r91cW5jg="]
         end
 
-        assert Aggregate.configuration.keys_list.is_a?(Array)
-        assert Aggregate::Base.secret_keys_from_config.is_a?(Array)
+        assert_equal ["DGl+bcaIg4EQTsnEyfqLQtvY5Qkr8atsBaXUQpV3ga0=", "U22Rtb+/eSvPAp3MDI2Ze+MvXtUbwo3A4p/r91cW5jg="], Aggregate.configuration.keys_list
+        assert_equal true, Aggregate::Base.secret_keys_from_config.is_a?(Array)
+        assert_equal "DGl+bcaIg4EQTsnEyfqLQtvY5Qkr8atsBaXUQpV3ga0=", Base64.strict_encode64(Aggregate::Base.secret_keys_from_config.first)
+        assert_equal "U22Rtb+/eSvPAp3MDI2Ze+MvXtUbwo3A4p/r91cW5jg=", Base64.strict_encode64(Aggregate::Base.secret_keys_from_config.last)
       end
     end
   end
