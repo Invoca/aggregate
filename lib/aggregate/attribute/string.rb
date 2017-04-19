@@ -15,7 +15,7 @@ class Aggregate::Attribute::String < Aggregate::Attribute::Builtin
 
   def decrypt(value)
     # get string, convert to hash, read decoded iv, decode value, decrypt with iv and value
-    hash = ActiveSupport::JSON.decode value
+    hash = ActiveSupport::JSON.decode(value)
     Aggregate::Base.secret_keys_from_config.empty? and raise Aggregate::EncryptionError, "must specify a key for decryption"
 
     find_decrypted_value(Base64.strict_decode64(hash["encrypted_data"]), Base64.strict_decode64(hash["initilization_vector"]))
@@ -30,7 +30,7 @@ class Aggregate::Attribute::String < Aggregate::Attribute::Builtin
         nil
       end
     end
-    encrypted_value.presence or raise Aggregate::EncryptionError, "could not decrypt #{name} because the correct decryption key is not found"
+    encrypted_value or raise Aggregate::EncryptionError, "could not decrypt #{name} because the correct decryption key is not found"
     encrypted_value
   end
 

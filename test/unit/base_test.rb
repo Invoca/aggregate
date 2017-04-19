@@ -207,14 +207,8 @@ class Aggregate::BaseTest < ActiveSupport::TestCase
       setup do
         Aggregate.reset
       end
-      should "return nil when keys_list is nil" do
-        assert_equal [], Aggregate::Base.secret_keys_from_config
-      end
 
-      should "return nil when keys_list is something other than a string or hash" do
-        Aggregate.configure do |config|
-          config.keys_list = Object.new
-        end
+      should "return an empty array when keys_list is nil" do
         assert_equal [], Aggregate::Base.secret_keys_from_config
       end
 

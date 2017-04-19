@@ -23,5 +23,13 @@ class AggregateTest < ActiveSupport::TestCase
 
       assert_nil Aggregate.configuration.keys_list
     end
+
+    should "raise when keys_list is something other than a string or hash" do
+      assert_raise(Aggregate::ConfigurationError, /keys_list should be nil, String, or an Array/) do
+        Aggregate.configure do |config|
+          config.keys_list = Object.new
+        end
+      end
+    end
   end
 end

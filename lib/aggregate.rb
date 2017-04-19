@@ -26,7 +26,6 @@ module Aggregate
   class << self
     attr_writer :configuration
 
-
     def configuration
       @configuration ||= Configuration.new
     end
@@ -41,9 +40,11 @@ module Aggregate
   end
 
   class Configuration
-    attr_accessor :keys_list
+    attr_reader :keys_list
 
-    def initialize
+    class Aggregate::ConfigurationError < StandardError; end;
+
+    def keys_list=(keys)
       # Should be a list of base64 encoded keys used for decryption or a single key
       #   - keys : to encrypt/decrypt
       #
@@ -61,7 +62,8 @@ module Aggregate
       #
       # * Note * you can set just one base64 encoded string.
 
-      @keys_list = nil
+      @keys_list = keys
+      (@keys_list.nil? || @keys_list.is_a?(String) || @keys_list.is_a?(Array)) or raise Aggregate::ConfigurationError, "keys_list should be nil, String, or an Array"
     end
   end
 end
