@@ -24,7 +24,7 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
     end
 
     should "define methods on the class when called" do
-      assert_equal ["name"], @store.aggregated_attributes.*.name
+      assert_equal ["name"], @store.aggregated_attributes.map { |_, aa| aa.name }
 
       @instance = @store.new
       assert @instance.respond_to?(:name)
