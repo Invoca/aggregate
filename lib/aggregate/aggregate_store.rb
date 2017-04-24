@@ -4,7 +4,7 @@ module Aggregate
 
     module ClassMethods
       def aggregate_attribute(name, class_name, options = {})
-        aggregated_attribute_handlers[name] = (agg_attribute = Aggregate::AttributeHandler.factory(name, class_name, options))
+        aggregated_attribute_handlers[name] = agg_attribute = Aggregate::AttributeHandler.factory(name, class_name, options)
 
         # TODO: - I think the agg_attribute should define these methods so that different types can define additonal accessors.  ( Like list and belongs to.)
         define_method(name)                       { load_aggregate_attribute(agg_attribute) }
@@ -15,7 +15,7 @@ module Aggregate
       end
 
       def aggregate_has_many(name, class_name, options = {})
-        aggregated_attribute_handlers[name] = (agg_attribute = Aggregate::AttributeHandler.has_many_factory(name, class_name, options))
+        aggregated_attribute_handlers[name] = agg_attribute = Aggregate::AttributeHandler.has_many_factory(name, class_name, options)
 
         define_method(name)                       { load_aggregate_attribute(agg_attribute) }
         define_method("#{name}=")                 { |value| save_aggregate_attribute(agg_attribute, value) }
@@ -23,7 +23,7 @@ module Aggregate
       end
 
       def aggregate_belongs_to(name, options = {})
-        aggregated_attribute_handlers[name] = (agg_attribute = Aggregate::AttributeHandler.belongs_to_factory("#{name}_id", options))
+        aggregated_attribute_handlers[name] = agg_attribute = Aggregate::AttributeHandler.belongs_to_factory("#{name}_id", options)
 
         define_method(name)                       { load_aggregate_attribute(agg_attribute) }
         define_method("#{name}_id")               { load_aggregate_attribute(agg_attribute).id }
@@ -33,7 +33,7 @@ module Aggregate
       end
 
       def aggregate_schema_version(version_number, update_callback)
-        aggregated_attribute_handlers[name] = (agg_attribute = Aggregate::Attribute::SchemaVersion.new(version_number, update_callback))
+        aggregated_attribute_handlers[name] = agg_attribute = Aggregate::Attribute::SchemaVersion.new(version_number, update_callback)
         define_method("data_schema_version") { load_aggregate_attribute(agg_attribute) }
 
         set_callback(:aggregate_load_check_schema, :after, :check_schema_version)
@@ -115,13 +115,14 @@ module Aggregate
       result
     end
 
-    def aggregate_attribute(name)
-      aggregate_attributes[name]
+    def get_aggregate_attribute(name)
+      agg_attribute_handler = self.class.aggregated_attribute_handlers[name.to_sym]
+      load_aggregate_attribute(agg_attribute_handler)
     end
 
     def set_aggregate_attribute(name, value)
-      agg_attribute = self.class.aggregated_attribute_handlers[name.to_sym]
-      save_aggregate_attribute(agg_attribute, value)
+      agg_attribute_handler = self.class.aggregated_attribute_handlers[name.to_sym]
+      save_aggregate_attribute(agg_attribute_handler, value)
     end
 
     private

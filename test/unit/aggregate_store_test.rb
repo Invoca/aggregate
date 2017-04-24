@@ -87,7 +87,7 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
       end
 
       should "have explicit methods for getting and setting of attributes" do
-        assert_equal "abc", @instance.aggregate_attribute("name")
+        assert_equal "abc", @instance.get_aggregate_attribute("name")
 
         @instance.set_aggregate_attribute("name", "def")
         assert_equal "def", @instance.name
