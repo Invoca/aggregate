@@ -24,7 +24,7 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
     end
 
     should "define methods on the class when called" do
-      assert_equal ["name"], @store.aggregated_attributes.*.name
+      assert_equal ["name"], @store.aggregated_attribute_handlers.map { |_, aa| aa.name }
 
       @instance = @store.new
       assert @instance.respond_to?(:name)
@@ -84,6 +84,13 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
       should "allow the attribute to be built" do
         @instance.build_name("toodles")
         assert_equal "toodles", @instance.name
+      end
+
+      should "have explicit methods for getting and setting of attributes" do
+        assert_equal "abc", @instance.get_aggregate_attribute("name")
+
+        @instance.set_aggregate_attribute("name", "def")
+        assert_equal "def", @instance.name
       end
 
       should "keep track of changes to the attribute" do
