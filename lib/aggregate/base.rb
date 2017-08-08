@@ -28,7 +28,7 @@ module Aggregate
       self.class.aggregated_attribute_handlers.map_and_find do |_, attr|
         return nil unless other.respond_to?(attr.name)
 
-        compare(send(attr.name), other.send(attr.name)).nonzero?
+        compare(send(attr.name), other.send(attr.name))._?.nonzero?
       end || 0
     end
 
