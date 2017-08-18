@@ -8,6 +8,6 @@ class Aggregate::Attribute::Decimal < Aggregate::Attribute::Builtin
   end
 
   def assign(value)
-    BigDecimal.new(value.to_s)
+    BigDecimal.new(value.to_s.presence || 0)
   end
 end
