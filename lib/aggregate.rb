@@ -14,6 +14,7 @@ require "aggregate/attribute/schema_version"
 require "aggregate/attribute/foreign_key"
 require "aggregate/attribute/list"
 require "aggregate/attribute/bitfield"
+require "aggregate/attribute/hash"
 
 require "aggregate/engine"
 require "aggregate/aggregate_store"

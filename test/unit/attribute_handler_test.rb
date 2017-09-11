@@ -35,6 +35,20 @@ class Aggregate::AttributeHandlerTest < ActiveSupport::TestCase
       assert_equal "def", ad.default
     end
 
+    context "hash attributes" do
+      setup do
+        @hash_attribute = Aggregate::AttributeHandler.factory("attribution", "hash", {})
+      end
+
+      should "be supported" do
+        assert_instance_of Aggregate::Attribute::Hash, @hash_attribute
+      end
+
+      should "have automatic default of empty hash" do
+        assert_equal({}, @hash_attribute.default)
+      end
+    end
+
     should "report force validation iff the option is passed" do
       ad = Aggregate::AttributeHandler.factory("testme", TestNestedAggregate.name, {})
       assert !ad.force_validation?
