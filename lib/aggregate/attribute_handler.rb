@@ -10,7 +10,8 @@ module Aggregate
       'enum'      => Aggregate::Attribute::Enum,
       'datetime'  => Aggregate::Attribute::DateTime,
       'decimal'   => Aggregate::Attribute::Decimal,
-      'bitfield'  => Aggregate::Attribute::Bitfield
+      'bitfield'  => Aggregate::Attribute::Bitfield,
+      'hash'      => Aggregate::Attribute::Hash
     }
 
     def initialize(name, class_name, options)
