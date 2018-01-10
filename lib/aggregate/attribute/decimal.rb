@@ -1,10 +1,8 @@
 class Aggregate::Attribute::Decimal < Aggregate::Attribute::Builtin
   def load(value)
-    begin
-      value.to_d
-    rescue ArgumentError
-      BigDecimal(0)
-    end
+    value.to_d
+  rescue ArgumentError
+    BigDecimal(0)
   end
 
   def store(value)
@@ -12,10 +10,8 @@ class Aggregate::Attribute::Decimal < Aggregate::Attribute::Builtin
   end
 
   def assign(value)
-    begin
-      value.to_d
-    rescue ArgumentError
-      BigDecimal(0)
-    end
+    value.to_d
+  rescue ArgumentError
+    BigDecimal(0)
   end
 end
