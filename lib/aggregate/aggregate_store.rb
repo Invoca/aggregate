@@ -26,7 +26,7 @@ module Aggregate
         aggregated_attribute_handlers[name] = agg_attribute = Aggregate::AttributeHandler.belongs_to_factory("#{name}_id", options)
 
         define_method(name)                       { load_aggregate_attribute(agg_attribute) }
-        define_method("#{name}_id")               { load_aggregate_attribute(agg_attribute).id }
+        define_method("#{name}_id")               { load_aggregate_attribute(agg_attribute)._?.id }
         define_method("#{name}=")                 { |value| save_aggregate_attribute(agg_attribute, value) }
         define_method("#{name}_id=")              { |value| save_aggregate_attribute(agg_attribute, value) }
         define_method("#{name}_changed?")         { aggregate_attribute_changed?(agg_attribute) }
