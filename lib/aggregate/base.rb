@@ -23,8 +23,12 @@ module Aggregate
     end
 
     def <=>(other)
+      return nil unless other
+
       self.class.aggregated_attribute_handlers.map_and_find do |_, attr|
-        compare(send(attr.name), other.send(attr.name)).nonzero?
+        return nil unless other.respond_to?(attr.name)
+
+        compare(send(attr.name), other.send(attr.name))._?.nonzero?
       end || 0
     end
 

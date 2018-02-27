@@ -9,6 +9,6 @@ class Aggregate::Attribute::IntegerTest < ActiveSupport::TestCase
     assert_equal "3", ad.to_store("3")
 
     assert_equal 3,   ad.from_value(3)
-    assert_equal Fixnum, ad.new(3).class
+    assert_equal Integer, ad.new(3).class
   end
 end
