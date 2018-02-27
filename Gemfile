@@ -5,8 +5,8 @@ gemspec
 gem "jquery-rails"
 
 gem 'protected_attributes', '1.1.3'
-gem 'hobo_support',         '2.0.1',  git: 'git@github.com:Invoca/hobosupport',           ref: '439111b196472b3e24fc303585dc229462ef7937'
-gem 'large_text_field',     '0.0.2',  git: 'git@github.com:Invoca/large_text_field.git',  ref: '4790cc0cd1ecdba33d5953e65d836c1501e0d5b3'
+gem 'hobo_support',         '2.0.1',  git: 'git@github.com:Invoca/hobosupport',           ref: 'b9086322274b474a2b5bae507c4885e55d4aa050'
+gem 'large_text_field',     '0.0.2',  git: 'git@github.com:Invoca/large_text_field.git',  ref: 'f24f25aa4641ba33c3b5e8698be23cc62d2cdea8'
 gem 'encryptor',            '3.0.0'
 
 group :test do

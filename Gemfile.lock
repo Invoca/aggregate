@@ -1,15 +1,15 @@
 GIT
   remote: git@github.com:Invoca/hobosupport
-  revision: 439111b196472b3e24fc303585dc229462ef7937
-  ref: 439111b196472b3e24fc303585dc229462ef7937
+  revision: b9086322274b474a2b5bae507c4885e55d4aa050
+  ref: b9086322274b474a2b5bae507c4885e55d4aa050
   specs:
     hobo_support (2.0.1)
       rails (~> 4.2.10)
 
 GIT
   remote: git@github.com:Invoca/large_text_field.git
-  revision: 4790cc0cd1ecdba33d5953e65d836c1501e0d5b3
-  ref: 4790cc0cd1ecdba33d5953e65d836c1501e0d5b3
+  revision: f24f25aa4641ba33c3b5e8698be23cc62d2cdea8
+  ref: f24f25aa4641ba33c3b5e8698be23cc62d2cdea8
   specs:
     large_text_field (0.0.2)
       hobo_support (= 2.0.1)
@@ -181,4 +181,4 @@ DEPENDENCIES
   test-unit (= 3.1.3)
 
 BUNDLED WITH
-   1.16.0
+   1.16.1
