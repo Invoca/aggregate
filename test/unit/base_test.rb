@@ -127,51 +127,63 @@ class Aggregate::BaseTest < ActiveSupport::TestCase
       assert_nil @agg.new.respond_to_without_attributes?("could", "be", "anything")
     end
 
-    should "provide comparable methods for instances" do
-      @first  = @agg.new(name: "Bob", address: "1812 clearview", zip: 93_101)
-      @same   = @agg.new(name: "Bob", address: "1812 clearview", zip: 93_101)
-      @second = @agg.new(name: "Bob", address: "1812 clearview", zip: 93_102)
+    context "comparisons" do
+      should "provide comparable methods for instances" do
+        @first  = @agg.new(name: "Bob", address: "1812 clearview", zip: 93_101)
+        @same   = @agg.new(name: "Bob", address: "1812 clearview", zip: 93_101)
+        @second = @agg.new(name: "Bob", address: "1812 clearview", zip: 93_102)
 
-      assert @first == @same
-      assert @first != @second
-      assert @first < @second
-    end
+        assert @first == @same
+        assert @first != @second
+        assert @first < @second
+      end
 
-    should "support comparison for nested instances" do
-      @outer_agg = Class.new(Aggregate::Base) {}
-      @outer_agg.attribute(:address1, @agg.name)
-      @outer_agg.attribute(:address2, @agg.name)
-      @outer_agg.attribute(:type, "enum")
-      @outer_agg.attribute(:istrue, "boolean")
+      should "support comparison for nested instances" do
+        @outer_agg = Class.new(Aggregate::Base) {}
+        @outer_agg.attribute(:address1, @agg.name)
+        @outer_agg.attribute(:address2, @agg.name)
+        @outer_agg.attribute(:type, "enum")
+        @outer_agg.attribute(:istrue, "boolean")
 
-      @first = @outer_agg.new(
-        type: :tiger,
-        istrue: false,
-        address1: @agg.new(name: "Bob", address: "1812 clearview", zip: 93_101),
-        address2: @agg.new(name: "Murphy", address: "1414 mountain", zip: 93_103)
-      )
+        @first = @outer_agg.new(
+          type: :tiger,
+          istrue: false,
+          address1: @agg.new(name: "Bob", address: "1812 clearview", zip: 93_101),
+          address2: @agg.new(name: "Murphy", address: "1414 mountain", zip: 93_103)
+        )
 
-      @second = @outer_agg.new(
-        type: :tiger,
-        istrue: false,
-        address1: @agg.new(name: "Bob", address: "1812 clearview", zip: 93_101),
-        address2: @agg.new(name: "Murphy", address: "1414 mountain", zip: 93_103)
-      )
+        @second = @outer_agg.new(
+          type: :tiger,
+          istrue: false,
+          address1: @agg.new(name: "Bob", address: "1812 clearview", zip: 93_101),
+          address2: @agg.new(name: "Murphy", address: "1414 mountain", zip: 93_103)
+        )
 
-      assert @first == @second
-      @second.address2.zip = 93_102
-      assert @first != @second
-      assert @first > @second
+        assert @first == @second
+        @second.address2.zip = 93_102
+        assert @first != @second
+        assert @first > @second
 
-      @second.address2.zip = 93_103
-      assert @first == @second
+        @second.address2.zip = 93_103
+        assert @first == @second
 
-      @first.type = nil
-      assert @first != @second
-      assert @first > @second
+        @first.type = nil
+        assert @first != @second
+        assert @first > @second
 
-      @second.type = nil
-      assert @first == @second
+        @second.type = nil
+        assert @first == @second
+      end
+
+      should "report non-comparable types as not equal" do
+        agg = Class.new(Aggregate::Base) {}
+        agg.attribute(:testme, :float)
+
+        agg_with_string = agg.new(testme: "1234")
+        agg_with_float  = agg.new(testme: 1234)
+
+        assert agg_with_string != agg_with_float
+      end
     end
 
     context "has_many associations" do

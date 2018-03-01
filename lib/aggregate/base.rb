@@ -28,7 +28,15 @@ module Aggregate
       self.class.aggregated_attribute_handlers.map_and_find do |_, attr|
         return nil unless other.respond_to?(attr.name)
 
-        compare(send(attr.name), other.send(attr.name))._?.nonzero?
+        compare_result = compare(send(attr.name), other.send(attr.name))
+
+        # If compare_result is nil, that means the two values were not comparable (for example, one is a string and one is a float).
+        # We want to stop the comparison and return nil here to signal to the caller that they are not comparable.
+        if compare_result.nil?
+          return compare_result
+        end
+
+        compare_result.nonzero?
       end || 0
     end
 
