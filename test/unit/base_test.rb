@@ -139,7 +139,7 @@ class Aggregate::BaseTest < ActiveSupport::TestCase
       end
 
       should "support comparison for nested instances" do
-        @outer_agg = Class.new(Aggregate::Base) {}
+        @outer_agg = Class.new(Aggregate::Base) { }
         @outer_agg.attribute(:address1, @agg.name)
         @outer_agg.attribute(:address2, @agg.name)
         @outer_agg.attribute(:type, "enum")
@@ -176,7 +176,7 @@ class Aggregate::BaseTest < ActiveSupport::TestCase
       end
 
       should "report non-comparable types as not equal" do
-        agg = Class.new(Aggregate::Base) {}
+        agg = Class.new(Aggregate::Base) { }
         agg.attribute(:testme, :float)
 
         agg_with_string = agg.new(testme: "1234")
