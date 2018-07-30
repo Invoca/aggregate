@@ -30,17 +30,17 @@ module Aggregate
       end
 
       def default
-        super || DEFAULT_VALUE
+        (super || DEFAULT_VALUE).dup
       end
 
       private
 
       def convert_to_hash(value)
         if value.nil?
-          DEFAULT_VALUE
+          DEFAULT_VALUE.dup
         elsif value.is_a?(::String)
           if value.blank?
-            DEFAULT_VALUE
+            DEFAULT_VALUE.dup
           else
             ActiveSupport::JSON.decode(value)
           end
