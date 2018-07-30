@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # A string representation of a fixed length array of nillable booleans.
 # A length limited version of the class is created by calling the limit method.
 module Aggregate
@@ -24,11 +26,27 @@ module Aggregate
     end
 
     def <=>(other)
-      self.to_s <=> other.to_s
+      to_s <=> other.to_s
     end
 
+    def self.limit(limit)
+      limited_class = "Aggregate::Bitfield_Limit_#{limit}"
+      unless Object.const_defined?(limited_class)
+        instance_eval(<<-CLASS_DEFINITION, __FILE__, __LINE__ + 1)
+          class #{limited_class} < Aggregate::Bitfield
+            def check_index_limit(index)
+              if index >= #{limit}
+                raise ArgumentError, "index out of bounds, index(\#{index}) >= limit(#{limit})"
+              end
+            end
+          end
+        CLASS_DEFINITION
+      end
+      limited_class.constantize
+    end
 
     private
+
     def to_character(boolean)
       case boolean
       when true
@@ -54,24 +72,9 @@ module Aggregate
     end
 
     protected
+
     def check_index_limit(index)
       # Derived classes overwrite this to enforce their limits
-    end
-
-    def self.limit(limit)
-      limited_class = "Aggregate::Bitfield_Limit_#{limit}"
-      unless Object.const_defined?(limited_class)
-        instance_eval <<-EOC
-          class #{limited_class} < Aggregate::Bitfield
-            def check_index_limit(index)
-              if index >= #{limit}
-                raise ArgumentError, "index out of bounds, index(\#{index}) >= limit(#{limit})"
-              end
-            end
-          end
-        EOC
-      end
-      limited_class.constantize
     end
   end
 end

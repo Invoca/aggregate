@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Aggregate::CombinedStringField
   class CombinedStringField
     attr_accessor :attributes, :host_attribute
@@ -14,8 +16,8 @@ module Aggregate::CombinedStringField
     def write(owner, attribute_name, value_param, attribute_manager)
       value = attribute_manager ? attribute_manager.assign(value_param).to_json : value_param.to_s
       !value._?.include?("\n") or raise ArgumentError, "Cannot store newlines in combined fields storing #{value.inspect} in #{attribute_name}"
-      owner.instance_eval("@#{host_attribute}_combined_field_changes ||= {}")
-      owner.instance_eval("@#{host_attribute}_combined_field_changes['#{attribute_name}'] = true")
+      owner.instance_eval("@#{host_attribute}_combined_field_changes ||= {}", __FILE__, __LINE__)
+      owner.instance_eval("@#{host_attribute}_combined_field_changes['#{attribute_name}'] = true", __FILE__, __LINE__)
 
       local_hash = attribute_hash(owner)
       local_hash[attribute_name] = value.to_s
@@ -24,8 +26,8 @@ module Aggregate::CombinedStringField
     end
 
     def changed?(owner, attribute_name, _attribute_manager)
-      owner.instance_eval("@#{host_attribute}_combined_field_changes ||= {}")
-      owner.instance_eval("@#{host_attribute}_combined_field_changes['#{attribute_name}']")
+      owner.instance_eval("@#{host_attribute}_combined_field_changes ||= {}", __FILE__, __LINE__)
+      owner.instance_eval("@#{host_attribute}_combined_field_changes['#{attribute_name}']", __FILE__, __LINE__)
     end
 
     def attribute_hash(owner)
@@ -37,6 +39,8 @@ module Aggregate::CombinedStringField
     end
   end
 
+  # rubocop:disable Metrics/MethodLength
+  # rubocop:disable Metrics/AbcSize
   def combine_string_fields(attribute_list, options)
     combined_attribute = CombinedStringField.new(attribute_list.map { |a| [a].flatten.first }, options[:store_on])
 
@@ -59,8 +63,10 @@ module Aggregate::CombinedStringField
         combined_attribute.changed?(self, attribute_name, attribute_manager)
       end
     end
+    # rubocop:enable Metrics/MethodLength
+    # rubocop:enable Metrics/AbcSize
 
-    %w(read_attribute _read_attribute).each do |method_name|
+    %w[read_attribute _read_attribute].each do |method_name|
       define_method(method_name) do |name|
         if name.in?(attribute_list.map { |a| [a].flatten.first.to_s })
           send(name)

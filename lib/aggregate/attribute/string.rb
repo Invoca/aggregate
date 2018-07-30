@@ -1,6 +1,8 @@
+# frozen_string_literal: true
+
 class Aggregate::Attribute::String < Aggregate::Attribute::Builtin
 
-  class Aggregate::EncryptionError < StandardError; end;
+  class Aggregate::EncryptionError < StandardError; end
 
   def self.available_options
     Aggregate::Attribute::Builtin.available_options + [
@@ -21,11 +23,11 @@ class Aggregate::Attribute::String < Aggregate::Attribute::Builtin
     find_decrypted_value(Base64.strict_decode64(hash["encrypted_data"]), Base64.strict_decode64(hash["initilization_vector"]))
   end
 
-  def find_decrypted_value(value, iv)
+  def find_decrypted_value(value, initialization_vector)
     encrypted_value = nil
     Aggregate::Base.secret_keys_from_config.find do |key|
       begin
-        encrypted_value = Encryptor.decrypt(value: value, key: key, iv: iv)
+        encrypted_value = Encryptor.decrypt(value: value, key: key, iv: initialization_vector)
       rescue OpenSSL::Cipher::CipherError
         nil
       end
@@ -41,9 +43,8 @@ class Aggregate::Attribute::String < Aggregate::Attribute::Builtin
 
     encrypted_data = Encryptor.encrypt(value: value, key: Aggregate::Base.secret_keys_from_config.first, iv: iv)
 
-    ActiveSupport::JSON.encode({ encrypted_data: Base64.strict_encode64(encrypted_data),
-                                 initilization_vector: Base64.strict_encode64(iv)
-    })
+    ActiveSupport::JSON.encode(encrypted_data: Base64.strict_encode64(encrypted_data),
+                               initilization_vector: Base64.strict_encode64(iv))
   end
 
   def store(value)

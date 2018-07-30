@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Aggregate
   module Attribute
     class Builtin < Aggregate::Attribute::Base

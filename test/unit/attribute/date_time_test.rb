@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative '../../test_helper'
 
 class Aggregate::Attribute::DateTimeTest < ActiveSupport::TestCase
@@ -17,7 +19,8 @@ class Aggregate::Attribute::DateTimeTest < ActiveSupport::TestCase
   should "Load into users timezone, store the same regardless of timezone" do
     user_time = Time.zone.local(2008, 3, 10).in_time_zone("Eastern Time (US & Canada)")
     begin
-      old_time_zone, Time.zone = Time.zone, "Eastern Time (US & Canada)"
+      old_time_zone = Time.zone
+      Time.zone = "Eastern Time (US & Canada)"
       ad = Aggregate::AttributeHandler.factory("testme", :datetime, {})
       assert_equal "03/10/08   3:00 AM", ad.from_store("Mon, 10 Mar 2008 07:00:00 -0000").to_s
       assert_equal "Mon, 10 Mar 2008 07:00:00 -0000", ad.to_store(user_time)

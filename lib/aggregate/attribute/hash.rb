@@ -1,7 +1,9 @@
+# frozen_string_literal: true
+
 module Aggregate
   module Attribute
     class Hash < Aggregate::Attribute::Builtin
-      DEFAULT_VALUE = {}
+      DEFAULT_VALUE = {}.freeze
 
       def from_value(value)
         super || DEFAULT_VALUE

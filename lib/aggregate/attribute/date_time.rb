@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Aggregate::Attribute::DateTime < Aggregate::Attribute::Builtin
   def load(value)
     ActiveSupport::TimeZone['UTC'].parse(value).in_time_zone

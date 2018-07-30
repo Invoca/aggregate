@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Aggregate::Attribute::Bitfield < Aggregate::Attribute::Base
 
   def self.available_options
@@ -7,7 +9,7 @@ class Aggregate::Attribute::Bitfield < Aggregate::Attribute::Base
   end
 
   def from_value(value)
-    klass.new((value && value.to_s) || "")
+    klass.new((value&.to_s) || "")
   end
 
   def from_store(value)
@@ -23,7 +25,7 @@ class Aggregate::Attribute::Bitfield < Aggregate::Attribute::Base
   end
 
   # Overrides default
-  def validation_errors(value)
+  def validation_errors(_value)
     []
   end
 

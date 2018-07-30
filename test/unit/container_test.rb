@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative '../test_helper'
 
 class Aggregate::ContainerTest < ActiveSupport::TestCase
@@ -8,10 +10,12 @@ class Aggregate::ContainerTest < ActiveSupport::TestCase
       {}
     end
 
+    # rubocop:disable Naming/PredicateName
     def self.has_many(*args)
       @has_many_args ||= []
       @has_many_args << args
     end
+    # rubocop:enable Naming/PredicateName
 
     def self.validate(*args)
       @validate_args ||= []
@@ -84,7 +88,7 @@ class Aggregate::ContainerTest < ActiveSupport::TestCase
     aggregate_schema_version "2.0", :fix_aggregate_schema
     def fix_aggregate_schema(current_version)
       @upgraded_from_schema_version ||= []
-      @upgraded_from_schema_version << "#{current_version.inspect}"
+      @upgraded_from_schema_version << current_version.inspect.to_s
       @value_at_upgrade = test_string
     end
 
@@ -127,18 +131,17 @@ class Aggregate::ContainerTest < ActiveSupport::TestCase
     setup do
       @aggregate_container_options = TestPurchase.aggregate_container_options.dup
     end
-    
+
     teardown do
       TestPurchase.aggregate_container_options = @aggregate_container_options
     end
 
     context "initialization" do
-      
       should "have configured the active record settings correctly" do
         # Configure a large text field.
-        assert_equal [[:large_text_fields, { inverse_of: :owner, as: :owner, dependent: :destroy, autosave: true, class_name: "LargeTextField::NamedTextValue" }]], TestPurchase.instance_eval('@has_many_args')
-        assert_equal [[:validate_large_text_fields], [:validate_aggregates]], TestPurchase.instance_eval('@validate_args')
-        assert_equal [[:write_large_text_field_changes]], TestPurchase.instance_eval('@before_save')
+        assert_equal [[:large_text_fields, { inverse_of: :owner, as: :owner, dependent: :destroy, autosave: true, class_name: "LargeTextField::NamedTextValue" }]], TestPurchase.instance_eval('@has_many_args', __FILE__, __LINE__)
+        assert_equal [[:validate_large_text_fields], [:validate_aggregates]], TestPurchase.instance_eval('@validate_args', __FILE__, __LINE__)
+        assert_equal [[:write_large_text_field_changes]], TestPurchase.instance_eval('@before_save', __FILE__, __LINE__)
       end
 
       should "have a configuration with defaults" do
@@ -155,7 +158,7 @@ class Aggregate::ContainerTest < ActiveSupport::TestCase
       should "know which field the aggregate data is stored in" do
         assert_equal :aggregate_store, TestPurchase.new.aggregate_storage_field
         TestPurchase.aggregate_container_options[:use_storage_field] = :aggregate_field_store
-        assert_equal :aggregate_field_store, TestPurchase.new.aggregate_storage_field        
+        assert_equal :aggregate_field_store, TestPurchase.new.aggregate_storage_field
       end
 
       should "know when to failover to large_text_field" do
@@ -166,7 +169,7 @@ class Aggregate::ContainerTest < ActiveSupport::TestCase
 
         TestPurchase.aggregate_container_options[:use_large_text_field_as_failover] = true
         assert TestPurchase.new.failover_to_large_text_field?
-        
+
         TestPurchase.aggregate_container_options[:use_storage_field] = nil
         assert_false TestPurchase.new.failover_to_large_text_field?
       end
@@ -222,7 +225,8 @@ class Aggregate::ContainerTest < ActiveSupport::TestCase
             address_one: '1812 Clearview Road',
             address_two: '',
             zip: '93101'
-          })
+          }
+        )
 
         assert_equal '1245',       @doc.first_shipment.tracking_number
         assert_equal 5,            @doc.first_shipment.weight_in_ounces
@@ -239,7 +243,8 @@ class Aggregate::ContainerTest < ActiveSupport::TestCase
             'address_one' => '1812 Clearview Road',
             'address_two' => '',
             'zip' => '93101'
-          })
+          }
+        )
 
         assert_equal '1245',       @doc.first_shipment.tracking_number
         assert_equal 5,            @doc.first_shipment.weight_in_ounces
@@ -267,7 +272,8 @@ class Aggregate::ContainerTest < ActiveSupport::TestCase
             address_one: '1812 Clearview Road',
             address_two: '',
             zip: '93101'
-          })
+          }
+        )
 
         assert_equal @doc, @doc.first_shipment.root_aggregate_owner
         assert_equal @doc, @doc.first_shipment.ship_from.root_aggregate_owner
@@ -298,7 +304,7 @@ class Aggregate::ContainerTest < ActiveSupport::TestCase
 
         assert_equal '1245',       @doc.first_shipment.tracking_number
         assert_equal 5,            @doc.first_shipment.weight_in_ounces
-        assert_equal 'Lisa Smith', @doc.first_shipment.ship_from.full_name        
+        assert_equal 'Lisa Smith', @doc.first_shipment.ship_from.full_name
       end
 
       should "load from the storage_field when it's specified" do
@@ -310,7 +316,7 @@ class Aggregate::ContainerTest < ActiveSupport::TestCase
         assert_equal @json, @doc.aggregate_field_store
 
         assert_equal 5,            @doc.first_shipment.weight_in_ounces
-        assert_equal 'Lisa Smith', @doc.first_shipment.ship_from.full_name                
+        assert_equal 'Lisa Smith', @doc.first_shipment.ship_from.full_name
       end
 
       should "load from the large_text_field when storage_field and failover are enabled but storage_field is blank" do
@@ -318,13 +324,13 @@ class Aggregate::ContainerTest < ActiveSupport::TestCase
         assert_false TestPurchase.aggregate_container_options[:use_large_text_field_as_failover]
         TestPurchase.aggregate_container_options[:use_storage_field] = :aggregate_field_store
         TestPurchase.aggregate_container_options[:use_large_text_field_as_failover] = true
-        
+
         @doc = TestPurchase.new(@json, nil)
         assert @doc.uses_aggregate_storage_field?
         assert @doc.failover_to_large_text_field?
         assert_nil @doc.aggregate_field_store
         assert_equal @json, @doc.aggregate_store
-        
+
         assert_equal 'Lisa Smith', @doc.first_shipment.ship_from.full_name
       end
     end
@@ -376,19 +382,19 @@ class Aggregate::ContainerTest < ActiveSupport::TestCase
         @doc = TestPurchase.new(json)
 
         expected = {
-            "data_schema_version" => "2.0",
-            "test_string"         => nil,
-            "second_shipment"     => nil,
-            "first_shipment"      => {
-                "ship_from" => {
-                    "zip"          => "93101",
-                    "address_two"  => "",
-                    "address_one"  => "1812 Clearview Road",
-                    "full_name"    => "Lisa Smith"
-                },
-                "tracking_number"    => "1245",
-                "weight_in_ounces"   => 5
-            }
+          "data_schema_version" => "2.0",
+          "test_string"         => nil,
+          "second_shipment"     => nil,
+          "first_shipment"      => {
+            "ship_from" => {
+              "zip" => "93101",
+              "address_two"  => "",
+              "address_one"  => "1812 Clearview Road",
+              "full_name"    => "Lisa Smith"
+            },
+            "tracking_number"    => "1245",
+            "weight_in_ounces"   => 5
+          }
         }
         assert_equal expected, @doc.to_store
 
@@ -413,27 +419,26 @@ class Aggregate::ContainerTest < ActiveSupport::TestCase
         TestPurchase.aggregate_container_options[:use_storage_field] = :aggregate_field_store
         @doc = TestPurchase.new(nil, json)
         assert_nil @doc.aggregate_store
-        
+
         expected = {
-            "data_schema_version" => "2.0",
-            "test_string"         => nil,
-            "second_shipment"     => nil,
-            "first_shipment"      => {
-                "ship_from" => {
-                    "zip"          => "93101",
-                    "address_two"  => "",
-                    "address_one"  => "1812 Clearview Road",
-                    "full_name"    => "Lisa Smith"
-                },
-                "tracking_number"    => "1245",
-                "weight_in_ounces"   => 5
-            }
+          "data_schema_version" => "2.0",
+          "test_string"         => nil,
+          "second_shipment"     => nil,
+          "first_shipment"      => {
+            "ship_from" => {
+              "zip" => "93101",
+              "address_two"  => "",
+              "address_one"  => "1812 Clearview Road",
+              "full_name"    => "Lisa Smith"
+            },
+            "tracking_number"    => "1245",
+            "weight_in_ounces"   => 5
+          }
         }
         assert_equal expected, @doc.to_store
         @doc.write_aggregates
         assert_equal expected, ActiveSupport::JSON.decode(@doc.aggregate_field_store)
       end
-
 
       should "write an empty string for classes at default values" do
         @doc = TestPurchase.new("")
@@ -492,15 +497,15 @@ class Aggregate::ContainerTest < ActiveSupport::TestCase
             "test_string"         => nil,
             "second_shipment"     => nil,
             "first_shipment"      => {
-                "ship_from" => {
-                    "zip"          => "93101",
-                    "address_two"  => "",
-                    "address_one"  => "1812 Clearview Road",
-                    "full_name"    => "Lisa Smith"
-                },
-                "tracking_number"    => "1245",
-                "weight_in_ounces"   => 5,
-                "shipping_method"    => "UPS"
+              "ship_from" => {
+                "zip" => "93101",
+                "address_two"  => "",
+                "address_one"  => "1812 Clearview Road",
+                "full_name"    => "Lisa Smith"
+              },
+              "tracking_number"    => "1245",
+              "weight_in_ounces"   => 5,
+              "shipping_method"    => "UPS"
             }
           }
           assert_equal expected, @doc.to_store
@@ -555,16 +560,16 @@ class Aggregate::ContainerTest < ActiveSupport::TestCase
             "test_string"         => nil,
             "second_shipment"     => nil,
             "first_shipment"      => {
-                "ship_from" => {
-                    "zip" => "93101",
-                    "address_two" => "",
-                    "address_one" => "1812 Clearview Road",
-                    "full_name" => "Lisa Smith"
-                },
-                "tracking_number" => "1245",
-                "weight_in_ounces" => 5,
-                "shipping_method" => "UsPostal",
-                "signature_required" => true,
+              "ship_from" => {
+                "zip" => "93101",
+                "address_two" => "",
+                "address_one" => "1812 Clearview Road",
+                "full_name" => "Lisa Smith"
+              },
+              "tracking_number" => "1245",
+              "weight_in_ounces" => 5,
+              "shipping_method" => "UsPostal",
+              "signature_required" => true
             }
           }
           assert_equal expected, @doc.to_store
@@ -593,7 +598,8 @@ class Aggregate::ContainerTest < ActiveSupport::TestCase
           }.to_json
 
           begin
-            old_time_zone, Time.zone = Time.zone, "Eastern Time (US & Canada)"
+            old_time_zone = Time.zone
+            Time.zone = "Eastern Time (US & Canada)"
             @doc = TestPurchase.new(json)
             assert_equal "04/18/12   8:50 PM", @doc.first_shipment.shipped_at.to_s
             assert_equal "Thu, 19 Apr 2012 00:50:08 -0000", @doc.to_store["first_shipment"]["shipped_at"]
@@ -602,7 +608,8 @@ class Aggregate::ContainerTest < ActiveSupport::TestCase
           end
 
           begin
-            old_time_zone, Time.zone = Time.zone, "Pacific Time (US & Canada)"
+            old_time_zone = Time.zone
+            Time.zone = "Pacific Time (US & Canada)"
             @doc = TestPurchase.new(json)
             assert_equal "04/18/12   5:50 PM", @doc.first_shipment.shipped_at.to_s
 
@@ -660,16 +667,16 @@ class Aggregate::ContainerTest < ActiveSupport::TestCase
             "test_string"         => nil,
             "second_shipment"     => nil,
             "first_shipment"      => {
-                "ship_from" => {
-                    "zip" => "93101",
-                    "address_two" => "",
-                    "address_one" => "1812 Clearview Road",
-                    "full_name" => "Lisa Smith"
-                },
-                "tracking_number" => "1245",
-                "weight_in_ounces" => 5,
-                "shipping_method" => "UsPostal",
-                "postage_due" => '50.2',
+              "ship_from" => {
+                "zip" => "93101",
+                "address_two" => "",
+                "address_one" => "1812 Clearview Road",
+                "full_name" => "Lisa Smith"
+              },
+              "tracking_number" => "1245",
+              "weight_in_ounces" => 5,
+              "shipping_method" => "UsPostal",
+              "postage_due" => '50.2'
             }
           }
           assert_equal expected, @doc.to_store
@@ -689,7 +696,8 @@ class Aggregate::ContainerTest < ActiveSupport::TestCase
             address_one: '1812 Clearview Road',
             address_two: '',
             zip: '93101'
-          })
+          }
+        )
       end
 
       should "enforce required fields" do
@@ -701,7 +709,8 @@ class Aggregate::ContainerTest < ActiveSupport::TestCase
             address_one: '1812 Clearview Road',
             address_two: '',
             zip: '93101'
-          })
+          }
+        )
 
         assert !@doc.first_shipment.valid?
         assert_equal ["Weight in ounces must be set"], @doc.first_shipment.errors.full_messages
@@ -865,14 +874,14 @@ class Aggregate::ContainerTest < ActiveSupport::TestCase
 
     should "forget cached aggregate store on reload" do
       @doc = TestPurchase.new
-      @doc.aggregate_store = { "test_string" => "12345"}.to_json
+      @doc.aggregate_store = { "test_string" => "12345" }.to_json
       assert_nil @doc.first_shipment
       assert_equal "12345", @doc.test_string
 
       @doc.first_shipment = TestShippingRecord.new(tracking_number: '1245', weight_in_ounces: 5)
       assert_equal '1245', @doc.first_shipment.tracking_number
 
-      @doc.aggregate_store = { "test_string" => "56789"}.to_json
+      @doc.aggregate_store = { "test_string" => "56789" }.to_json
 
       @doc.reload
       assert_nil @doc.first_shipment

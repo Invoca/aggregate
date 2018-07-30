@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative '../test_helper'
 
 class Aggregate::BitfieldTest < ActiveSupport::TestCase
@@ -21,7 +23,7 @@ class Aggregate::BitfieldTest < ActiveSupport::TestCase
       bitfield = Aggregate::Bitfield.new("")
 
       bitfield[10] = true
-      assert_equal [nil]*10+[true], (0..10).map { |i| bitfield[i] }
+      assert_equal([nil] * 10 + [true], (0..10).map { |i| bitfield[i] })
     end
 
     should "trim trailing nils when reporting the string value" do
@@ -55,7 +57,6 @@ class Aggregate::BitfieldTest < ActiveSupport::TestCase
         end
         assert_equal "index out of bounds, index(5) >= limit(5)", ex.message
       end
-
 
       should "allow comparison between bitfields" do
         first = Aggregate::Bitfield.limit(5).new("")

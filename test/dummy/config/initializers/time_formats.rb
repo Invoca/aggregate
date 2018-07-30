@@ -1,3 +1,6 @@
+# frozen_string_literal: true
+
+# rubocop:disable Metrics/AbcSize
 class LocaleTimeFormats
   EUROPE_FORMAT = {
     default: "%d/%m/%y  %k:%M",
@@ -12,7 +15,7 @@ class LocaleTimeFormats
     rr_mon_day_year: "%b %-d, %Y",
     rr_time_only: "%k:%M",
     rr_time_compact: "%k:%M"
-  }
+  }.freeze
   LOCALE_DATE_FORMATS = {
     US: {
       default: "%m/%d/%y  %l:%M %p",
@@ -52,3 +55,4 @@ end
 Time::DATE_FORMATS[:rr_cookie_date] = "%m/%d/%Y"
 
 LocaleTimeFormats.load_time_format(:US)
+# rubocop:enable Metrics/AbcSize

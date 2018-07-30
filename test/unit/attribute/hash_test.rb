@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative '../../test_helper'
 
 class Aggregate::Attribute::HashTest < ActiveSupport::TestCase
@@ -14,7 +16,7 @@ class Aggregate::Attribute::HashTest < ActiveSupport::TestCase
     end
 
     should "handle hash" do
-      assert_kind_of Hash, @ad.new({ key: 'value' })
+      assert_kind_of Hash, @ad.new(key: 'value')
       assert_kind_of Hash, @ad.new({ key: 'value' }.to_json)
     end
 

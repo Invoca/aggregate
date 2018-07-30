@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative '../../test_helper'
 
 class Aggregate::Attribute::BitfieldTest < ActiveSupport::TestCase
@@ -20,7 +22,6 @@ class Aggregate::Attribute::BitfieldTest < ActiveSupport::TestCase
     ad = Aggregate::AttributeHandler.factory("testme", :bitfield, limit: 4)
 
     assert_equal Aggregate::Bitfield.limit(4).new(""), ad.default
-
   end
 
   should "be valid" do

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Aggregate::Attribute::List < Aggregate::Attribute::Base
   attr_accessor :name, :element_helper
 

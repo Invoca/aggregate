@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Aggregate
   class AttributeHandler
     attr_reader :name, :class_name, :options
@@ -12,7 +14,7 @@ module Aggregate
       'decimal'   => Aggregate::Attribute::Decimal,
       'bitfield'  => Aggregate::Attribute::Bitfield,
       'hash'      => Aggregate::Attribute::Hash
-    }
+    }.freeze
 
     def initialize(name, class_name, options)
       @name = name
@@ -28,10 +30,12 @@ module Aggregate
       end
     end
 
+    # rubocop:disable Naming/PredicateName
     def self.has_many_factory(name, class_name, options)
       collapse_errors = options.delete(:collapse_errors)
       Aggregate::Attribute::List.new(name, factory("element", class_name, options), collapse_errors: collapse_errors)
     end
+    # rubocop:enable Naming/PredicateName
 
     def self.belongs_to_factory(name, options)
       Aggregate::Attribute::ForeignKey.new(name, options)

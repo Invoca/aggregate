@@ -1,12 +1,13 @@
+# frozen_string_literal: true
+
 module Aggregate
   module AggregateStore
-    REQUIRED_METHODS = [:aggregate_owner, :decoded_aggregate_store, :new_record?, :errors, :run_callbacks]
+    REQUIRED_METHODS = [:aggregate_owner, :decoded_aggregate_store, :new_record?, :errors, :run_callbacks].freeze
 
     module ClassMethods
       def aggregate_attribute(name, class_name, options = {})
         aggregated_attribute_handlers[name] = agg_attribute = Aggregate::AttributeHandler.factory(name, class_name, options)
 
-        # TODO: - I think the agg_attribute should define these methods so that different types can define additonal accessors.  ( Like list and belongs to.)
         define_method(name)                       { load_aggregate_attribute(agg_attribute) }
         define_method("#{name}=")                 { |value| save_aggregate_attribute(agg_attribute, value) }
         define_method("#{name}_changed?")         { aggregate_attribute_changed?(agg_attribute) }
@@ -82,7 +83,6 @@ module Aggregate
 
     def validate_aggregates
       self.class.aggregated_attribute_handlers.each do |_, aa|
-
         if new_record? || aa.force_validation? || aggregate_attribute_loaded?(aa) || aggregate_attribute_changed?(aa)
           aa.validation_errors(load_aggregate_attribute(aa)).each do |error|
             errors.add(aa.name, error)
@@ -128,9 +128,7 @@ module Aggregate
     private
 
     def load_aggregate_attribute(agg_attribute)
-      if aggregate_values.key?(agg_attribute.name)
-        aggregate_values[agg_attribute.name]
-      else
+      unless aggregate_values.key?(agg_attribute.name)
         value =
           if decoded_aggregate_store
             load_aggregate_from_store(agg_attribute)
@@ -142,8 +140,8 @@ module Aggregate
 
         # Fire the callback.  It MAY change the value, so fetch again from the hash.
         notify_if_first_access
-        aggregate_values[agg_attribute.name]
       end
+      aggregate_values[agg_attribute.name]
     end
 
     def notify_if_first_access

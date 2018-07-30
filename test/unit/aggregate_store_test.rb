@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative '../test_helper'
 
 class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
@@ -18,13 +20,13 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
 
   context "aggregate_attribute" do
     setup do
-      @store = Class.new {}
+      @store = Class.new { }
       @store.send(:include, Aggregate::AggregateStore)
       @store.aggregate_attribute(:name, :string)
     end
 
     should "define methods on the class when called" do
-      assert_equal ["name"], @store.aggregated_attribute_handlers.map { |_, aa| aa.name }
+      assert_equal(["name"], @store.aggregated_attribute_handlers.map { |_, aa| aa.name })
 
       @instance = @store.new
       assert @instance.respond_to?(:name)
@@ -119,28 +121,28 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
           @instance.new_record = true
           mock.instance_of(Aggregate::Attribute::String).validation_errors("abc") { ["had_error"] }
           @instance.validate_aggregates
-          assert_equal [%w(name had_error)], @instance.errors.messages
+          assert_equal [%w[name had_error]], @instance.errors.messages
         end
 
         should "validate aggregates if they force it" do
           mock.instance_of(Aggregate::Attribute::String).force_validation? { true }
           mock.instance_of(Aggregate::Attribute::String).validation_errors("abc") { ["had_error"] }
           @instance.validate_aggregates
-          assert_equal [%w(name had_error)], @instance.errors.messages
+          assert_equal [%w[name had_error]], @instance.errors.messages
         end
 
         should "validate aggregates if it changed" do
           @instance.name = "godzilla"
           mock.instance_of(Aggregate::Attribute::String).validation_errors("godzilla") { ["had_error"] }
           @instance.validate_aggregates
-          assert_equal [%w(name had_error)], @instance.errors.messages
+          assert_equal [%w[name had_error]], @instance.errors.messages
         end
 
         should "validate aggregates if was accessed" do
           @instance.name
           mock.instance_of(Aggregate::Attribute::String).validation_errors("abc") { ["had_error"] }
           @instance.validate_aggregates
-          assert_equal [%w(name had_error)], @instance.errors.messages
+          assert_equal [%w[name had_error]], @instance.errors.messages
         end
 
         should "not validate an aggregate otherwise" do
@@ -151,7 +153,7 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
 
       context "has_many aggregates" do
         setup do
-          @store = Class.new {}
+          @store = Class.new { }
           @store.send(:include, Aggregate::AggregateStore)
           @store.aggregate_has_many(:names, :string)
         end
@@ -173,8 +175,8 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
           @store.send(:define_method, :new_record?) { @new_record }
           @store.send(:define_method, :run_callbacks) { |_foo| true }
 
-          @instance.names = %w(manny moe jack)
-          assert_equal %w(manny moe jack), @instance.names
+          @instance.names = %w[manny moe jack]
+          assert_equal %w[manny moe jack], @instance.names
         end
 
         should "allow lists to be saved to disk" do
@@ -184,31 +186,33 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
           @store.send(:define_method, :run_callbacks) { |_foo| true }
           @instance = @store.new
 
-          @instance.names = %w(manny moe jack)
-          assert_equal %w(manny moe jack), @instance.names
+          @instance.names = %w[manny moe jack]
+          assert_equal %w[manny moe jack], @instance.names
 
-          expected = { "names" => %w(manny moe jack) }
+          expected = { "names" => %w[manny moe jack] }
 
           assert_equal expected, @instance.to_store
         end
 
         should "allow lists to be loaded from to disk" do
           @store.send(:define_method, :aggregate_owner) { @aggregate_owner ||= OwnerStub.new }
-          @store.send(:define_method, :decoded_aggregate_store) { { "names" => %w(manny moe jack) } }
+          @store.send(:define_method, :decoded_aggregate_store) { { "names" => %w[manny moe jack] } }
           @store.send(:define_method, :new_record?) { @new_record }
           @store.send(:define_method, :run_callbacks) { |_foo| true }
           @instance = @store.new
 
-          assert_equal %w(manny moe jack), @instance.names
+          assert_equal %w[manny moe jack], @instance.names
         end
 
         context "lists of aggregates" do
           setup do
-            @agg = Class.new(Aggregate::Base) {}
+            @agg = Class.new(Aggregate::Base) { }
             @agg.attribute(:name, :string)
             @agg.attribute(:address, :string)
             @agg.attribute(:zip, :integer)
+            # rubocop:disable Naming/ConstantName:
             silence_warnings { ::MyTestClass = @agg }
+            # rubocop:enable Naming/ConstantName:
             @store.aggregate_has_many(:things, MyTestClass.name)
 
             @store.send(:attr_accessor, :new_record, :errors)
@@ -239,7 +243,7 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
 
       context "belongs_to aggregates" do
         setup do
-          @store = Class.new {}
+          @store = Class.new { }
           @store.send(:include, Aggregate::AggregateStore)
           @store.aggregate_belongs_to(:passport, class_name: "Passport")
           @store.send(:define_method, :aggregate_owner) { @aggregate_owner ||= OwnerStub.new }
@@ -273,7 +277,7 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
 
       context "schema versioning" do
         should "allow a schema version to be defined." do
-          @store = Class.new {}
+          @store = Class.new { }
           [:save, :save!, :create_or_update, :create, :update, :destroy, :valid?].each do |method|
             @store.send(:define_method, method) { raise "call #{method} on containing class" }
           end
@@ -294,29 +298,29 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
       end
 
       should "clear assignments after reload" do
-          @base_class = Class.new {}
-          @base_class.send(:define_method, :reload) { @reload_called = true}
+        @base_class = Class.new { }
+        @base_class.send(:define_method, :reload) { @reload_called = true }
 
-          @store = Class.new(@base_class) {}
-          @store.send(:include, Aggregate::AggregateStore)
-          @store.aggregate_belongs_to(:passport, class_name: "Passport")
-          @store.send(:define_method, :aggregate_owner) { @aggregate_owner ||= OwnerStub.new }
-          @store.send(:define_method, :run_callbacks) { |_foo| true }
-          @store.send(:define_method, :new_record?) { @new_record }
-          @store.send(:attr_accessor, :decoded_aggregate_store )
-          @passport = sample_passport
-          @instance = @store.new
+        @store = Class.new(@base_class) { }
+        @store.send(:include, Aggregate::AggregateStore)
+        @store.aggregate_belongs_to(:passport, class_name: "Passport")
+        @store.send(:define_method, :aggregate_owner) { @aggregate_owner ||= OwnerStub.new }
+        @store.send(:define_method, :run_callbacks) { |_foo| true }
+        @store.send(:define_method, :new_record?) { @new_record }
+        @store.send(:attr_accessor, :decoded_aggregate_store)
+        @passport = sample_passport
+        @instance = @store.new
 
-          @instance.decoded_aggregate_store = {}
-          @instance.passport = @passport
+        @instance.decoded_aggregate_store = {}
+        @instance.passport = @passport
 
-          expected = { "passport_id" => @passport.id }
-          assert_equal expected, @instance.to_store
+        expected = { "passport_id" => @passport.id }
+        assert_equal expected, @instance.to_store
 
-          @instance.reload
-          expected = {}
-          assert_equal expected, @instance.to_store
-          assert_equal true, @instance.instance_variable_get("@reload_called")
+        @instance.reload
+        expected = {}
+        assert_equal expected, @instance.to_store
+        assert_equal true, @instance.instance_variable_get("@reload_called")
       end
     end
   end

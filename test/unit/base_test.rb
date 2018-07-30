@@ -1,14 +1,19 @@
+# frozen_string_literal: true
+
 require_relative '../test_helper'
 
 class Aggregate::BaseTest < ActiveSupport::TestCase
 
   context "Aggregate classes" do
     setup do
-      @agg = Class.new(Aggregate::Base) {}
+      @agg = Class.new(Aggregate::Base) { }
       @agg.attribute(:name, :string)
       @agg.attribute(:address, :string, default: "no address")
       @agg.attribute(:zip, :integer)
+
+      # rubocop:disable Naming/ConstantName
       silence_warnings { MyTestClass = @agg }
+      # rubocop:enable Naming/ConstantName
 
       @decoded_aggregate_store = { "name" => "Bob", "address" => "1812 clearview", "zip" => 93_101 }
     end
@@ -70,7 +75,7 @@ class Aggregate::BaseTest < ActiveSupport::TestCase
 
     context "from_json" do
       should "create an instance from a json with valid keys" do
-        aggregate_data = ActiveSupport::JSON.encode({ "name" => "Bob", "address" => "1812 clearview", "zip" => 93_101 })
+        aggregate_data = ActiveSupport::JSON.encode("name" => "Bob", "address" => "1812 clearview", "zip" => 93_101)
         @instance = @agg.from_json(aggregate_data)
 
         assert_equal "Bob", @instance.name
@@ -80,7 +85,7 @@ class Aggregate::BaseTest < ActiveSupport::TestCase
       end
 
       should "create an instance from a json with invalid keys" do
-        hash = ActiveSupport::JSON.encode({ "invalid_key1" => "Bob", "invalid_key2" => "1812 clearview" })
+        hash = ActiveSupport::JSON.encode("invalid_key1" => "Bob", "invalid_key2" => "1812 clearview")
         @instance = @agg.from_json(hash)
 
         assert_nil @instance.name
@@ -90,7 +95,7 @@ class Aggregate::BaseTest < ActiveSupport::TestCase
       end
 
       should "create an instance from a json with partial valid keys" do
-        hash = ActiveSupport::JSON.encode({ "name" => "Bob", "invalid_key2" => "1812 clearview", "zip" => 93_101 })
+        hash = ActiveSupport::JSON.encode("name" => "Bob", "invalid_key2" => "1812 clearview", "zip" => 93_101)
         @instance = @agg.from_json(hash)
 
         assert_equal "Bob", @instance.name
@@ -188,24 +193,27 @@ class Aggregate::BaseTest < ActiveSupport::TestCase
 
     context "has_many associations" do
       should "be able to declare has many associations" do
-        @outer_agg = Class.new(Aggregate::Base) {}
+        @outer_agg = Class.new(Aggregate::Base) { }
         @outer_agg.has_many(:addresses, @agg.name)
       end
 
       should "be able to declare belongs to associations" do
-        @outer_agg = Class.new(Aggregate::Base) {}
+        @outer_agg = Class.new(Aggregate::Base) { }
         @outer_agg.belongs_to(:network)
       end
     end
 
     context "callbacks" do
       setup do
-        @agg = Class.new(Aggregate::Base) {}
+        @agg = Class.new(Aggregate::Base) { }
         @agg.attribute(:name, :string)
         @agg.attribute(:address, :string)
         @agg.attribute(:zip, :integer)
         @agg.send(:set_callback, :aggregate_load, :after, :aggregate_loaded)
-        @agg.send(:define_method, :aggregate_loaded) { puts; puts "Aggregate Loaded" }
+        @agg.send(:define_method, :aggregate_loaded) do
+          puts
+          puts "Aggregate Loaded"
+        end
       end
 
       should "call the aggregate loaded method when the object is loaded" do
