@@ -119,6 +119,22 @@ class Aggregate::Attribute::HashTest < ActiveSupport::TestCase
         assert_equal "{}", @ad.to_store(nil)
       end
     end
+
+    context "default handling" do
+      setup do
+        @store = Class.new(Aggregate::Base) do
+          aggregate_attribute(:inventory, :hash)
+        end
+      end
+
+      should "not share the default value instance" do
+        first_store = @store.new
+        second_store = @store.new
+        first_store.inventory["eggs"] = 100
+
+        assert_equal({}, second_store.inventory)
+      end
+    end
   end
 
 end

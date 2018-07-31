@@ -68,13 +68,13 @@ class PassportTest < ActiveSupport::TestCase
 
       expected =
         {
-          "birthdate" => Time.parse("2011-8-11"),
-          "city" => "Santa Barbara",
+          "birthdate"      => Time.parse("2011-8-11"),
+          "city"           => "Santa Barbara",
           "foreign_visits" => [{ "country" => "Canada" }, { "country" => "Mexico" }],
-          "gender" => "female",
-          "stamps" => nil,
-          "state" => "California",
-          "weight" => "100"
+          "gender"         => "female",
+          "stamps"         => nil,
+          "state"          => "California",
+          "weight"         => "100"
         }
 
       assert_equal expected, passport.to_store
