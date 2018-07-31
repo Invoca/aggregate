@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Aggregate::Attribute::ForeignKey < Aggregate::Attribute::Base
 
   def self.available_options
@@ -21,7 +23,7 @@ class Aggregate::Attribute::ForeignKey < Aggregate::Attribute::Base
   end
 
   def to_store(value)
-    value.id if value
+    value&.id
   end
 
   private

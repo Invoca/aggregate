@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "aggregate/bitfield"
 
 require "aggregate/attribute/base"
@@ -43,7 +45,7 @@ module Aggregate
   class Configuration
     attr_reader :keys_list
 
-    class Aggregate::ConfigurationError < StandardError; end;
+    class Aggregate::ConfigurationError < StandardError; end
 
     def keys_list=(keys)
       # Should be a list of base64 encoded keys used for decryption or a single key
@@ -64,7 +66,8 @@ module Aggregate
       # * Note * you can set just one base64 encoded string.
 
       @keys_list = keys
-      (@keys_list.nil? || @keys_list.is_a?(String) || @keys_list.is_a?(Array)) or raise Aggregate::ConfigurationError, "keys_list should be nil, String, or an Array"
+      (@keys_list.nil? || @keys_list.is_a?(String) || @keys_list.is_a?(Array)) or
+        raise Aggregate::ConfigurationError, "keys_list should be nil, String, or an Array"
     end
   end
 end

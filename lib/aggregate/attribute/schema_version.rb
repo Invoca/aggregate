@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Aggregate::Attribute::SchemaVersion < Aggregate::Attribute::Base
 
   attr_reader :code_version, :fixup_method

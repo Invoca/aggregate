@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Aggregate::Attribute::Integer < Aggregate::Attribute::Builtin
   def load(value)
     value.to_i

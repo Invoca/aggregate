@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'large_text_field'
 
 module Aggregate
@@ -15,8 +17,8 @@ module Aggregate
       send(:define_callbacks, :aggregate_load_check_schema)
       class_attribute :aggregate_container_options
       self.aggregate_container_options = {
-          use_storage_field: nil,
-          use_large_text_field_as_failover: false
+        use_storage_field: nil,
+        use_large_text_field_as_failover: false
       }
     end
 
@@ -40,13 +42,13 @@ module Aggregate
       aggregate_attributes != self.class.new.aggregate_attributes
     end
 
-    def has_schema_version?
+    def schema_version?
       respond_to?(:data_schema_version)
     end
 
     def write_aggregates
       if @decoded_aggregate_store_loaded
-        encoded_data = if has_schema_version? || any_non_default_values?
+        encoded_data = if schema_version? || any_non_default_values?
                          ActiveSupport::JSON.encode(to_store)
                        else
                          ''
@@ -55,7 +57,6 @@ module Aggregate
         send("#{aggregate_storage_field}=", encoded_data)
       end
     end
-
 
     def uses_aggregate_storage_field?
       !!self.class.aggregate_container_options[:use_storage_field].presence
@@ -85,7 +86,7 @@ module Aggregate
       if (field_data = send(aggregate_storage_field)) && field_data.present?
         field_data
       elsif failover_to_large_text_field?
-        self.aggregate_store
+        aggregate_store
       end
     end
   end

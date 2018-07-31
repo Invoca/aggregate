@@ -117,4 +117,13 @@ Things to note:
 * **Attribute::Base** defines an interface for saving, restoring and validating an attribute.  All of the classes derived from this provide support attributes of one type. 
 
 
+
+## Test Setup
+The first time you run tests on a system you will need to run the following commands. 
+```
+bundle install
+rake db:migrate
+```
+You can run tests by calling `rake`
+
 ![Diagram from yuml.me](docs/class_diagram.png)

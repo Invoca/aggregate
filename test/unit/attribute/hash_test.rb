@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative '../../test_helper'
 
 class Aggregate::Attribute::HashTest < ActiveSupport::TestCase
@@ -14,7 +16,7 @@ class Aggregate::Attribute::HashTest < ActiveSupport::TestCase
     end
 
     should "handle hash" do
-      assert_kind_of Hash, @ad.new({ key: 'value' })
+      assert_kind_of Hash, @ad.new(key: 'value')
       assert_kind_of Hash, @ad.new({ key: 'value' }.to_json)
     end
 
@@ -115,6 +117,22 @@ class Aggregate::Attribute::HashTest < ActiveSupport::TestCase
 
       should "return nil values as empty json string hash" do
         assert_equal "{}", @ad.to_store(nil)
+      end
+    end
+
+    context "default handling" do
+      setup do
+        @store = Class.new(Aggregate::Base) do
+          aggregate_attribute(:inventory, :hash)
+        end
+      end
+
+      should "not share the default value instance" do
+        first_store = @store.new
+        second_store = @store.new
+        first_store.inventory["eggs"] = 100
+
+        assert_equal({}, second_store.inventory)
       end
     end
   end

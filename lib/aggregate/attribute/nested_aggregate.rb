@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Aggregate::Attribute::NestedAggregate < Aggregate::Attribute::Base
   attr_reader :class_name
 
@@ -23,9 +25,7 @@ class Aggregate::Attribute::NestedAggregate < Aggregate::Attribute::Base
   end
 
   def to_store(value)
-    unless value.nil?
-      value.to_store
-    end
+    value&.to_store
   end
 
   def new(*args)

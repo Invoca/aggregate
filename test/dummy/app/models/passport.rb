@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 
 class Passport < ActiveRecord::Base
   # This is stored in the database

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative '../../../test_helper'
 
 class PassportTest < ActiveSupport::TestCase
@@ -30,7 +32,7 @@ class PassportTest < ActiveSupport::TestCase
       passport.save!
       passport = Passport.find(passport.id)
 
-      assert_equal %w(Canada Mexico), passport.foreign_visits.map(&:country)
+      assert_equal %w[Canada Mexico], passport.foreign_visits.map(&:country)
     end
 
     should "be able to access bitfields" do
@@ -66,13 +68,13 @@ class PassportTest < ActiveSupport::TestCase
 
       expected =
         {
-          "birthdate"=>Time.parse("2011-8-11"),
-          "city"=>"Santa Barbara",
-          "foreign_visits"=>[{"country"=>"Canada"},{"country"=>"Mexico"}],
-          "gender"=>"female",
-          "stamps" => nil,
-          "state"=>"California",
-          "weight" => "100"
+          "birthdate"      => Time.parse("2011-8-11"),
+          "city"           => "Santa Barbara",
+          "foreign_visits" => [{ "country" => "Canada" }, { "country" => "Mexico" }],
+          "gender"         => "female",
+          "stamps"         => nil,
+          "state"          => "California",
+          "weight"         => "100"
         }
 
       assert_equal expected, passport.to_store
@@ -93,7 +95,7 @@ class PassportTest < ActiveSupport::TestCase
       end
 
       should "fail encryption if secret isn't set" do
-        assert_raise(Aggregate::EncryptionError, /must specify a key for encryption/ ) do
+        assert_raise(Aggregate::EncryptionError, /must specify a key for encryption/) do
           @passport = Passport.create!(
             name: "Millie",
             gender: :female,
@@ -175,7 +177,7 @@ class PassportTest < ActiveSupport::TestCase
 
       should "correctly store JSON with properly hashed fields for encrypted data" do
         stub(SecureRandom).random_bytes(12) { "\x8D\xE8E\x95\xB85\xF9~|$n#" }
-        expected_json =  "{\\\"encrypted_data\\\":\\\"ng3gws8rbrUB+fjMQEl6ALUgVxfGFZf/BRyucnyYGrI9Imbkh0ppMitF0nxboXNj8uXWZtLU2u+uE6/Q4vhIbG9eKGtvzWUbWmSxeG+rxSJvM477WNf1vknsZ5UPkQMOTG+1\\\",\\\"initilization_vector\\\":\\\"jehFlbg1+X58JG4j\\\"}\"}"
+        expected_json = "{\\\"encrypted_data\\\":\\\"ng3gws8rbrUB+fjMQEl6ALUgVxfGFZf/BRyucnyYGrI9Imbkh0ppMitF0nxboXNj8uXWZtLU2u+uE6/Q4vhIbG9eKGtvzWUbWmSxeG+rxSJvM477WNf1vknsZ5UPkQMOTG+1\\\",\\\"initilization_vector\\\":\\\"jehFlbg1+X58JG4j\\\"}\"}"
 
         Aggregate.configure do |config|
           config.keys_list = @secret_key_list

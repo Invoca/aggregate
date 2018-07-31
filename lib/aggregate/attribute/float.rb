@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Aggregate::Attribute::Float < Aggregate::Attribute::Builtin
   def load(value)
     value.to_f

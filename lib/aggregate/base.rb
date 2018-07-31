@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Aggregate
   class Base
     attr_accessor :decoded_aggregate_store, :aggregate_owner # , :aggregate_store
@@ -61,15 +63,17 @@ module Aggregate
       ActiveSupport::JSON.encode(to_store)
     end
 
-    alias_method :to_hash, :to_store
+    alias to_hash to_store
 
     def self.attribute(*args)
       aggregate_attribute(*args)
     end
 
+    # rubocop:disable Naming/PredicateName
     def self.has_many(*args)
       aggregate_has_many(*args)
     end
+    # rubocop:enable Naming/PredicateName
 
     def self.belongs_to(*args)
       aggregate_belongs_to(*args)
@@ -81,8 +85,7 @@ module Aggregate
     end
 
     # Required by ActiveRecord::CallBacks
-    def respond_to_without_attributes?(*_args)
-    end
+    def respond_to_without_attributes?(*_args); end
 
     # Methods required by error messages for
     def self.self_and_descendants_from_active_record

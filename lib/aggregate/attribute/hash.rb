@@ -1,7 +1,9 @@
+# frozen_string_literal: true
+
 module Aggregate
   module Attribute
     class Hash < Aggregate::Attribute::Builtin
-      DEFAULT_VALUE = {}
+      DEFAULT_VALUE = {}.freeze
 
       def from_value(value)
         super || DEFAULT_VALUE
@@ -28,17 +30,17 @@ module Aggregate
       end
 
       def default
-        super || DEFAULT_VALUE
+        (super || DEFAULT_VALUE).dup
       end
 
       private
 
       def convert_to_hash(value)
         if value.nil?
-          DEFAULT_VALUE
+          DEFAULT_VALUE.dup
         elsif value.is_a?(::String)
           if value.blank?
-            DEFAULT_VALUE
+            DEFAULT_VALUE.dup
           else
             ActiveSupport::JSON.decode(value)
           end

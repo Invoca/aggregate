@@ -1,4 +1,6 @@
 #!/usr/bin/env rake
+# frozen_string_literal: true
+
 begin
   require 'bundler/setup'
 rescue LoadError
@@ -20,7 +22,7 @@ RDoc::Task.new(:rdoc) do |rdoc|
   rdoc.rdoc_files.include('lib/**/*.rb')
 end
 
-APP_RAKEFILE = File.expand_path("../test/dummy/Rakefile", __FILE__)
+APP_RAKEFILE = File.expand_path('test/dummy/Rakefile', __dir__)
 load 'rails/tasks/engine.rake'
 
 Bundler::GemHelper.install_tasks
@@ -28,11 +30,10 @@ Bundler::GemHelper.install_tasks
 require 'rake/testtask'
 
 namespace :db do
-  task :migrate => [:environment] do |t|
+  task migrate: [:environment] do |_t|
     system("bundle exec rake db:setup RAILS_ENV='test'")
   end
 end
-
 
 Rake::TestTask.new(:test) do |t|
   t.libs << 'lib'
@@ -42,4 +43,14 @@ Rake::TestTask.new(:test) do |t|
   t.warning = false
 end
 
-task default: :test
+task :rubocop do
+  puts
+  puts "rubocop"
+  rubocop_output = `rubocop -a`
+  print rubocop_output
+  unless rubocop_output.match?(/files inspected, no offenses detected/)
+    exit 1
+  end
+end
+
+task default: [:test, :rubocop]
