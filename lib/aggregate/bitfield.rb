@@ -7,26 +7,27 @@ module Aggregate
   class Bitfield
     include Comparable
 
-    cattr_accessor :default, :limit, :value_mapping, :bit_mapping, :default_bit_value
     class << self
       def with_options(options)
         klass_name = "Aggregate::BitfieldWithOptions#{options.hash.to_s.underscore}"
         unless Object.const_defined?(klass_name)
           instance_eval(<<-CLASS_DEFINITION, __FILE__, __LINE__ + 1)
           class #{klass_name} < Aggregate::Bitfield
+            cattr_accessor :default, :limit, :value_mapping, :bit_mapping, :default_bit_value
             def initialize(string_form)
               @string = string_form
             end
           end
           CLASS_DEFINITION
+
+          klass                   = klass_name.constantize
+          klass.default           = options[:default]
+          klass.limit             = options[:limit]
+          klass.value_mapping     = options[:mapping]
+          klass.bit_mapping       = options[:mapping].invert
+          klass.default_bit_value = klass.to_bit(klass.default)
         end
-        klass                   = klass_name.constantize
-        klass.default           = options[:default]
-        klass.limit             = options[:limit]
-        klass.value_mapping     = options[:mapping]
-        klass.bit_mapping       = options[:mapping].invert
-        klass.default_bit_value = klass.to_bit(klass.default)
-        klass
+        klass_name.constantize
       end
 
       def to_bit(original_value)
@@ -59,9 +60,10 @@ module Aggregate
     end
 
     def []=(index, value)
+      bit_value = self.class.to_bit(value) or raise ArgumentError, "attempted to set unsupported bitfield value #{value.inspect}"
       self.class.check_index_limit(index)
       @string = @string.ljust(index, self.class.default_bit_value)
-      @string[index] = self.class.to_bit(value)
+      @string[index] = bit_value
     end
 
     def to_s
