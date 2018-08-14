@@ -1,28 +1,33 @@
 # frozen_string_literal: true
 
-# A string representation of a fixed length array of nillable booleans.
+# A string representation of a fixed length array of values defined in a provided mapping of characters
+# to values.
 # A length limited version of the class is created by calling the limit method.
 module Aggregate
   class Bitfield
     include Comparable
 
-    def initialize(string_form)
-      @string = string_form
+    def initialize(string_form, mapping:, default:)
+      @string            = string_form
+      @value_mapping     = mapping
+      @bit_mapping       = mapping.invert
+      @default           = default
+      @default_bit_value = to_bit(@default)
     end
 
     def [](index)
       check_index_limit(index)
-      to_boolean(@string[index])
+      from_bit(@string[index])
     end
 
     def []=(index, value)
       check_index_limit(index)
-      @string = @string.ljust(index)
-      @string[index] = to_character(value)
+      @string = @string.ljust(index, @default_bit_value)
+      @string[index] = to_bit(value)
     end
 
     def to_s
-      @string.rstrip
+      @string.gsub(/#{Regexp.escape(@default_bit_value)}+\z/, "")
     end
 
     def <=>(other)
@@ -47,28 +52,13 @@ module Aggregate
 
     private
 
-    def to_character(boolean)
-      case boolean
-      when true
-        "t"
-      when false
-        "f"
-      when nil
-        " "
-      end
+    def to_bit(original_value)
+      @bit_mapping[original_value]
     end
 
-    def to_boolean(character)
-      case character
-      when 't'
-        true
-      when 'f'
-        false
-      when ' ', nil
-        nil
-      else
-        raise "Unexpected value in bitfield: (#{@string.inspect})"
-      end
+    def from_bit(bit_value)
+      @value_mapping.key?(bit_value) or raise "Unexpected value in bitfield: (#{@string.inspect})"
+      @value_mapping[bit_value]
     end
 
     protected

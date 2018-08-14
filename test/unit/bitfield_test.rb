@@ -4,8 +4,12 @@ require_relative '../test_helper'
 
 class Aggregate::BitfieldTest < ActiveSupport::TestCase
   context "bitfield" do
+    setup do
+      @bitfield_options = { mapping: { 't' => true, 'f' => false, ' ' => nil }, default: nil }
+    end
+
     should "support array operations" do
-      bitfield = Aggregate::Bitfield.new("")
+      bitfield = Aggregate::Bitfield.new("", @bitfield_options)
 
       bitfield[0] = true
       assert_equal true, bitfield[0]
@@ -20,28 +24,44 @@ class Aggregate::BitfieldTest < ActiveSupport::TestCase
     end
 
     should "fill in details indexing past the length of the string" do
-      bitfield = Aggregate::Bitfield.new("")
+      bitfield = Aggregate::Bitfield.new("", @bitfield_options)
 
       bitfield[10] = true
       assert_equal([nil] * 10 + [true], (0..10).map { |i| bitfield[i] })
     end
 
     should "trim trailing nils when reporting the string value" do
-      bitfield = Aggregate::Bitfield.new("")
+      bitfield = Aggregate::Bitfield.new("", @bitfield_options)
       bitfield[10] = nil
       assert_equal "", bitfield.to_s
     end
 
+    should "trim trailing non nil default values" do
+      mapping     = { 'a' => :awesome, 'p' => :pizza }
+      default     = :pizza
+      bitfield    = Aggregate::Bitfield.new("", mapping: mapping, default: default)
+      bitfield[10] = :pizza
+      assert_equal "", bitfield.to_s
+    end
+
+    should "allow custom mapping and default values" do
+      mapping     = { 'a' => :awesome, 'p' => :pizza }
+      default     = :pizza
+      bitfield    = Aggregate::Bitfield.new("", mapping: mapping, default: default)
+      bitfield[2] = :awesome
+      assert_equal "ppa", bitfield.to_s
+    end
+
     context "length limited classes" do
       should "allow values below the limit" do
-        bitfield = Aggregate::Bitfield.limit(10).new("")
+        bitfield = Aggregate::Bitfield.limit(10).new("", @bitfield_options)
 
         bitfield[9] = true
         assert_equal true, bitfield[9]
       end
 
       should "warn when reading from to bitfields outside the limit" do
-        bitfield = Aggregate::Bitfield.limit(5).new("")
+        bitfield = Aggregate::Bitfield.limit(5).new("", @bitfield_options)
 
         ex = assert_raises ArgumentError do
           bitfield[5]
@@ -50,7 +70,7 @@ class Aggregate::BitfieldTest < ActiveSupport::TestCase
       end
 
       should "warn when writing to bitfields outside the limit" do
-        bitfield = Aggregate::Bitfield.limit(5).new("")
+        bitfield = Aggregate::Bitfield.limit(5).new("", @bitfield_options)
 
         ex = assert_raises ArgumentError do
           bitfield[5] = false
@@ -59,8 +79,8 @@ class Aggregate::BitfieldTest < ActiveSupport::TestCase
       end
 
       should "allow comparison between bitfields" do
-        first = Aggregate::Bitfield.limit(5).new("")
-        second = Aggregate::Bitfield.limit(5).new("")
+        first = Aggregate::Bitfield.limit(5).new("", @bitfield_options)
+        second = Aggregate::Bitfield.limit(5).new("", @bitfield_options)
 
         assert_equal first, second
 
@@ -69,8 +89,8 @@ class Aggregate::BitfieldTest < ActiveSupport::TestCase
       end
 
       should "allow comparision between bitfields of different limits" do
-        first = Aggregate::Bitfield.limit(5).new("")
-        second = Aggregate::Bitfield.limit(50).new("")
+        first = Aggregate::Bitfield.limit(5).new("", @bitfield_options)
+        second = Aggregate::Bitfield.limit(50).new("", @bitfield_options)
 
         assert_equal first, second
 
