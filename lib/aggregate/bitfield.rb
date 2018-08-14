@@ -57,8 +57,12 @@ module Aggregate
     end
 
     def from_bit(bit_value)
-      @value_mapping.key?(bit_value) or raise "Unexpected value in bitfield: (#{@string.inspect})"
-      @value_mapping[bit_value]
+      if bit_value.nil?
+        @default
+      else
+        @value_mapping.key?(bit_value) or raise "Unexpected value in bitfield: (#{@string.inspect})"
+        @value_mapping[bit_value]
+      end
     end
 
     protected

@@ -44,6 +44,11 @@ class Aggregate::BitfieldTest < ActiveSupport::TestCase
       assert_equal "", bitfield.to_s
     end
 
+    should "return default if grabbing empty index" do
+      bitfield = Aggregate::Bitfield.new("", @bitfield_options)
+      assert_nil bitfield[0]
+    end
+
     should "allow custom mapping and default values" do
       mapping     = { 'a' => :awesome, 'p' => :pizza }
       default     = :pizza
