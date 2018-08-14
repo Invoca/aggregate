@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
 class Aggregate::Attribute::Bitfield < Aggregate::Attribute::Base
-  DEFAULT_MAPPING = { "t" => true, "f" => false, " " => nil }.freeze
-  DEFAULT_VALUE = nil
+  DEFAULT_OPTIONS = {
+    mapping: { "t" => true, "f" => false, " " => nil },
+    default: nil
+  }.freeze
 
   def self.available_options
     super + [
@@ -12,17 +14,17 @@ class Aggregate::Attribute::Bitfield < Aggregate::Attribute::Base
     ]
   end
 
-  def initialize(name, options)
-    super
+  def initialize(name, options = {})
+    super(name, DEFAULT_OPTIONS.deep_merge(options))
     assert_valid_mapping_and_default
   end
 
   def from_value(value)
-    new_klass(value&.to_s || "")
+    klass.new(value&.to_s || "")
   end
 
   def from_store(value)
-    new_klass(value || "")
+    klass.new(value || "")
   end
 
   def to_store(value)
@@ -30,7 +32,7 @@ class Aggregate::Attribute::Bitfield < Aggregate::Attribute::Base
   end
 
   def default
-    new_klass("")
+    klass.new("")
   end
 
   # Overrides default
@@ -41,29 +43,16 @@ class Aggregate::Attribute::Bitfield < Aggregate::Attribute::Base
   private
 
   def klass
-    @klass ||= options[:limit] ? Aggregate::Bitfield.limit(options[:limit]) : Aggregate::Bitfield
-  end
-
-  def new_klass(value)
-    klass.new(value, mapping: mapping, default: default_value)
-  end
-
-  def mapping
-    @mapping ||= options[:mapping] || DEFAULT_MAPPING.dup
-  end
-
-  def default_value
-    unless defined?(@default_value)
-      @default_value = options[:default] || DEFAULT_VALUE.dup
-    end
-    @default_value
+    @klass ||= Aggregate::Bitfield.with_options(options)
   end
 
   def assert_valid_mapping_and_default
+    mapping = options[:mapping]
+    default = options[:default]
     mapping.presence.is_a?(Hash) or raise ArgumentError, "mapping must be provided as a hash"
 
     values = mapping.values
     values.count == values.uniq.count or raise ArgumentError, "mapping must have unique values"
-    default_value.in?(values) or raise ArgumentError, "default value not provided in mapping"
+    default.in?(values) or raise ArgumentError, "default value not provided in mapping"
   end
 end

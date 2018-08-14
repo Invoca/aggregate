@@ -11,29 +11,32 @@ class Aggregate::Attribute::BitfieldTest < ActiveSupport::TestCase
 
   should "handle bitfields as booleans by default" do
     result = @ad.from_value("tf t")
-    assert_equal Aggregate::Bitfield.limit(4).new("tf t", @default_bitfield_options), result
+    assert_equal Aggregate::Bitfield.with_options(@default_bitfield_options.merge(limit: 4)).new("tf t"), result
     assert_equal true, result[0]
     assert_equal false, result[1]
     assert_nil result[2]
     assert_equal true, result[3]
 
-    assert_equal Aggregate::Bitfield.limit(4).new("tf t", @default_bitfield_options), @ad.from_store("tf t")
-    assert_equal "tf t", @ad.to_store(Aggregate::Bitfield.limit(4).new("tf t", @default_bitfield_options))
+    assert_equal Aggregate::Bitfield.with_options(@default_bitfield_options.merge(limit: 4)).new("tf t"), @ad.from_store("tf t")
+    assert_equal "tf t", @ad.to_store(Aggregate::Bitfield.with_options(@default_bitfield_options.merge(limit: 4)).new("tf t"))
   end
 
   should "allow custom mapping and default values" do
-    mapping = { 'a' => :awesome, 'p' => :pizza }
-    default = :pizza
-    ad = Aggregate::AttributeHandler.factory("testme", :bitfield, limit: 4, mapping: mapping, default: default)
+    options = {
+      mapping: { 'a' => :awesome, 'p' => :pizza },
+      default: :pizza,
+      limit:   4
+    }
+    ad = Aggregate::AttributeHandler.factory("testme", :bitfield, options)
 
     bitfield = ad.default
     bitfield[2] = :awesome
     assert_equal "ppa", bitfield.to_s
-    assert_equal Aggregate::Bitfield.limit(4).new("ppa", mapping: mapping, default: :pizza), bitfield
+    assert_equal Aggregate::Bitfield.with_options(options).new("ppa"), bitfield
   end
 
   should "provide a default" do
-    expected_default = Aggregate::Bitfield.limit(4).new("", @default_bitfield_options)
+    expected_default = Aggregate::Bitfield.with_options(@default_bitfield_options.merge(limit: 4)).new("")
     assert_equal expected_default, @ad.default
   end
 

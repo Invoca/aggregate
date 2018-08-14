@@ -8,8 +8,14 @@ class Aggregate::BitfieldTest < ActiveSupport::TestCase
       @bitfield_options = { mapping: { 't' => true, 'f' => false, ' ' => nil }, default: nil }
     end
 
+    should "raise if attempting to create an instance of the abstract class" do
+      assert_raises RuntimeError, "abstract class cannot be created" do
+        Aggregate::Bitfield.new("")
+      end
+    end
+
     should "support array operations" do
-      bitfield = Aggregate::Bitfield.new("", @bitfield_options)
+      bitfield = Aggregate::Bitfield.with_options(Aggregate::Attribute::Bitfield::DEFAULT_OPTIONS).new("")
 
       bitfield[0] = true
       assert_equal true, bitfield[0]
@@ -24,14 +30,14 @@ class Aggregate::BitfieldTest < ActiveSupport::TestCase
     end
 
     should "fill in details indexing past the length of the string" do
-      bitfield = Aggregate::Bitfield.new("", @bitfield_options)
+      bitfield = Aggregate::Bitfield.with_options(Aggregate::Attribute::Bitfield::DEFAULT_OPTIONS).new("")
 
       bitfield[10] = true
       assert_equal([nil] * 10 + [true], (0..10).map { |i| bitfield[i] })
     end
 
     should "trim trailing nils when reporting the string value" do
-      bitfield = Aggregate::Bitfield.new("", @bitfield_options)
+      bitfield = Aggregate::Bitfield.with_options(Aggregate::Attribute::Bitfield::DEFAULT_OPTIONS).new("")
       bitfield[10] = nil
       assert_equal "", bitfield.to_s
     end
@@ -39,34 +45,34 @@ class Aggregate::BitfieldTest < ActiveSupport::TestCase
     should "trim trailing non nil default values" do
       mapping     = { 'a' => :awesome, 'p' => :pizza }
       default     = :pizza
-      bitfield    = Aggregate::Bitfield.new("", mapping: mapping, default: default)
+      bitfield    = Aggregate::Bitfield.with_options(mapping: mapping, default: default).new("")
       bitfield[10] = :pizza
       assert_equal "", bitfield.to_s
     end
 
     should "return default if grabbing empty index" do
-      bitfield = Aggregate::Bitfield.new("", @bitfield_options)
+      bitfield = Aggregate::Bitfield.with_options(Aggregate::Attribute::Bitfield::DEFAULT_OPTIONS).new("")
       assert_nil bitfield[0]
     end
 
     should "allow custom mapping and default values" do
       mapping     = { 'a' => :awesome, 'p' => :pizza }
       default     = :pizza
-      bitfield    = Aggregate::Bitfield.new("", mapping: mapping, default: default)
+      bitfield    = Aggregate::Bitfield.with_options(mapping: mapping, default: default).new("")
       bitfield[2] = :awesome
       assert_equal "ppa", bitfield.to_s
     end
 
     context "length limited classes" do
       should "allow values below the limit" do
-        bitfield = Aggregate::Bitfield.limit(10).new("", @bitfield_options)
+        bitfield = Aggregate::Bitfield.with_options(@bitfield_options.merge(limit: 10)).new("")
 
         bitfield[9] = true
         assert_equal true, bitfield[9]
       end
 
       should "warn when reading from to bitfields outside the limit" do
-        bitfield = Aggregate::Bitfield.limit(5).new("", @bitfield_options)
+        bitfield = Aggregate::Bitfield.with_options(@bitfield_options.merge(limit: 5)).new("")
 
         ex = assert_raises ArgumentError do
           bitfield[5]
@@ -75,7 +81,7 @@ class Aggregate::BitfieldTest < ActiveSupport::TestCase
       end
 
       should "warn when writing to bitfields outside the limit" do
-        bitfield = Aggregate::Bitfield.limit(5).new("", @bitfield_options)
+        bitfield = Aggregate::Bitfield.with_options(@bitfield_options.merge(limit: 5)).new("")
 
         ex = assert_raises ArgumentError do
           bitfield[5] = false
@@ -84,8 +90,8 @@ class Aggregate::BitfieldTest < ActiveSupport::TestCase
       end
 
       should "allow comparison between bitfields" do
-        first = Aggregate::Bitfield.limit(5).new("", @bitfield_options)
-        second = Aggregate::Bitfield.limit(5).new("", @bitfield_options)
+        first = Aggregate::Bitfield.with_options(@bitfield_options.merge(limit: 5)).new("")
+        second = Aggregate::Bitfield.with_options(@bitfield_options.merge(limit: 5)).new("")
 
         assert_equal first, second
 
@@ -94,8 +100,8 @@ class Aggregate::BitfieldTest < ActiveSupport::TestCase
       end
 
       should "allow comparision between bitfields of different limits" do
-        first = Aggregate::Bitfield.limit(5).new("", @bitfield_options)
-        second = Aggregate::Bitfield.limit(50).new("", @bitfield_options)
+        first = Aggregate::Bitfield.with_options(@bitfield_options.merge(limit: 5)).new("")
+        second = Aggregate::Bitfield.with_options(@bitfield_options.merge(limit: 50)).new("")
 
         assert_equal first, second
 

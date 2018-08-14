@@ -7,68 +7,69 @@ module Aggregate
   class Bitfield
     include Comparable
 
-    def initialize(string_form, mapping:, default:)
-      @string            = string_form
-      @value_mapping     = mapping
-      @bit_mapping       = mapping.invert
-      @default           = default
-      @default_bit_value = to_bit(@default)
+    cattr_accessor :default, :limit, :value_mapping, :bit_mapping, :default_bit_value
+    class << self
+      def with_options(options)
+        klass_name = "Aggregate::BitfieldWithOptions#{options.hash.to_s.underscore}"
+        unless Object.const_defined?(klass_name)
+          instance_eval(<<-CLASS_DEFINITION, __FILE__, __LINE__ + 1)
+          class #{klass_name} < Aggregate::Bitfield
+            def initialize(string_form)
+              @string = string_form
+            end
+          end
+          CLASS_DEFINITION
+        end
+        klass                   = klass_name.constantize
+        klass.default           = options[:default]
+        klass.limit             = options[:limit]
+        klass.value_mapping     = options[:mapping]
+        klass.bit_mapping       = options[:mapping].invert
+        klass.default_bit_value = klass.to_bit(klass.default)
+        klass
+      end
+
+      def to_bit(original_value)
+        bit_mapping[original_value]
+      end
+
+      def from_bit(bit_value)
+        if bit_value.nil?
+          default
+        else
+          value_mapping.key?(bit_value) or raise "Unexpected value in bitfield: (#{bit_value.inspect})"
+          value_mapping[bit_value]
+        end
+      end
+
+      def check_index_limit(index)
+        if limit && index >= limit
+          raise ArgumentError, "index out of bounds, index(#{index}) >= limit(#{limit})"
+        end
+      end
+    end
+
+    def initialize(*)
+      raise "abstract class cannot be created"
     end
 
     def [](index)
-      check_index_limit(index)
-      from_bit(@string[index])
+      self.class.check_index_limit(index)
+      self.class.from_bit(@string[index])
     end
 
     def []=(index, value)
-      check_index_limit(index)
-      @string = @string.ljust(index, @default_bit_value)
-      @string[index] = to_bit(value)
+      self.class.check_index_limit(index)
+      @string = @string.ljust(index, self.class.default_bit_value)
+      @string[index] = self.class.to_bit(value)
     end
 
     def to_s
-      @string.gsub(/#{Regexp.escape(@default_bit_value)}+\z/, "")
+      @string.gsub(/#{Regexp.escape(self.class.default_bit_value)}+\z/, "")
     end
 
     def <=>(other)
       to_s <=> other.to_s
-    end
-
-    def self.limit(limit)
-      limited_class = "Aggregate::Bitfield_Limit_#{limit}"
-      unless Object.const_defined?(limited_class)
-        instance_eval(<<-CLASS_DEFINITION, __FILE__, __LINE__ + 1)
-          class #{limited_class} < Aggregate::Bitfield
-            def check_index_limit(index)
-              if index >= #{limit}
-                raise ArgumentError, "index out of bounds, index(\#{index}) >= limit(#{limit})"
-              end
-            end
-          end
-        CLASS_DEFINITION
-      end
-      limited_class.constantize
-    end
-
-    private
-
-    def to_bit(original_value)
-      @bit_mapping[original_value]
-    end
-
-    def from_bit(bit_value)
-      if bit_value.nil?
-        @default
-      else
-        @value_mapping.key?(bit_value) or raise "Unexpected value in bitfield: (#{@string.inspect})"
-        @value_mapping[bit_value]
-      end
-    end
-
-    protected
-
-    def check_index_limit(index)
-      # Derived classes overwrite this to enforce their limits
     end
   end
 end
