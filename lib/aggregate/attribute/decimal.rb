@@ -1,19 +1,27 @@
 # frozen_string_literal: true
 
 class Aggregate::Attribute::Decimal < Aggregate::Attribute::Builtin
+  class << self
+    def available_options
+      (super + [:scale]).freeze
+    end
+  end
+
   def load(value)
-    value.to_d
+    if (scale = options[:scale])
+      value.to_d.truncate(scale)
+    else
+      value.to_d
+    end
   rescue ArgumentError
     BigDecimal(0)
   end
 
   def store(value)
-    value.to_s
+    load(value).to_s
   end
 
   def assign(value)
-    value.to_d
-  rescue ArgumentError
-    BigDecimal(0)
+    load(value)
   end
 end

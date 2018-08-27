@@ -74,7 +74,7 @@ class PassportTest < ActiveSupport::TestCase
           "gender"         => "female",
           "stamps"         => nil,
           "state"          => "California",
-          "weight"         => "100"
+          "weight"         => "100.0"
         }
 
       assert_equal expected, passport.to_store
