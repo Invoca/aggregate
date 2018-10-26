@@ -8,8 +8,8 @@ GIT
 
 GIT
   remote: git@github.com:Invoca/large_text_field.git
-  revision: f24f25aa4641ba33c3b5e8698be23cc62d2cdea8
-  ref: f24f25aa4641ba33c3b5e8698be23cc62d2cdea8
+  revision: ab98c90061fe63d5829f6be9d4386c21638b87bc
+  ref: ab98c90061fe63d5829f6be9d4386c21638b87bc
   specs:
     large_text_field (0.0.2)
       hobo_support (= 2.0.1)
@@ -24,7 +24,6 @@ PATH
       encryptor (~> 3.0)
       hobo_support (= 2.0.1)
       large_text_field (= 0.0.2)
-      rails (~> 4.0)
 
 GEM
   remote: https://rubygems.org/

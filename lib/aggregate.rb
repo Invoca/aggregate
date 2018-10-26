@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require "rails"
 require "active_record"
 
 require "aggregate/bitfield"
@@ -21,7 +20,6 @@ require "aggregate/attribute/list"
 require "aggregate/attribute/bitfield"
 require "aggregate/attribute/hash"
 
-require "aggregate/engine"
 require "aggregate/aggregate_store"
 require "aggregate/attribute_handler"
 require "aggregate/base"
