@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "rails"
+require "active_record"
 
 require "aggregate/bitfield"
 
