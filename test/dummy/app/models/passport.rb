@@ -7,6 +7,7 @@ class Passport < ActiveRecord::Base
   attr_accessible :gender, :city, :state, :birthdate, :height, :weight, :photo, :foreign_visits, :stamps, :password
 
   include Aggregate::Container
+  store_aggregates_using_large_text_field
 
   aggregate_attribute :gender,           :enum, limit: [:male, :female], required: true
   aggregate_attribute :city,             :string,   required: true
