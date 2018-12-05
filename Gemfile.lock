@@ -19,7 +19,7 @@ GIT
 PATH
   remote: .
   specs:
-    aggregate (0.0.5)
+    aggregate (0.1.0)
       activerecord (~> 4.0)
       encryptor (~> 3.0)
       hobo_support (= 2.0.1)
