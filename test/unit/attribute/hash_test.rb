@@ -65,12 +65,40 @@ class Aggregate::Attribute::HashTest < ActiveSupport::TestCase
     end
 
     context "#store" do
-      should "encode hash values as json" do
-        assert_equal "{}", @ad.store({})
+      context "store_hash_as_json defaulted as true" do
+        setup do
+          assert_equal({}, @ad.options)
+        end
+
+        should "encode hash values as json" do
+          assert_equal "{}", @ad.store({})
+        end
+
+        should "keep json strings" do
+          assert_equal "{}", @ad.store("{}")
+        end
       end
 
-      should "keep json strings" do
-        assert_equal "{}", @ad.store("{}")
+      context "store_hash_as_json as false" do
+        setup do
+          @attribute_handler = Aggregate::AttributeHandler.factory("testme", :hash, { store_hash_as_json: false })
+        end
+
+        should "encode hash values as hashes" do
+          assert_equal({ a: 1 }, @attribute_handler.store({ a: 1 }))
+        end
+
+        should "expand json strings as hashes" do
+          assert_equal({ "a" => 1 }, @attribute_handler.store("{\"a\":1}"))
+        end
+
+        should "set default value as empty hash" do
+          assert_equal({}, @attribute_handler.store(nil))
+        end
+
+        should "set empty string as default value" do
+          assert_equal({}, @attribute_handler.store(""))
+        end
       end
     end
 
