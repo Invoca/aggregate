@@ -100,6 +100,28 @@ class Aggregate::Attribute::HashTest < ActiveSupport::TestCase
           assert_equal({}, @attribute_handler.store(""))
         end
       end
+
+      context "aggregate_db_storage_type option as :elasticsearch" do
+        setup do
+          @attribute_handler = Aggregate::AttributeHandler.factory("testme", :hash, { aggregate_db_storage_type: :elasticsearch })
+        end
+
+        should "encode hash values as hashes" do
+          assert_equal({ a: 1 }, @attribute_handler.store({ a: 1 }))
+        end
+
+        should "expand json strings as hashes" do
+          assert_equal({ "a" => 1 }, @attribute_handler.store("{\"a\":1}"))
+        end
+
+        should "set default value as empty hash" do
+          assert_equal({}, @attribute_handler.store(nil))
+        end
+
+        should "set empty string as default value" do
+          assert_equal({}, @attribute_handler.store(""))
+        end
+      end
     end
 
     context "#from_value" do
