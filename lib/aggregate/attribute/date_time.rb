@@ -10,7 +10,9 @@ class Aggregate::Attribute::DateTime < Aggregate::Attribute::Builtin
   end
 
   def store(value)
-    if @options[:format]
+    if @options.dig(:aggregate_db_storage_type) == :elasticsearch
+      value.utc.iso8601
+    elsif @options[:format]
       value.utc.to_s(@options[:format])
     else
       value.utc.rfc822
