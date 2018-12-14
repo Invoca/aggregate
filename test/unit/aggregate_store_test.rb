@@ -25,6 +25,17 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
       @store.aggregate_attribute(:name, :string)
     end
 
+    should "pass aggregate_db_storage_type option to all attribute handlers if aggregate_db_storage_type is not nil" do
+      store = Class.new { }
+      store.send(:include, Aggregate::AggregateStore)
+      store.define_singleton_method(:aggregate_db_storage_type) { :elasticsearch }
+
+      store.aggregate_attribute(:name, :string)
+      store.aggregate_attribute(:number, :integer)
+
+      assert_equal [{ aggregate_db_storage_type: :elasticsearch }], store.aggregated_attribute_handlers.values.map(&:options).uniq
+    end
+
     should "define methods on the class when called" do
       assert_equal(["name"], @store.aggregated_attribute_handlers.map { |_, aa| aa.name })
 
@@ -158,6 +169,15 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
           @store.aggregate_has_many(:names, :string)
         end
 
+        should "pass aggregate_db_storage_type option to element_helper in list attribute handler if aggregate_db_storage_type is not nil" do
+          store = Class.new { }
+          store.send(:include, Aggregate::AggregateStore)
+          store.define_singleton_method(:aggregate_db_storage_type) { :elasticsearch }
+          store.aggregate_has_many(:names, :string)
+
+          assert_equal({ aggregate_db_storage_type: :elasticsearch }, store.aggregated_attribute_handlers[:names].element_helper.options)
+        end
+
         should "default to an empty list" do
           @instance = @store.new
           @store.send(:define_method, :aggregate_owner) { @aggregate_owner ||= OwnerStub.new }
@@ -272,6 +292,17 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
 
           assert_equal @passport, @instance.passport
           assert_equal @passport.id, @instance.passport_id
+        end
+
+        should "pass aggregate_db_storage_type option to foreign key attribute handler if aggregate_db_storage_type is not nil" do
+          store = Class.new { }
+          store.send(:include, Aggregate::AggregateStore)
+          store.define_singleton_method(:aggregate_db_storage_type) { :elasticsearch }
+          store.aggregate_belongs_to(:passport, class_name: "Passport")
+          @store.send(:define_method, :aggregate_owner) { @aggregate_owner ||= OwnerStub.new }
+
+          expected_options = { class_name: "Passport", aggregate_db_storage_type: :elasticsearch }
+          assert_equal expected_options, store.aggregated_attribute_handlers[:passport].options
         end
       end
 
