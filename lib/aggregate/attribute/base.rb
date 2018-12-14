@@ -8,10 +8,11 @@ module Aggregate
 
       def self.available_options
         [
-          :default,          # The default value for this attribute.  Default is nil.
-          :limit,            # Specifies the allowed values for this attribute.
-          :required,         # If true, this attribute cannot be nil, default is false.
-          :force_validation, # If true, this attribute will be validated even if it was not loaded, default is false.
+          :default,                  # The default value for this attribute.  Default is nil.
+          :limit,                    # Specifies the allowed values for this attribute.
+          :required,                 # If true, this attribute cannot be nil, default is false.
+          :force_validation,         # If true, this attribute will be validated even if it was not loaded, default is false.
+          :aggregate_db_storage_type # Attribute used to determine how to store certain types of attributes, default is nil.
         ]
       end
 

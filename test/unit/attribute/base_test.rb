@@ -21,6 +21,12 @@ class Aggregate::Attribute::BaseTest < ActiveSupport::TestCase
       should "validate constructor arguments" do
         assert_raises(ArgumentError) { Aggregate::AttributeHandler.factory(:testme, :string, not_an_option: false) }
       end
+
+      should "allow :aggregate_db_storage_type option" do
+        assert_nothing_raised do
+          Aggregate::AttributeHandler.factory(:testme, :string, aggregate_db_storage_type: :sql)
+        end
+      end
     end
 
     context "validations" do
