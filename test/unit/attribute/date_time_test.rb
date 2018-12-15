@@ -25,7 +25,7 @@ class Aggregate::Attribute::DateTimeTest < ActiveSupport::TestCase
   end
 
   should "handle parsing and storing datetime based on format option" do
-    ad   = Aggregate::AttributeHandler.factory("testme", :datetime, { format: :short })
+    ad   = Aggregate::AttributeHandler.factory("testme", :datetime, format: :short)
     time = Time.at(1544732833).in_time_zone("Pacific Time (US & Canada)")
 
     assert_equal "12/13/18   8:27 PM", ad.from_value(time.iso8601).utc.to_s

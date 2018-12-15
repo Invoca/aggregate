@@ -81,11 +81,11 @@ class Aggregate::Attribute::HashTest < ActiveSupport::TestCase
 
       context "store_hash_as_json as false" do
         setup do
-          @attribute_handler = Aggregate::AttributeHandler.factory("testme", :hash, { store_hash_as_json: false })
+          @attribute_handler = Aggregate::AttributeHandler.factory("testme", :hash, store_hash_as_json: false)
         end
 
         should "encode hash values as hashes" do
-          assert_equal({ a: 1 }, @attribute_handler.store({ a: 1 }))
+          assert_equal({ a: 1 }, @attribute_handler.store(a: 1))
         end
 
         should "expand json strings as hashes" do
@@ -103,11 +103,11 @@ class Aggregate::Attribute::HashTest < ActiveSupport::TestCase
 
       context "aggregate_db_storage_type option as :elasticsearch" do
         setup do
-          @attribute_handler = Aggregate::AttributeHandler.factory("testme", :hash, { aggregate_db_storage_type: :elasticsearch })
+          @attribute_handler = Aggregate::AttributeHandler.factory("testme", :hash, aggregate_db_storage_type: :elasticsearch)
         end
 
         should "encode hash values as hashes" do
-          assert_equal({ a: 1 }, @attribute_handler.store({ a: 1 }))
+          assert_equal({ a: 1 }, @attribute_handler.store(a: 1))
         end
 
         should "expand json strings as hashes" do
