@@ -57,14 +57,12 @@ module Aggregate
           end
       end
 
+      def aggregate_db_storage_type; end
+
       private
 
       def full_attr_handler_options(options)
-        if respond_to?(:aggregate_db_storage_type)
-          options.merge(aggregate_db_storage_type: aggregate_db_storage_type)
-        else
-          options
-        end
+        options.merge({ aggregate_db_storage_type: aggregate_db_storage_type }.compact)
       end
     end
 
