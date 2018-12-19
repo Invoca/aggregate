@@ -122,6 +122,13 @@ class Aggregate::Attribute::HashTest < ActiveSupport::TestCase
           assert_equal({}, @attribute_handler.store(""))
         end
       end
+
+      context "supplying both :store_hash_as_json and :aggregate_db_storage_type options" do
+        should "prefer store_hash_as_json over aggregate_db_storage_type" do
+          attr_handler = Aggregate::AttributeHandler.factory("testme", :hash, store_hash_as_json: true, aggregate_db_storage_type: :elasticsearch)
+          assert_equal "{\"a\":1}", attr_handler.store(a: 1)
+        end
+      end
     end
 
     context "#from_value" do
