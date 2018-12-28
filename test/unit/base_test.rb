@@ -253,5 +253,11 @@ class Aggregate::BaseTest < ActiveSupport::TestCase
         assert_equal "U22Rtb+/eSvPAp3MDI2Ze+MvXtUbwo3A4p/r91cW5jg=", Base64.strict_encode64(Aggregate::Base.secret_keys_from_config.last)
       end
     end
+
+    context ".aggregate_db_storage_type" do
+      should "respond to :aggregate_db_storage_type" do
+        assert_nil @agg.aggregate_db_storage_type
+      end
+    end
   end
 end

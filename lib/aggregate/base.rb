@@ -20,6 +20,10 @@ module Aggregate
 
     define_callbacks :before_validation, :aggregate_load, :aggregate_load_check_schema
 
+    class << self
+      def aggregate_db_storage_type; end
+    end
+
     def initialize(arguments = {})
       arguments.each { |k, v| send("#{k}=", v) }
     end

@@ -18,11 +18,28 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
     end
   end
 
+  def elasticsearch_store
+    @elasticsearch_store ||=
+      begin
+        store = Class.new
+        store.send(:include, Aggregate::AggregateStore)
+        store.define_singleton_method(:aggregate_db_storage_type) { :elasticsearch }
+        store
+      end
+  end
+
   context "aggregate_attribute" do
     setup do
-      @store = Class.new { }
+      @store = Class.new
       @store.send(:include, Aggregate::AggregateStore)
       @store.aggregate_attribute(:name, :string)
+    end
+
+    should "pass aggregate_db_storage_type option to all attribute handlers if aggregate_db_storage_type is not nil" do
+      elasticsearch_store.aggregate_attribute(:name, :string)
+      elasticsearch_store.aggregate_attribute(:number, :integer)
+
+      assert_equal [{ aggregate_db_storage_type: :elasticsearch }], elasticsearch_store.aggregated_attribute_handlers.values.map(&:options).uniq
     end
 
     should "define methods on the class when called" do
@@ -153,9 +170,14 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
 
       context "has_many aggregates" do
         setup do
-          @store = Class.new { }
+          @store = Class.new
           @store.send(:include, Aggregate::AggregateStore)
           @store.aggregate_has_many(:names, :string)
+        end
+
+        should "pass aggregate_db_storage_type option to element_helper in list attribute handler if aggregate_db_storage_type is not nil" do
+          elasticsearch_store.aggregate_has_many(:names, :string)
+          assert_equal({ aggregate_db_storage_type: :elasticsearch }, elasticsearch_store.aggregated_attribute_handlers[:names].element_helper.options)
         end
 
         should "default to an empty list" do
@@ -243,7 +265,7 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
 
       context "belongs_to aggregates" do
         setup do
-          @store = Class.new { }
+          @store = Class.new
           @store.send(:include, Aggregate::AggregateStore)
           @store.aggregate_belongs_to(:passport, class_name: "Passport")
           @store.send(:define_method, :aggregate_owner) { @aggregate_owner ||= OwnerStub.new }
@@ -273,11 +295,19 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
           assert_equal @passport, @instance.passport
           assert_equal @passport.id, @instance.passport_id
         end
+
+        should "pass aggregate_db_storage_type option to foreign key attribute handler if aggregate_db_storage_type is not nil" do
+          elasticsearch_store.aggregate_belongs_to(:passport, class_name: "Passport")
+          elasticsearch_store.send(:define_method, :aggregate_owner) { @aggregate_owner ||= OwnerStub.new }
+
+          expected_options = { class_name: "Passport", aggregate_db_storage_type: :elasticsearch }
+          assert_equal expected_options, elasticsearch_store.aggregated_attribute_handlers[:passport].options
+        end
       end
 
       context "schema versioning" do
         should "allow a schema version to be defined." do
-          @store = Class.new { }
+          @store = Class.new
           [:save, :save!, :create_or_update, :create, :update, :destroy, :valid?].each do |method|
             @store.send(:define_method, method) { raise "call #{method} on containing class" }
           end
@@ -298,7 +328,7 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
       end
 
       should "clear assignments after reload" do
-        @base_class = Class.new { }
+        @base_class = Class.new
         @base_class.send(:define_method, :reload) { @reload_called = true }
 
         @store = Class.new(@base_class) { }

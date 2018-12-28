@@ -6,7 +6,8 @@ module Aggregate
 
     module ClassMethods
       def aggregate_attribute(name, class_name, options = {})
-        aggregated_attribute_handlers[name] = agg_attribute = Aggregate::AttributeHandler.factory(name, class_name, options)
+        agg_attribute = Aggregate::AttributeHandler.factory(name, class_name, full_attr_handler_options(options))
+        aggregated_attribute_handlers[name] = agg_attribute
 
         define_method(name)                       { load_aggregate_attribute(agg_attribute) }
         define_method("#{name}=")                 { |value| save_aggregate_attribute(agg_attribute, value) }
@@ -16,7 +17,8 @@ module Aggregate
       end
 
       def aggregate_has_many(name, class_name, options = {})
-        aggregated_attribute_handlers[name] = agg_attribute = Aggregate::AttributeHandler.has_many_factory(name, class_name, options)
+        agg_attribute = Aggregate::AttributeHandler.has_many_factory(name, class_name, full_attr_handler_options(options))
+        aggregated_attribute_handlers[name] = agg_attribute
 
         define_method(name)                       { load_aggregate_attribute(agg_attribute) }
         define_method("#{name}=")                 { |value| save_aggregate_attribute(agg_attribute, value) }
@@ -24,7 +26,8 @@ module Aggregate
       end
 
       def aggregate_belongs_to(name, options = {})
-        aggregated_attribute_handlers[name] = agg_attribute = Aggregate::AttributeHandler.belongs_to_factory("#{name}_id", options)
+        agg_attribute = Aggregate::AttributeHandler.belongs_to_factory("#{name}_id", full_attr_handler_options(options))
+        aggregated_attribute_handlers[name] = agg_attribute
 
         define_method(name)                       { load_aggregate_attribute(agg_attribute) }
         define_method("#{name}_id")               { load_aggregate_attribute(agg_attribute)._?.id }
@@ -52,6 +55,14 @@ module Aggregate
           else
             {}
           end
+      end
+
+      def aggregate_db_storage_type; end
+
+      private
+
+      def full_attr_handler_options(options)
+        options.merge({ aggregate_db_storage_type: aggregate_db_storage_type }.compact)
       end
     end
 

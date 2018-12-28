@@ -16,6 +16,30 @@ class Aggregate::Attribute::DateTimeTest < ActiveSupport::TestCase
     assert_equal ActiveSupport::TimeWithZone, ad.new(Time.now).class
   end
 
+  should "handle parsing and storing datetime based on aggregate_db_storage_type option being :elasticsearch" do
+    ad   = Aggregate::AttributeHandler.factory("testme", :datetime, aggregate_db_storage_type: :elasticsearch)
+    time = Time.at(1544732833).in_time_zone("Pacific Time (US & Canada)")
+
+    assert_equal "12/13/18   8:27 PM", ad.from_value(time.iso8601).utc.to_s
+    assert_equal "2018-12-13T20:27:13Z", ad.to_store(time)
+  end
+
+  should "handle parsing and storing datetime based on format option" do
+    ad   = Aggregate::AttributeHandler.factory("testme", :datetime, format: :short)
+    time = Time.at(1544732833).in_time_zone("Pacific Time (US & Canada)")
+
+    assert_equal "12/13/18   8:27 PM", ad.from_value(time.iso8601).utc.to_s
+    assert_equal "13 Dec 20:27", ad.to_store(time)
+  end
+
+  should "prefer :format over :aggregate_db_storage_type option" do
+    ad   = Aggregate::AttributeHandler.factory("testme", :datetime, format: :short, aggregate_db_storage_type: :elasticsearch)
+    time = Time.at(1544732833).in_time_zone("Pacific Time (US & Canada)")
+
+    assert_equal "12/13/18   8:27 PM", ad.from_value(time.iso8601).utc.to_s
+    assert_equal "13 Dec 20:27", ad.to_store(time)
+  end
+
   should "Load into users timezone, store the same regardless of timezone" do
     user_time = Time.zone.local(2008, 3, 10).in_time_zone("Eastern Time (US & Canada)")
     begin
