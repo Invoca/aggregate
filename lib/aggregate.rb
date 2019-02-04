@@ -25,6 +25,7 @@ require "aggregate/attribute_handler"
 require "aggregate/base"
 require "aggregate/combined_string_field"
 require "aggregate/container"
+require "aggregate/foreign_key_reference"
 
 module Aggregate
   class << self

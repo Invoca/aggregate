@@ -10,9 +10,11 @@ class Aggregate::Attribute::ForeignKeyTest < ActiveSupport::TestCase
 
       ad = Aggregate::AttributeHandler.belongs_to_factory("testme", class_name: "Passport")
 
-      assert_equal passport,         ad.from_value(passport)
-      assert_equal passport,         ad.from_value(passport.id)
-      assert_equal passport,         ad.from_store(passport.id)
+      assert_equal passport,         ad.from_value(passport).value
+      assert_equal passport.id,      ad.from_value(passport).id
+      assert_equal passport,         ad.from_value(passport.id).value
+      assert_equal passport.id,      ad.from_value(passport.id).id
+      assert_equal passport,         ad.from_store(passport.id).value
       assert_equal passport.id,      ad.to_store(passport)
 
       assert_nil             ad.from_value(nil)

@@ -264,44 +264,102 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
       end
 
       context "belongs_to aggregates" do
-        setup do
-          @store = Class.new
-          @store.send(:include, Aggregate::AggregateStore)
-          @store.aggregate_belongs_to(:passport, class_name: "Passport")
-          @store.send(:define_method, :aggregate_owner) { @aggregate_owner ||= OwnerStub.new }
-          @store.send(:define_method, :decoded_aggregate_store) { { "names" => nil } }
-          @store.send(:define_method, :run_callbacks) { |_foo| true }
-          @store.send(:define_method, :new_record?) { @new_record }
-          @passport = sample_passport
-          @instance = @store.new
+        context "using stub class" do
+          setup do
+            @store = Class.new
+            @store.send(:include, Aggregate::AggregateStore)
+            @store.aggregate_belongs_to(:passport, class_name: "Passport")
+            @store.send(:define_method, :aggregate_owner) { @aggregate_owner ||= OwnerStub.new }
+            @store.send(:define_method, :decoded_aggregate_store) { { "names" => nil } }
+            @store.send(:define_method, :run_callbacks) { |_foo| true }
+            @store.send(:define_method, :new_record?) { @new_record }
+            @passport = sample_passport
+            @instance = @store.new
+          end
+
+          should "allow assignment by instance" do
+            @instance.passport = @passport
+
+            expected = { "passport_id" => @passport.id }
+            assert_equal expected, @instance.to_store
+
+            assert_equal @passport, @instance.passport
+            assert_equal @passport.id, @instance.passport_id
+          end
+
+          should "allow assignment by id" do
+            @instance.passport_id = @passport.id
+
+            expected = { "passport_id" => @passport.id }
+            assert_equal expected, @instance.to_store
+
+            assert_equal @passport, @instance.passport
+            assert_equal @passport.id, @instance.passport_id
+          end
+
+          should "pass aggregate_db_storage_type option to foreign key attribute handler if aggregate_db_storage_type is not nil" do
+            elasticsearch_store.aggregate_belongs_to(:passport, class_name: "Passport")
+            elasticsearch_store.send(:define_method, :aggregate_owner) { @aggregate_owner ||= OwnerStub.new }
+
+            expected_options = { class_name: "Passport", aggregate_db_storage_type: :elasticsearch }
+            assert_equal expected_options, elasticsearch_store.aggregated_attribute_handlers[:passport].options
+          end
         end
 
-        should "allow assignment by instance" do
-          @instance.passport = @passport
+        context "using flights model" do
+          setup do
+            @p_millie = Passport.create!(
+              name: "Millie",
+              gender: :female,
+              birthdate: Time.parse("2011-8-11"),
+              city: "Santa Barbara",
+              state: "California"
+            )
 
-          expected = { "passport_id" => @passport.id }
-          assert_equal expected, @instance.to_store
+            @p_lisa = Passport.create!(
+              name: "Lisa",
+              gender: :female,
+              birthdate: Time.parse("1998-7-18"),
+              city: "Santa Barbara",
+              state: "California"
+            )
 
-          assert_equal @passport, @instance.passport
-          assert_equal @passport.id, @instance.passport_id
-        end
+            @p_bob = Passport.create!(
+              name: "Bob",
+              gender: :female,
+              birthdate: Time.parse("1998-7-18"),
+              city: "Santa Barbara",
+              state: "California"
+            )
 
-        should "allow assignment by id" do
-          @instance.passport_id = @passport.id
+            @flight = Flight.create!(
+              flight_number: "123xy",
+              passengers: [{ name: "Millie", passport: @p_millie }, { name: "Lisa", passport: @p_lisa }, { name: "Bob", passport: @p_bob }]
+            )
+          end
 
-          expected = { "passport_id" => @passport.id }
-          assert_equal expected, @instance.to_store
+          should "find the passports when loaded" do
+            reloaded_flight = Flight.find(@flight.id)
+            assert_equal 3, reloaded_flight.passengers.size
 
-          assert_equal @passport, @instance.passport
-          assert_equal @passport.id, @instance.passport_id
-        end
+            assert_equal "Millie", reloaded_flight.passengers[0].name
+            assert_equal "Lisa",   reloaded_flight.passengers[1].name
+            assert_equal "Bob",    reloaded_flight.passengers[2].name
 
-        should "pass aggregate_db_storage_type option to foreign key attribute handler if aggregate_db_storage_type is not nil" do
-          elasticsearch_store.aggregate_belongs_to(:passport, class_name: "Passport")
-          elasticsearch_store.send(:define_method, :aggregate_owner) { @aggregate_owner ||= OwnerStub.new }
+            assert_equal "Millie", reloaded_flight.passengers[0].passport.name
+            assert_equal "Lisa",   reloaded_flight.passengers[1].passport.name
+            assert_equal "Bob",    reloaded_flight.passengers[2].passport.name
+          end
 
-          expected_options = { class_name: "Passport", aggregate_db_storage_type: :elasticsearch }
-          assert_equal expected_options, elasticsearch_store.aggregated_attribute_handlers[:passport].options
+          should "be able to return the passport_ids without loading the passport models" do
+            Passport.initialization_count = 0
+
+            reloaded_flight = Flight.find(@flight.id)
+            assert_equal 0, Passport.initialization_count
+
+            assert_equal [@p_millie.id, @p_lisa.id, @p_bob.id], reloaded_flight.passengers.*.passport_id
+            assert_equal 0, Passport.initialization_count
+          end
         end
       end
 
