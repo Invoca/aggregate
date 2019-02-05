@@ -6,7 +6,7 @@ class Flight < ActiveRecord::Base
   attr_accessible :flight_number
 
   include Aggregate::Container
-  aggregate_container_options[:use_storage_field] = :aggregate_field
+  store_aggregates_using(:aggregate_field)
 
   aggregate_has_many :passengers, "Passenger"
 end
