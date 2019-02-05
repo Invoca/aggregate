@@ -19,4 +19,11 @@ class Passport < ActiveRecord::Base
   aggregate_attribute :stamps,           :bitfield, limit: 10
   aggregate_attribute :password,         :string,   encrypted: true
 
+  # Test help
+  cattr_accessor :initialization_count
+
+  after_initialize do
+    self.class.initialization_count ||= 0
+    self.class.initialization_count += 1
+  end
 end

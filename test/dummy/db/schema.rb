@@ -11,7 +11,14 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160316211434) do
+ActiveRecord::Schema.define(version: 20180204000000) do
+
+  create_table "flights", force: :cascade do |t|
+    t.string   "flight_number"
+    t.text     "aggregate_field"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
   create_table "large_text_fields", force: :cascade do |t|
     t.string  "field_name",                  null: false
