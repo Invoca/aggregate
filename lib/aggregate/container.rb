@@ -5,8 +5,8 @@ require 'large_text_field'
 module Aggregate
   module Container
     extend ActiveSupport::Concern
-    include Aggregate::AggregateStore
     include ActiveSupport::Callbacks
+    include Aggregate::AggregateStore
 
     class StorageAlreadyDefined < ArgumentError; end
 
