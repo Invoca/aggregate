@@ -8,6 +8,8 @@ module Aggregate
     include Aggregate::AggregateStore
     include ActiveSupport::Callbacks
 
+    class StorageAlreadyDefined < ArgumentError; end
+
     included do
       validate :validate_aggregates
       send(:define_callbacks, :aggregate_load)
@@ -16,18 +18,23 @@ module Aggregate
       class_attribute :aggregate_storage_field
       class_attribute :migrate_from_storage_field
 
-      def self.store_aggregates_using_large_text_field
-        include LargeTextField::Owner
-        large_text_field :aggregate_store
-        self.aggregate_storage_field = :aggregate_store
-        self.migrate_from_storage_field = nil
-        set_callback(:large_text_field_save, :before, :write_aggregates)
-      end
+      class << self
+        def store_aggregates_using_large_text_field
+          aggregate_storage_field and
+            raise StorageAlreadyDefined, "aggregate_storage_field is already set to #{aggregate_storage_field.inspect}"
+          include LargeTextField::Owner
+          large_text_field :aggregate_store
+          self.aggregate_storage_field = :aggregate_store
+          self.migrate_from_storage_field = nil
+          set_callback(:large_text_field_save, :before, :write_aggregates)
+        end
 
-      def self.store_aggregates_using(storage_field, migrate_from_storage_field: nil)
-        self.aggregate_storage_field = storage_field
-        self.migrate_from_storage_field = migrate_from_storage_field
-        set_callback(:save, :before, :write_aggregates)
+        def store_aggregates_using(storage_field, migrate_from_storage_field: nil)
+          aggregate_storage_field and raise StorageAlreadyDefined, "aggregate_storage_field is already set to #{aggregate_storage_field.inspect}"
+          self.aggregate_storage_field = storage_field
+          self.migrate_from_storage_field = migrate_from_storage_field
+          set_callback(:save, :before, :write_aggregates)
+        end
       end
     end
 

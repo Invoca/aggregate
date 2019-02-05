@@ -821,5 +821,33 @@ class Aggregate::ContainerTest < ActiveSupport::TestCase
       assert_equal true, @doc.instance_variable_get("@reload_called")
       assert_equal "56789", @doc.test_string
     end
+
+    should "raise an exception if attempting to define a class with multiple stores" do
+      assert_raises Aggregate::Container::StorageAlreadyDefined do
+        class MultipleStores < ActiveRecordStub
+          include Aggregate::Container
+
+          store_aggregates_using :storage, migrate_from_storage_field: :old_storage
+          store_aggregates_using_large_text_field
+
+          attr_accessor :storage, :old_storage
+          aggregate_attribute :test_string, :string
+        end
+      end
+    end
+
+    should "raise an exception if attempting to define a class with multiple stores in reverse order" do
+      assert_raises Aggregate::Container::StorageAlreadyDefined do
+        class MultipleStores < ActiveRecordStub
+          include Aggregate::Container
+
+          store_aggregates_using_large_text_field
+          store_aggregates_using :storage, migrate_from_storage_field: :old_storage
+
+          attr_accessor :storage, :old_storage
+          aggregate_attribute :test_string, :string
+        end
+      end
+    end
   end
 end
