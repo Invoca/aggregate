@@ -10,6 +10,7 @@ module Aggregate
 
     class StorageAlreadyDefined < ArgumentError; end
 
+    # rubocop:disable Metrics/BlockLength
     included do
       validate :validate_aggregates
       send(:define_callbacks, :aggregate_load)
@@ -20,8 +21,7 @@ module Aggregate
 
       class << self
         def store_aggregates_using_large_text_field
-          aggregate_storage_field and
-            raise StorageAlreadyDefined, "aggregate_storage_field is already set to #{aggregate_storage_field.inspect}"
+          raise_if_aggregate_storage_field_already_defined
           include LargeTextField::Owner
           large_text_field :aggregate_store
           self.aggregate_storage_field = :aggregate_store
@@ -30,13 +30,22 @@ module Aggregate
         end
 
         def store_aggregates_using(storage_field, migrate_from_storage_field: nil)
-          aggregate_storage_field and raise StorageAlreadyDefined, "aggregate_storage_field is already set to #{aggregate_storage_field.inspect}"
+          raise_if_aggregate_storage_field_already_defined
           self.aggregate_storage_field = storage_field
           self.migrate_from_storage_field = migrate_from_storage_field
           set_callback(:save, :before, :write_aggregates)
         end
+
+        private
+
+        def raise_if_aggregate_storage_field_already_defined
+          if aggregate_storage_field
+            raise StorageAlreadyDefined, "aggregate_storage_field is already set to #{aggregate_storage_field.inspect}"
+          end
+        end
       end
     end
+    # rubocop:enable Metrics/BlockLength
 
     def aggregate_owner
       nil
