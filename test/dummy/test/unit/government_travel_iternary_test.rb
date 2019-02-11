@@ -16,7 +16,6 @@ class GovernmentTravelItineraryTest < ActiveSupport::TestCase
       assert_equal ['Spain', 'Ireland'], itinerary.foreign_visits.map(&:country)
       expected_json_data = '{"estimated_cost":"9001.1","foreign_visits":[{"country":"Spain"},{"country":"Ireland"}],"foreign_service_approval":"NSA"}'
       assert_equal itinerary.aggregate_field, expected_json_data
-      assert_equal '', itinerary.aggregate_store
     end
   end
 end

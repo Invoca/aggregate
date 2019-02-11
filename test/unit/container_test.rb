@@ -5,6 +5,8 @@ require_relative '../test_helper'
 class Aggregate::ContainerTest < ActiveSupport::TestCase
 
   class ActiveRecordStub
+    include ActiveSupport::Callbacks
+
     # Faking out active record things to get the large text field to work.
     def self.reflections
       {}
@@ -31,6 +33,8 @@ class Aggregate::ContainerTest < ActiveSupport::TestCase
     def reload
       @reload_called = true
     end
+
+    define_callbacks :save
   end
 
   class TestAddress < Aggregate::Base
@@ -62,6 +66,7 @@ class Aggregate::ContainerTest < ActiveSupport::TestCase
 
   class TestPurchase < ActiveRecordStub
     include Aggregate::Container
+    store_aggregates_using_large_text_field
 
     attr_accessor :fixup1_called, :fixup2_called, :value_at_fixup1, :upgraded_from_schema_version, :value_at_upgrade
 
@@ -87,7 +92,6 @@ class Aggregate::ContainerTest < ActiveSupport::TestCase
     set_callback(:aggregate_load) do |obj|
       obj.fixup2_called = true
     end
-
     aggregate_schema_version "2.0", :fix_aggregate_schema
 
     def fix_aggregate_schema(current_version)
@@ -103,6 +107,7 @@ class Aggregate::ContainerTest < ActiveSupport::TestCase
 
   class TestPurchaseNoVersion < ActiveRecordStub
     include Aggregate::Container
+    store_aggregates_using_large_text_field
 
     attr_accessor :fixup1_called, :fixup2_called, :value_at_fixup1, :upgraded_from_schema_version, :value_at_upgrade
 
@@ -132,51 +137,51 @@ class Aggregate::ContainerTest < ActiveSupport::TestCase
     aggregate_attribute :second_shipment, "Aggregate::ContainerTest::TestShippingRecord"
   end
 
+  class TestDirectStore < ActiveRecordStub
+    include Aggregate::Container
+    store_aggregates_using :storage
+
+    attr_accessor :storage
+
+    aggregate_attribute :test_string, :string
+  end
+
+  class TestDirectStoreMigrating < ActiveRecordStub
+    include Aggregate::Container
+    store_aggregates_using :storage, migrate_from_storage_field: :old_storage
+
+    def initialize(storage, old_storage)
+      @storage = storage
+      @old_storage = old_storage
+    end
+
+    attr_accessor :storage, :old_storage
+
+    aggregate_attribute :test_string, :string
+  end
+
   context "sample_data" do
-    setup do
-      @aggregate_container_options = TestPurchase.aggregate_container_options.dup
-    end
-
-    teardown do
-      TestPurchase.aggregate_container_options = @aggregate_container_options
-    end
-
     context "initialization" do
-      should "have configured the active record settings correctly" do
-        # Configure a large text field.
+      should "should create a large text field and configure it as a store with the right callback when using large text fields" do
         assert_equal [[:large_text_fields, { inverse_of: :owner, as: :owner, dependent: :destroy, autosave: true, class_name: "LargeTextField::NamedTextValue" }]], TestPurchase.instance_eval('@has_many_args', __FILE__, __LINE__)
-        assert_equal [[:validate_large_text_fields], [:validate_aggregates]], TestPurchase.instance_eval('@validate_args', __FILE__, __LINE__)
+        assert_equal [[:validate_aggregates], [:validate_large_text_fields]], TestPurchase.instance_eval('@validate_args', __FILE__, __LINE__)
         assert_equal [[:write_large_text_field_changes]], TestPurchase.instance_eval('@before_save', __FILE__, __LINE__)
+        assert_equal :aggregate_store, TestPurchase.aggregate_storage_field
+        assert_nil TestPurchase.migrate_from_storage_field
       end
 
-      should "have a configuration with defaults" do
-        assert_nil TestPurchase.aggregate_container_options[:use_storage_field]
-        assert_false TestPurchase.aggregate_container_options[:use_large_text_field_as_failover]
+      should "not configure a large text field when using storage" do
+        assert_nil TestDirectStore.instance_eval('@has_many_args', __FILE__, __LINE__)
+        assert_equal [[:validate_aggregates]], TestDirectStore.instance_eval('@validate_args', __FILE__, __LINE__)
+        assert_equal :storage, TestDirectStore.aggregate_storage_field
+        assert_nil TestDirectStore.migrate_from_storage_field
       end
 
-      should "know when using a storage field or a large text field" do
-        assert_false TestPurchase.new.uses_aggregate_storage_field?
-        TestPurchase.aggregate_container_options[:use_storage_field] = :aggregate_field_store
-        assert TestPurchase.new.uses_aggregate_storage_field?
-      end
-
-      should "know which field the aggregate data is stored in" do
-        assert_equal :aggregate_store, TestPurchase.new.aggregate_storage_field
-        TestPurchase.aggregate_container_options[:use_storage_field] = :aggregate_field_store
-        assert_equal :aggregate_field_store, TestPurchase.new.aggregate_storage_field
-      end
-
-      should "know when to failover to large_text_field" do
-        assert_false TestPurchase.new.failover_to_large_text_field?
-
-        TestPurchase.aggregate_container_options[:use_storage_field] = :aggregate_field_store
-        assert_false TestPurchase.new.failover_to_large_text_field?
-
-        TestPurchase.aggregate_container_options[:use_large_text_field_as_failover] = true
-        assert TestPurchase.new.failover_to_large_text_field?
-
-        TestPurchase.aggregate_container_options[:use_storage_field] = nil
-        assert_false TestPurchase.new.failover_to_large_text_field?
+      should "allow storage to be migrated from one field to another" do
+        assert_nil TestDirectStoreMigrating.instance_eval('@has_many_args', __FILE__, __LINE__)
+        assert_equal [[:validate_aggregates]], TestDirectStoreMigrating.instance_eval('@validate_args', __FILE__, __LINE__)
+        assert_equal :storage, TestDirectStoreMigrating.aggregate_storage_field
+        assert_equal :old_storage,  TestDirectStoreMigrating.migrate_from_storage_field
       end
     end
 
@@ -285,58 +290,19 @@ class Aggregate::ContainerTest < ActiveSupport::TestCase
       end
     end
 
-    context "loading" do
+    context "reading from storage" do
       setup do
-        @json = {
-          'first_shipment' => {
-            'tracking_number'  => '1245',
-            'weight_in_ounces' => 5,
-            'ship_from'        => {
-              'full_name'   => 'Lisa Smith',
-              'address_one' => '1812 Clearview Road',
-              'address_two' => '',
-              'zip'         => '93101'
-            }
-          }
-        }.to_json
+        @json = { 'test_string' => 'found_it' }.to_json
       end
 
-      should "load from the large_text_field when no storage_field is specified" do
-        @doc = TestPurchase.new(@json, nil)
-        assert_false @doc.uses_aggregate_storage_field?
-        assert_nil @doc.aggregate_field_store
-        assert_equal @json, @doc.aggregate_store
-
-        assert_equal '1245', @doc.first_shipment.tracking_number
-        assert_equal 5, @doc.first_shipment.weight_in_ounces
-        assert_equal 'Lisa Smith', @doc.first_shipment.ship_from.full_name
+      should "load from initial field when present" do
+        @doc = TestDirectStoreMigrating.new(@json, '')
+        assert_equal 'found_it', @doc.test_string
       end
 
-      should "load from the storage_field when it's specified" do
-        assert_nil TestPurchase.aggregate_container_options[:use_storage_field]
-        TestPurchase.aggregate_container_options[:use_storage_field] = :aggregate_field_store
-        @doc                                                         = TestPurchase.new(nil, @json)
-        assert @doc.uses_aggregate_storage_field?
-        assert_nil @doc.aggregate_store
-        assert_equal @json, @doc.aggregate_field_store
-
-        assert_equal 5, @doc.first_shipment.weight_in_ounces
-        assert_equal 'Lisa Smith', @doc.first_shipment.ship_from.full_name
-      end
-
-      should "load from the large_text_field when storage_field and failover are enabled but storage_field is blank" do
-        assert_nil TestPurchase.aggregate_container_options[:use_storage_field]
-        assert_false TestPurchase.aggregate_container_options[:use_large_text_field_as_failover]
-        TestPurchase.aggregate_container_options[:use_storage_field]                = :aggregate_field_store
-        TestPurchase.aggregate_container_options[:use_large_text_field_as_failover] = true
-
-        @doc = TestPurchase.new(@json, nil)
-        assert @doc.uses_aggregate_storage_field?
-        assert @doc.failover_to_large_text_field?
-        assert_nil @doc.aggregate_field_store
-        assert_equal @json, @doc.aggregate_store
-
-        assert_equal 'Lisa Smith', @doc.first_shipment.ship_from.full_name
+      should "load from the migrating field when the store is not present" do
+        @doc = TestDirectStoreMigrating.new('', @json)
+        assert_equal 'found_it', @doc.test_string
       end
     end
 
@@ -405,44 +371,6 @@ class Aggregate::ContainerTest < ActiveSupport::TestCase
 
         @doc.write_aggregates
         assert_equal expected, ActiveSupport::JSON.decode(@doc.aggregate_store)
-      end
-
-      should "use an alternative field for storage if specified by the config" do
-        json = {
-          'first_shipment' => {
-            'tracking_number'  => '1245',
-            'weight_in_ounces' => 5,
-            'ship_from'        => {
-              'full_name'   => 'Lisa Smith',
-              'address_one' => '1812 Clearview Road',
-              'address_two' => '',
-              'zip'         => '93101'
-            }
-          }
-        }.to_json
-        assert_nil TestPurchase.aggregate_container_options[:use_storage_field]
-        TestPurchase.aggregate_container_options[:use_storage_field] = :aggregate_field_store
-        @doc                                                         = TestPurchase.new(nil, json)
-        assert_nil @doc.aggregate_store
-
-        expected = {
-          "data_schema_version" => "2.0",
-          "test_string"         => nil,
-          "second_shipment"     => nil,
-          "first_shipment"      => {
-            "ship_from" => {
-              "zip"         => "93101",
-              "address_two" => "",
-              "address_one" => "1812 Clearview Road",
-              "full_name"   => "Lisa Smith"
-            },
-            "tracking_number"  => "1245",
-            "weight_in_ounces" => 5
-          }
-        }
-        assert_equal expected, @doc.to_store
-        @doc.write_aggregates
-        assert_equal expected, ActiveSupport::JSON.decode(@doc.aggregate_field_store)
       end
 
       should "write an empty string for classes at default values" do
@@ -892,6 +820,34 @@ class Aggregate::ContainerTest < ActiveSupport::TestCase
       assert_nil @doc.first_shipment
       assert_equal true, @doc.instance_variable_get("@reload_called")
       assert_equal "56789", @doc.test_string
+    end
+
+    should "raise an exception if attempting to define a class with multiple stores" do
+      assert_raises Aggregate::Container::StorageAlreadyDefined do
+        class MultipleStores < ActiveRecordStub
+          include Aggregate::Container
+
+          store_aggregates_using :storage, migrate_from_storage_field: :old_storage
+          store_aggregates_using_large_text_field
+
+          attr_accessor :storage, :old_storage
+          aggregate_attribute :test_string, :string
+        end
+      end
+    end
+
+    should "raise an exception if attempting to define a class with multiple stores in reverse order" do
+      assert_raises Aggregate::Container::StorageAlreadyDefined do
+        class MultipleStores < ActiveRecordStub
+          include Aggregate::Container
+
+          store_aggregates_using_large_text_field
+          store_aggregates_using :storage, migrate_from_storage_field: :old_storage
+
+          attr_accessor :storage, :old_storage
+          aggregate_attribute :test_string, :string
+        end
+      end
     end
   end
 end

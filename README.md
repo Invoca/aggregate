@@ -13,12 +13,19 @@ In you Gemfile add:
 If you were not already using large_text_fields, there will be a schema migration.  Go ahead and run that.  It is fast.
 
 ### Defining Aggregates on Rails Models
-To add aggregated attributes to an existing rails model, include **Aggregate::Container** on the model and then define the aggregate attributes you want.   For example, the following adds some attributes to a passport class.
+To add aggregated attributes to an existing rails model, include **Aggregate::Container** on the model, tell aggregate where to store the data, add the storage field and then define the aggregate attributes you want.   For example, the following adds some attributes to a passport class.
 
 ```ruby
 class Passport < ActiveRecord::Base
   ...
   include Aggregate::Container
+  store_aggregates_using :aggregate_storage
+  
+  fields do
+    ...
+    aggregate_storage :text, limit: MYSQL_LONG_TEXT_UTF8_LIMIT
+    ...
+  end
 
   aggregate_attribute :gender,           :enum, limit: [:male, :female], required: true
   aggregate_attribute :city,             :string,   required: true
@@ -58,24 +65,45 @@ end
 ```
 You could then set and navigate the association.
 
-### Store on model instead of Large Text Field
-Sometimes you may want to store the aggregate on a model itself rather than in large_text_fields. This is useful, for example, because you can set its limit yourself.
+### Storing aggregates on large text fields
+Aggregates can be stored on large text fields.  To do this, replace the **store_aggregates_using** call with a **store_aggregates_using_large_text_field**.  
 
 ```
 class Passport < ActiveRecord::Base
   ...
   include Aggregate::Container
-  self.aggregate_container_options[:use_storage_field] = :aggregate_storage
+  store_aggregates_using_large_text_field
+  
+  ...
+end
+```
 
+This style of storage convenient because you can add aggregates to models without running a migration, **but try not to use it**.  Writing to the large text field table causes 
+additional database writes and the large text field table has bloated to the point where it is a problem for our database. 
+ 
+To migrate a table from using a large text field to attached storage, you can change the code above to the following.
+
+```
+class Passport < ActiveRecord::Base
+  ...
+  # This can be removed when the migration has completed
+  include LargeTextField::Owner
+  large_text_field :aggregate_store
+  
+  include Aggregate::Container
+  store_aggregates_using :aggregate_storage, migrate_from_storage_field: :aggregate_store
+  
   fields do
     ...
     aggregate_storage :text, limit: MYSQL_LONG_TEXT_UTF8_LIMIT
     ...
   end
-
   ...
 end
 ```
+
+This will generate a schema migration.  With the above change the code will read aggregate structure from the attached large text field if the local storage is empty.  Any updates will be written to the local storage.  You will need to migrate every row by loading and saving the model in a well throttled background script. 
+ When that is done you can remove the large text field declaration, the migrate from argument and drop the rows from the large text field table. 
 
 ### Schema Migrations
 Changes to aggregates do not require database schema migrations.  If you add a new attribute and you load a model that does not have that attribute it will be at its default value.  If you load a model and it has an attribute that has been deleted, the extra attributes will be ignored.  

@@ -5,22 +5,47 @@ require 'large_text_field'
 module Aggregate
   module Container
     extend ActiveSupport::Concern
-    include LargeTextField::Owner
+    include ActiveSupport::Callbacks
     include Aggregate::AggregateStore
 
+    class StorageAlreadyDefined < ArgumentError; end
+
+    # rubocop:disable Metrics/BlockLength
     included do
-      large_text_field :aggregate_store
-      set_callback(:large_text_field_save, :before, :write_aggregates)
       validate :validate_aggregates
       send(:define_callbacks, :aggregate_load)
       send(:define_callbacks, :aggregate_load_schema)
       send(:define_callbacks, :aggregate_load_check_schema)
-      class_attribute :aggregate_container_options
-      self.aggregate_container_options = {
-        use_storage_field: nil,
-        use_large_text_field_as_failover: false
-      }
+      class_attribute :aggregate_storage_field
+      class_attribute :migrate_from_storage_field
+
+      class << self
+        def store_aggregates_using_large_text_field
+          raise_if_aggregate_storage_field_already_defined
+          include LargeTextField::Owner
+          large_text_field :aggregate_store
+          self.aggregate_storage_field = :aggregate_store
+          self.migrate_from_storage_field = nil
+          set_callback(:large_text_field_save, :before, :write_aggregates)
+        end
+
+        def store_aggregates_using(storage_field, migrate_from_storage_field: nil)
+          raise_if_aggregate_storage_field_already_defined
+          self.aggregate_storage_field = storage_field
+          self.migrate_from_storage_field = migrate_from_storage_field
+          set_callback(:save, :before, :write_aggregates)
+        end
+
+        private
+
+        def raise_if_aggregate_storage_field_already_defined
+          if aggregate_storage_field
+            raise StorageAlreadyDefined, "aggregate_storage_field is already set to #{aggregate_storage_field.inspect}"
+          end
+        end
+      end
     end
+    # rubocop:enable Metrics/BlockLength
 
     def aggregate_owner
       nil
@@ -47,6 +72,7 @@ module Aggregate
     end
 
     def write_aggregates
+      self.class.aggregate_storage_field or raise "Must call store_aggregates_using or store_aggregates_using_large_text_field"
       if @decoded_aggregate_store_loaded
         encoded_data = if schema_version? || any_non_default_values?
                          ActiveSupport::JSON.encode(to_store)
@@ -54,24 +80,8 @@ module Aggregate
                          ''
                        end
 
-        send("#{aggregate_storage_field}=", encoded_data)
+        send("#{self.class.aggregate_storage_field}=", encoded_data)
       end
-    end
-
-    def uses_aggregate_storage_field?
-      !!self.class.aggregate_container_options[:use_storage_field].presence
-    end
-
-    def aggregate_storage_field
-      if uses_aggregate_storage_field?
-        self.class.aggregate_container_options[:use_storage_field]
-      else
-        :aggregate_store
-      end
-    end
-
-    def failover_to_large_text_field?
-      !!(uses_aggregate_storage_field? && self.class.aggregate_container_options[:use_large_text_field_as_failover])
     end
 
     def reload
@@ -83,10 +93,13 @@ module Aggregate
     private
 
     def aggregate_store_data
-      if (field_data = send(aggregate_storage_field)) && field_data.present?
+      read_store_from_field(self.class.aggregate_storage_field) ||
+        read_store_from_field(self.class.migrate_from_storage_field)
+    end
+
+    def read_store_from_field(field)
+      if field && (field_data = send(field)) && field_data.present?
         field_data
-      elsif failover_to_large_text_field?
-        aggregate_store
       end
     end
   end
