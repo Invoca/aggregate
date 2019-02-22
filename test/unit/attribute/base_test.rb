@@ -42,6 +42,11 @@ class Aggregate::Attribute::BaseTest < ActiveSupport::TestCase
         assert_equal expected, ad.validation_errors(nil)
       end
 
+      should "allow 'false' for required field" do
+        ad = Aggregate::AttributeHandler.factory("testme", :boolean, required: true)
+        assert_equal [], ad.validation_errors(false)
+      end
+
       should "enforce limit" do
         ad = Aggregate::AttributeHandler.factory("testme", :enum, limit: [:red, :blue, :green])
         expected = ["is not in list (:azure not in [:red, :blue, :green])"]

@@ -43,7 +43,7 @@ module Aggregate
       def validation_errors(value)
         [
           ("is not in list (#{value.inspect} not in #{options[:limit].inspect})" if value && options[:limit] && !value.in?(options[:limit])),
-          ("must be set" if !value && options[:required])
+          ("must be set" if value.nil? && options[:required])
         ].compact
       end
 
