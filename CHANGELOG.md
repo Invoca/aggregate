@@ -1,6 +1,6 @@
 # Changelog
 All notable changes to this project will be documented in this file.
-## [1.1.0] - 2019-03-13
+## [1.0.1] - 2019-03-13
 ### Changed
 - Update `required` option for attributes to only raise an error when `nil` is given. This is to allow supplying `false` for boolean fields.
 
