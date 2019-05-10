@@ -117,13 +117,11 @@ module Aggregate
       end
     end
 
-    def reload
-      result = super
-      @aggregate_values = nil
-      @aggregate_initial_values = nil
-      @aggregate_changes = nil
-      @aggregate_values_before_cast = nil
-      result
+    def aggregate_attribute_changes
+      aggregate_changes.build_hash do |field, changed|
+        changed or next
+        [field, [aggregate_initial_values[field], aggregate_values_before_cast[field]]]
+      end
     end
 
     def get_aggregate_attribute(name)

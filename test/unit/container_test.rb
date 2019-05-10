@@ -34,7 +34,7 @@ class Aggregate::ContainerTest < ActiveSupport::TestCase
       @reload_called = true
     end
 
-    define_callbacks :save
+    define_callbacks :save, :commit
   end
 
   class TestAddress < Aggregate::Base
@@ -834,6 +834,15 @@ class Aggregate::ContainerTest < ActiveSupport::TestCase
           aggregate_attribute :test_string, :string
         end
       end
+    end
+
+    should "reset changed cache attributes after save" do
+      passport = sample_passport
+      assert_not passport.changed?
+      passport.height = 20
+      assert passport.changed?
+      passport.save!
+      assert_not passport.changed?
     end
 
     should "raise an exception if attempting to define a class with multiple stores in reverse order" do
