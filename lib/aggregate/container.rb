@@ -28,6 +28,7 @@ module Aggregate
           self.aggregate_storage_field = :aggregate_store
           self.migrate_from_storage_field = nil
           set_callback(:large_text_field_save, :before, :write_aggregates)
+          set_callback(:destroy, :before, :decoded_aggregate_store, prepend: true)
         end
 
         def store_aggregates_using(storage_field, migrate_from_storage_field: nil)
