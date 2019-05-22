@@ -129,6 +129,29 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
         assert_equal expected, @instance.to_store
       end
 
+      context "#aggregate_attribute_changes" do
+        setup do
+          @store.aggregate_attribute(:age, :integer)
+          @store.aggregate_attribute(:unchanged_value, :string)
+          @instance = @store.new
+        end
+
+        should "return rails like changes for aggregates" do
+          @instance.name = "The Count"
+          @instance.age = 999
+
+          expected_changes = {
+            "age"  => [nil, 999],
+            "name" => ["abc", "The Count"]
+          }
+          assert_equal expected_changes, @instance.aggregate_attribute_changes
+        end
+
+        should "be empty hash if there are no changes" do
+          assert_equal({}, @instance.aggregate_attribute_changes)
+        end
+      end
+
       context "validate_aggregates" do
         setup do
           @instance.errors = ErrorsStub.new
@@ -383,32 +406,6 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
 
           @instance = @store.new
         end
-      end
-
-      should "clear assignments after reload" do
-        @base_class = Class.new
-        @base_class.send(:define_method, :reload) { @reload_called = true }
-
-        @store = Class.new(@base_class) { }
-        @store.send(:include, Aggregate::AggregateStore)
-        @store.aggregate_belongs_to(:passport, class_name: "Passport")
-        @store.send(:define_method, :aggregate_owner) { @aggregate_owner ||= OwnerStub.new }
-        @store.send(:define_method, :run_callbacks) { |_foo| true }
-        @store.send(:define_method, :new_record?) { @new_record }
-        @store.send(:attr_accessor, :decoded_aggregate_store)
-        @passport = sample_passport
-        @instance = @store.new
-
-        @instance.decoded_aggregate_store = {}
-        @instance.passport = @passport
-
-        expected = { "passport_id" => @passport.id }
-        assert_equal expected, @instance.to_store
-
-        @instance.reload
-        expected = {}
-        assert_equal expected, @instance.to_store
-        assert_equal true, @instance.instance_variable_get("@reload_called")
       end
     end
   end

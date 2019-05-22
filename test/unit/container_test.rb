@@ -34,7 +34,7 @@ class Aggregate::ContainerTest < ActiveSupport::TestCase
       @reload_called = true
     end
 
-    define_callbacks :save
+    define_callbacks :save, :commit, :destroy
   end
 
   class TestAddress < Aggregate::Base
@@ -834,6 +834,22 @@ class Aggregate::ContainerTest < ActiveSupport::TestCase
           aggregate_attribute :test_string, :string
         end
       end
+    end
+
+    should "reset changed cache attributes after commit" do
+      passport = sample_passport
+      assert_not passport.changed?
+      passport.height = 20
+      assert passport.changed?
+      passport.save!
+      assert_not passport.changed?
+    end
+
+    should "load the decoded aggregate store on destroy if using large text field" do
+      passport = sample_passport
+      assert_not passport.reload.instance_variable_get(:@decoded_aggregate_store_loaded)
+      passport.destroy
+      assert passport.instance_variable_get(:@decoded_aggregate_store_loaded)
     end
 
     should "raise an exception if attempting to define a class with multiple stores in reverse order" do

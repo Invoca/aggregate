@@ -16,6 +16,7 @@ module Aggregate
       send(:define_callbacks, :aggregate_load)
       send(:define_callbacks, :aggregate_load_schema)
       send(:define_callbacks, :aggregate_load_check_schema)
+      set_callback :commit, :after, :reset_changed_cache
       class_attribute :aggregate_storage_field
       class_attribute :migrate_from_storage_field
 
@@ -27,6 +28,7 @@ module Aggregate
           self.aggregate_storage_field = :aggregate_store
           self.migrate_from_storage_field = nil
           set_callback(:large_text_field_save, :before, :write_aggregates)
+          set_callback(:destroy, :before, :decoded_aggregate_store, prepend: true)
         end
 
         def store_aggregates_using(storage_field, migrate_from_storage_field: nil)
@@ -86,11 +88,24 @@ module Aggregate
 
     def reload
       result = super
-      @decoded_aggregate_store_loaded = nil
+      reset_cache_data
       result
     end
 
     private
+
+    def reset_cache_data
+      @decoded_aggregate_store_loaded = nil
+      @aggregate_values = nil
+      @aggregate_initial_values = nil
+      @aggregate_values_before_cast = nil
+      reset_changed_cache
+    end
+
+    def reset_changed_cache
+      @changed = nil
+      @aggregate_changes = nil
+    end
 
     def aggregate_store_data
       read_store_from_field(self.class.aggregate_storage_field) ||
