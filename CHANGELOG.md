@@ -5,8 +5,8 @@ All notable changes to this project will be documented in this file.
 - Change `store_hash_as_json` hash option to default to `true` for regardless of `aggregate_db_storage_type`
 
 ## [1.1] - ?
-### Changed
-- Missed
+### Added
+- `Aggregate::AggregateStore#aggregate_attribute_changes`
 
 ## [1.0.1] - 2019-03-13
 ### Changed

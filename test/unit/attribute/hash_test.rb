@@ -87,6 +87,30 @@ class Aggregate::Attribute::HashTest < ActiveSupport::TestCase
         end
       end
 
+      [nil, true].each do |value|
+        context "store_hash_as_json as true (via #{value.inspect})" do
+          setup do
+            @attribute_handler = Aggregate::AttributeHandler.factory("testme", :hash, store_hash_as_json: value)
+          end
+
+          should "encode hash values as json" do
+            assert_equal "{}", @ad.store({})
+          end
+
+          should "keep json strings" do
+            assert_equal "{}", @ad.store("{}")
+          end
+
+          should "store nil as default empty JSON string" do
+            assert_equal "{}", @ad.store(nil)
+          end
+
+          should "store empty string as empty string" do
+            assert_equal "", @ad.store("")
+          end
+        end
+      end
+
       context "store_hash_as_json as false" do
         setup do
           @attribute_handler = Aggregate::AttributeHandler.factory("testme", :hash, store_hash_as_json: false)
