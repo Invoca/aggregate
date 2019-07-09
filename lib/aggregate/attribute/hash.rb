@@ -72,11 +72,7 @@ module Aggregate
       end
 
       def should_store_hash_as_json
-        if options.key?(:store_hash_as_json)
-          options[:store_hash_as_json]
-        else
-          options.dig(:aggregate_db_storage_type) != :elasticsearch
-        end
+        options[:store_hash_as_json].nil? || options[:store_hash_as_json]
       end
     end
   end
