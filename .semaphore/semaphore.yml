@@ -51,7 +51,7 @@ blocks:
           - bundle exec rake db:migrate
 
           - pushd test/dummy
-          - rake
+          - bundle exec rake
           - popd
 
       jobs:
