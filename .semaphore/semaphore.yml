@@ -1,0 +1,62 @@
+version: v1.0
+name: Rails 5 app
+agent:
+  machine:
+    type: e1-standard-2
+    os_image: ubuntu1804
+blocks:
+  - name: Setup
+    task:
+      prologue:
+        commands:
+          - checkout
+          - sem-version ruby 2.6.0
+          - cache restore
+      jobs:
+        - name: bundle
+          commands:
+            - bundle install --deployment -j 4 --path vendor/bundle
+  - name: Code scanning
+    task:
+      prologue:
+        commands:
+          - checkout
+          - sem-version ruby 2.6.0
+          - cache restore
+          - bundle install --deployment --path vendor/bundle
+      jobs:
+        - name: check style + security
+          commands:
+            - bundle exec rubocop
+            - bundle exec brakeman
+  - name: Unit tests
+    task:
+      prologue:
+        commands:
+          - checkout
+          - cache restore
+          - sem-service start postgres
+          - sem-version ruby 2.6.0
+          - bundle install --deployment --path vendor/bundle
+          - 'bundle exec rake db:setup'
+      jobs:
+        - name: RSpec - model tests
+          commands:
+            - bundle exec rspec spec/models
+        - name: RSpec - controller tests
+          commands:
+            - bundle exec rspec spec/controllers
+  - name: Integration tests
+    task:
+      prologue:
+        commands:
+          - checkout
+          - cache restore
+          - sem-service start postgres
+          - sem-version ruby 2.6.0
+          - bundle install --deployment --path vendor/bundle
+          - 'bundle exec rake db:setup'
+      jobs:
+        - name: RSpec - feature specs
+          commands:
+            - bundle exec rspec spec/features
