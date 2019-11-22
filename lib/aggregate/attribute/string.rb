@@ -26,11 +26,9 @@ class Aggregate::Attribute::String < Aggregate::Attribute::Builtin
   def find_decrypted_value(value, initialization_vector)
     encrypted_value = nil
     Aggregate::Base.secret_keys_from_config.find do |key|
-      begin
-        encrypted_value = Encryptor.decrypt(value: value, key: key, iv: initialization_vector)
-      rescue OpenSSL::Cipher::CipherError
-        nil
-      end
+      encrypted_value = Encryptor.decrypt(value: value, key: key, iv: initialization_vector)
+    rescue OpenSSL::Cipher::CipherError
+      nil
     end
     encrypted_value.presence or raise Aggregate::EncryptionError, "could not decrypt #{name} because the correct decryption key is not found"
   end
