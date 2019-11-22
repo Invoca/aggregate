@@ -3,3 +3,6 @@
 # as well as the README.md
 # https://github.com/Invoca/style-guide/tree/master/ruby
 inherit_from: https://raw.githubusercontent.com/Invoca/style-guide/master/ruby/.rubocop.yml
+
+Style/ClassAndModuleChildren:
+  Enabled: false

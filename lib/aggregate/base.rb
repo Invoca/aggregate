@@ -63,7 +63,7 @@ module Aggregate
       new.tap { |instance| instance._set_store(decoded_hash.presence, false) }
     end
 
-    def to_json
+    def to_json(*_args)
       ActiveSupport::JSON.encode(to_store)
     end
 
