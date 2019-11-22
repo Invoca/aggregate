@@ -106,7 +106,11 @@ This will generate a schema migration.  With the above change the code will read
  When that is done you can remove the large text field declaration, the migrate from argument and drop the rows from the large text field table.
 
 ### Schema Migrations
-Changes to aggregates do not require database schema migrations.  If you add a new attribute and you load a model that does not have that attribute it will be at its default value.  If you load a model and it has an attribute that has been deleted, the extra attributes will be ignored.
+Changes to aggregates generally do not require database schema migrations. However, the following behaviors should be noted.
+
+- If you add a new attribute and you load a model that does not have that attribute it will be at its default value.
+- If you load an attribute that has a value of `nil`, it will **not** use the default value of the attribute.  It will instead return `nil`.  We don't want to read from the default value of the attribute because we don't know if the value was saved as `nil` or was a new attribute.  See the usage of `schema_version` below for how to handle this.
+- If you load a model and it has an attribute that has been deleted, the extra attributes will be ignored.
 
 You may have some cases where this default behavior isn't good enough.  For those you can add a schema version attribute to your class.  Any time an instance is loaded at a version that is different that the current version it will call a method you defined to migrate the data. For example, this is an updated version of the passport photo class that adds a thumbnail url and sets the thumbnail url to the photo url if an older schema is loaded.
 
