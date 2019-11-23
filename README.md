@@ -1,6 +1,6 @@
 # Aggregate
 
-This Gem allows a no-sql style document store to be stored on your rails models in sql databases. 
+This Gem allows a no-sql style document store to be stored on your rails models in sql databases.
 
 ### Getting Started
 
@@ -20,7 +20,7 @@ class Passport < ActiveRecord::Base
   ...
   include Aggregate::Container
   store_aggregates_using :aggregate_storage
-  
+
   fields do
     ...
     aggregate_storage :text, limit: MYSQL_LONG_TEXT_UTF8_LIMIT
@@ -50,13 +50,13 @@ end
 ```
 Note, when defining aggregate attributes on aggregate classes, you can drop the aggregate_ prefix in front of many methods.
 
-Aggregate classes can use all of the built in Rails validations.  The aggregate class is validated and saved when the containing class is saved. 
+Aggregate classes can use all of the built in Rails validations.  The aggregate class is validated and saved when the containing class is saved.
 
 ### Lists
 If you need to store a list of attributes, declare the list using **aggregate_has_many**.  For example, the passport has a list of foreign visits.
 
 ### Referencing other models
-If you have an aggregate that needs to refer to another rails model, you can use **aggregate_belongs_to** to declare the association.  For example, if a PassportPhoto needs a reference to a model named "PhotoProvider" you could declare the association as follows. 
+If you have an aggregate that needs to refer to another rails model, you can use **aggregate_belongs_to** to declare the association.  For example, if a PassportPhoto needs a reference to a model named "PhotoProvider" you could declare the association as follows.
 
 ```ruby
 class PassportPhoto < Aggregate::Base
@@ -66,21 +66,21 @@ end
 You could then set and navigate the association.
 
 ### Storing aggregates on large text fields
-Aggregates can be stored on large text fields.  To do this, replace the **store_aggregates_using** call with a **store_aggregates_using_large_text_field**.  
+Aggregates can be stored on large text fields.  To do this, replace the **store_aggregates_using** call with a **store_aggregates_using_large_text_field**.
 
 ```
 class Passport < ActiveRecord::Base
   ...
   include Aggregate::Container
   store_aggregates_using_large_text_field
-  
+
   ...
 end
 ```
 
-This style of storage convenient because you can add aggregates to models without running a migration, **but try not to use it**.  Writing to the large text field table causes 
-additional database writes and the large text field table has bloated to the point where it is a problem for our database. 
- 
+This style of storage convenient because you can add aggregates to models without running a migration, **but try not to use it**.  Writing to the large text field table causes
+additional database writes and the large text field table has bloated to the point where it is a problem for our database.
+
 To migrate a table from using a large text field to attached storage, you can change the code above to the following.
 
 ```
@@ -89,10 +89,10 @@ class Passport < ActiveRecord::Base
   # This can be removed when the migration has completed
   include LargeTextField::Owner
   large_text_field :aggregate_store
-  
+
   include Aggregate::Container
   store_aggregates_using :aggregate_storage, migrate_from_storage_field: :aggregate_store
-  
+
   fields do
     ...
     aggregate_storage :text, limit: MYSQL_LONG_TEXT_UTF8_LIMIT
@@ -102,11 +102,15 @@ class Passport < ActiveRecord::Base
 end
 ```
 
-This will generate a schema migration.  With the above change the code will read aggregate structure from the attached large text field if the local storage is empty.  Any updates will be written to the local storage.  You will need to migrate every row by loading and saving the model in a well throttled background script. 
- When that is done you can remove the large text field declaration, the migrate from argument and drop the rows from the large text field table. 
+This will generate a schema migration.  With the above change the code will read aggregate structure from the attached large text field if the local storage is empty.  Any updates will be written to the local storage.  You will need to migrate every row by loading and saving the model in a well throttled background script.
+ When that is done you can remove the large text field declaration, the migrate from argument and drop the rows from the large text field table.
 
 ### Schema Migrations
-Changes to aggregates do not require database schema migrations.  If you add a new attribute and you load a model that does not have that attribute it will be at its default value.  If you load a model and it has an attribute that has been deleted, the extra attributes will be ignored.  
+Changes to aggregates generally do not require database schema migrations. However, the following behaviors should be noted.
+
+- If you add a new attribute and you load a model that does not have that attribute it will be at its default value.
+- If you load an attribute that has a value of `nil`, it will **not** use the default value of the attribute.  It will instead return `nil`.  We don't want to read from the default value of the attribute because we don't know if the value was saved as `nil` or was a new attribute.  See the usage of `schema_version` below for how to handle this.
+- If you load a model and it has an attribute that has been deleted, the extra attributes will be ignored.
 
 You may have some cases where this default behavior isn't good enough.  For those you can add a schema version attribute to your class.  Any time an instance is loaded at a version that is different that the current version it will call a method you defined to migrate the data. For example, this is an updated version of the passport photo class that adds a thumbnail url and sets the thumbnail url to the photo url if an older schema is loaded.
 
@@ -116,7 +120,7 @@ class PassportPhoto < Aggregate::Base
   attribute :color,     :boolean
   attribute :photo_thumbnail_url, :string
   schema_version "1.0", :fixup_schema
-  
+
   def fixup_schema(loaded_version)
     if loaded_version.to_f < 1.0
       self.photo_thumbnail_url = photo_url
@@ -141,13 +145,13 @@ the aggregate data from the field specified by **:use_storage_field** but if the
 Things to note:
 
 * **Aggregate::Store** provides methods for defining a collection of attributes associated with an instance of the class.
-* The classes in blue below are a part of the public interface.  The remaining are parts of the implementation.  
-* **Attribute::Base** defines an interface for saving, restoring and validating an attribute.  All of the classes derived from this provide support attributes of one type. 
+* The classes in blue below are a part of the public interface.  The remaining are parts of the implementation.
+* **Attribute::Base** defines an interface for saving, restoring and validating an attribute.  All of the classes derived from this provide support attributes of one type.
 
 
 
 ## Test Setup
-The first time you run tests on a system you will need to run the following commands. 
+The first time you run tests on a system you will need to run the following commands.
 ```
 bundle install
 rake db:migrate
