@@ -6,8 +6,6 @@ gemspec
 # jquery-rails is used by the dummy application
 gem "jquery-rails"
 
-gem 'large_text_field', '0.3.0.pre.1'
-
 group :development do
   gem 'invoca-utils', '0.0.2'
   gem 'sqlite3'
