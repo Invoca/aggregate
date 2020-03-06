@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "encryptor"
 require "active_record"
 
 require "aggregate/bitfield"
