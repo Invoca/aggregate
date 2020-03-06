@@ -6,9 +6,7 @@ gemspec
 # jquery-rails is used by the dummy application
 gem "jquery-rails"
 
-gem 'encryptor',            '3.0.0'
 gem 'large_text_field', '0.3.0.pre.1'
-gem 'protected_attributes', '1.1.3'
 
 group :development do
   gem 'invoca-utils', '0.0.2'

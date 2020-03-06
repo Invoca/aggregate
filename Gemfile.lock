@@ -155,12 +155,10 @@ PLATFORMS
 
 DEPENDENCIES
   aggregate!
-  encryptor (= 3.0.0)
   invoca-utils (= 0.0.2)
   jquery-rails
   large_text_field (= 0.3.0.pre.1)
   minitest (~> 5.1)
-  protected_attributes (= 1.1.3)
   pry
   rr (= 1.1.2)
   rubocop
