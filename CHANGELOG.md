@@ -1,5 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+## [1.3] - 2020-04-16
+### Changed
+- Change `Aggregate::Attribute::DateTime` to use 3 decimal place (millisecond) precision when `:aggregate_db_storage_type) == :elasticsearch`
+
 ## [1.2] - 2019-07-03
 ### Changed
 - Change `store_hash_as_json` hash option to default to `true` for regardless of `aggregate_db_storage_type`
