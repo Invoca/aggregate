@@ -18,10 +18,10 @@ class Aggregate::Attribute::DateTimeTest < ActiveSupport::TestCase
 
   should "handle parsing and storing datetime based on aggregate_db_storage_type option being :elasticsearch" do
     ad   = Aggregate::AttributeHandler.factory("testme", :datetime, aggregate_db_storage_type: :elasticsearch)
-    time = Time.at(1_544_732_833).in_time_zone("Pacific Time (US & Canada)")
+    time = Time.at(1_544_732_833.1234).in_time_zone("Pacific Time (US & Canada)")
 
     assert_equal "12/13/18   8:27 PM", ad.from_value(time.iso8601).utc.to_s
-    assert_equal "2018-12-13T20:27:13.000Z", ad.to_store(time)
+    assert_equal "2018-12-13T20:27:13.123Z", ad.to_store(time)
   end
 
   should "handle parsing and storing datetime based on format option" do
