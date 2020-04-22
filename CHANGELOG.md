@@ -1,6 +1,6 @@
 # Changelog
 All notable changes to this project will be documented in this file.
-## [1.3] - 2020-04-16
+## [2.0.0] - 2020-04-22
 ### Changed
 - Change `Aggregate::Attribute::DateTime` to use 3 decimal place (millisecond) precision when `:aggregate_db_storage_type) == :elasticsearch`
 
