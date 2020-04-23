@@ -2,7 +2,7 @@
 All notable changes to this project will be documented in this file.
 ## [1.3] - 2020-04-16
 ### Changed
-- Change `Aggregate::Attribute::DateTime` to use 3 decimal place (millisecond) precision when `:aggregate_db_storage_type) == :elasticsearch`
+- Allow subclasses of `Aggregate::Base` to override `datetime_formatter` to specify datetime formatting.
 
 ## [1.2] - 2019-07-03
 ### Changed
