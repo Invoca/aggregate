@@ -59,10 +59,12 @@ module Aggregate
 
       def aggregate_db_storage_type; end
 
+      def datetime_formatter; end
+
       private
 
       def full_attr_handler_options(options)
-        options.merge({ aggregate_db_storage_type: aggregate_db_storage_type }.compact)
+        options.merge({ aggregate_db_storage_type: aggregate_db_storage_type, datetime_formatter: datetime_formatter }.compact)
       end
     end
 

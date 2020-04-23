@@ -27,6 +27,12 @@ class Aggregate::Attribute::BaseTest < ActiveSupport::TestCase
           Aggregate::AttributeHandler.factory(:testme, :string, aggregate_db_storage_type: :sql)
         end
       end
+
+      should "allow :datetime_formatter option" do
+        assert_nothing_raised do
+          Aggregate::AttributeHandler.factory(:testme, :string, datetime_formatter: ->(arg) { arg })
+        end
+      end
     end
 
     context "validations" do

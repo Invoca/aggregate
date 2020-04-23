@@ -24,6 +24,7 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
         store = Class.new
         store.send(:include, Aggregate::AggregateStore)
         store.define_singleton_method(:aggregate_db_storage_type) { :elasticsearch }
+        store.define_singleton_method(:datetime_formatter) { ->(datetime) { datetime.to_i } }
         store
       end
   end
@@ -39,7 +40,10 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
       elasticsearch_store.aggregate_attribute(:name, :string)
       elasticsearch_store.aggregate_attribute(:number, :integer)
 
-      assert_equal [{ aggregate_db_storage_type: :elasticsearch }], elasticsearch_store.aggregated_attribute_handlers.values.map(&:options).uniq
+      elasticsearch_store.aggregated_attribute_handlers.values.map(&:options).each do |attribute_handler|
+        assert_equal :elasticsearch, attribute_handler[:aggregate_db_storage_type]
+        assert_kind_of Proc, attribute_handler[:datetime_formatter]
+      end
     end
 
     should "define methods on the class when called" do
@@ -66,7 +70,7 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
       should "respond to changed? apropriately when the instance is a active record object" do
         # change trigged by a active record attribute change
 
-        passport = sample_passport
+        passport      = sample_passport
         passport.name = "blah"
         assert passport.changed?
 
@@ -138,7 +142,7 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
 
         should "return rails like changes for aggregates" do
           @instance.name = "The Count"
-          @instance.age = 999
+          @instance.age  = 999
 
           expected_changes = {
             "age"  => [nil, 999],
@@ -198,9 +202,15 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
           @store.aggregate_has_many(:names, :string)
         end
 
-        should "pass aggregate_db_storage_type option to element_helper in list attribute handler if aggregate_db_storage_type is not nil" do
-          elasticsearch_store.aggregate_has_many(:names, :string)
-          assert_equal({ aggregate_db_storage_type: :elasticsearch }, elasticsearch_store.aggregated_attribute_handlers[:names].element_helper.options)
+        context "when aggregate_db_storage_type and datetime_formatter options are not nil" do
+          should "pass those options to element_helper in list attribute handler" do
+            elasticsearch_store.aggregate_has_many(:names, :string)
+
+            attribute_handler_options = elasticsearch_store.aggregated_attribute_handlers[:names].element_helper.options
+
+            assert_equal :elasticsearch, attribute_handler_options[:aggregate_db_storage_type]
+            assert_kind_of Proc, attribute_handler_options[:datetime_formatter]
+          end
         end
 
         should "default to an empty list" do
@@ -251,7 +261,7 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
 
         context "lists of aggregates" do
           setup do
-            @agg = Class.new(Aggregate::Base) { }
+            @agg = Class.new(Aggregate::Base) {}
             @agg.attribute(:name, :string)
             @agg.attribute(:address, :string)
             @agg.attribute(:zip, :integer)
@@ -320,44 +330,49 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
             assert_equal @passport.id, @instance.passport_id
           end
 
-          should "pass aggregate_db_storage_type option to foreign key attribute handler if aggregate_db_storage_type is not nil" do
-            elasticsearch_store.aggregate_belongs_to(:passport, class_name: "Passport")
-            elasticsearch_store.send(:define_method, :aggregate_owner) { @aggregate_owner ||= OwnerStub.new }
+          context "when aggregate_db_storage_type and datetime_formatter attributes are not nil" do
+            should "pass the options to foreign key attribute handler" do
+              elasticsearch_store.aggregate_belongs_to(:passport, class_name: "Passport")
+              elasticsearch_store.send(:define_method, :aggregate_owner) { @aggregate_owner ||= OwnerStub.new }
 
-            expected_options = { class_name: "Passport", aggregate_db_storage_type: :elasticsearch }
-            assert_equal expected_options, elasticsearch_store.aggregated_attribute_handlers[:passport].options
+              attribute_handler_options = elasticsearch_store.aggregated_attribute_handlers[:passport].options
+
+              assert_equal "Passport", attribute_handler_options[:class_name]
+              assert_equal :elasticsearch, attribute_handler_options[:aggregate_db_storage_type]
+              assert_kind_of Proc, attribute_handler_options[:datetime_formatter]
+            end
           end
         end
 
         context "using flights model" do
           setup do
             @p_millie = Passport.create!(
-              name: "Millie",
-              gender: :female,
+              name:      "Millie",
+              gender:    :female,
               birthdate: Time.parse("2011-8-11"),
-              city: "Santa Barbara",
-              state: "California"
+              city:      "Santa Barbara",
+              state:     "California"
             )
 
             @p_lisa = Passport.create!(
-              name: "Lisa",
-              gender: :female,
+              name:      "Lisa",
+              gender:    :female,
               birthdate: Time.parse("1998-7-18"),
-              city: "Santa Barbara",
-              state: "California"
+              city:      "Santa Barbara",
+              state:     "California"
             )
 
             @p_bob = Passport.create!(
-              name: "Bob",
-              gender: :female,
+              name:      "Bob",
+              gender:    :female,
               birthdate: Time.parse("1998-7-18"),
-              city: "Santa Barbara",
-              state: "California"
+              city:      "Santa Barbara",
+              state:     "California"
             )
 
             @flight = Flight.create!(
               flight_number: "123xy",
-              passengers: [{ name: "Millie", passport: @p_millie }, { name: "Lisa", passport: @p_lisa }, { name: "Bob", passport: @p_bob }]
+              passengers:    [{ name: "Millie", passport: @p_millie }, { name: "Lisa", passport: @p_lisa }, { name: "Bob", passport: @p_bob }]
             )
           end
 
@@ -366,12 +381,12 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
             assert_equal 3, reloaded_flight.passengers.size
 
             assert_equal "Millie", reloaded_flight.passengers[0].name
-            assert_equal "Lisa",   reloaded_flight.passengers[1].name
-            assert_equal "Bob",    reloaded_flight.passengers[2].name
+            assert_equal "Lisa", reloaded_flight.passengers[1].name
+            assert_equal "Bob", reloaded_flight.passengers[2].name
 
             assert_equal "Millie", reloaded_flight.passengers[0].passport.name
-            assert_equal "Lisa",   reloaded_flight.passengers[1].passport.name
-            assert_equal "Bob",    reloaded_flight.passengers[2].passport.name
+            assert_equal "Lisa", reloaded_flight.passengers[1].passport.name
+            assert_equal "Bob", reloaded_flight.passengers[2].passport.name
           end
 
           should "be able to return the passport_ids without loading the passport models" do
