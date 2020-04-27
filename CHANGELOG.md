@@ -2,7 +2,7 @@
 All notable changes to this project will be documented in this file.
 ## [1.3] - 2020-04-16
 ### Changed
-- Allow subclasses of `Aggregate::Base` to override `datetime_formatter` to specify datetime formatting.
+- Allow a `formatter` option for `Aggregate::Attribute::DateTime`.
 
 ## [1.2] - 2019-07-03
 ### Changed
