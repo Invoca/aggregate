@@ -1,6 +1,6 @@
 # Changelog
 All notable changes to this project will be documented in this file.
-## [1.3] - 2020-04-16
+## [1.3.0] - 2020-04-16
 ### Changed
 - Allow a `formatter` option for `Aggregate::Attribute::DateTime`.
 
