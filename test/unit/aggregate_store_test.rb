@@ -24,7 +24,7 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
         store = Class.new
         store.send(:include, Aggregate::AggregateStore)
         store.define_singleton_method(:aggregate_db_storage_type) { :elasticsearch }
-        store.define_singleton_method(:datetime_formatter) { ->(datetime) { datetime.to_i } }
+        store.define_singleton_method(:formatter) { ->(datetime) { datetime.to_i } }
         store
       end
   end
@@ -42,7 +42,6 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
 
       elasticsearch_store.aggregated_attribute_handlers.values.map(&:options).each do |attribute_handler|
         assert_equal :elasticsearch, attribute_handler[:aggregate_db_storage_type]
-        assert_kind_of Proc, attribute_handler[:datetime_formatter]
       end
     end
 
@@ -202,14 +201,13 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
           @store.aggregate_has_many(:names, :string)
         end
 
-        context "when aggregate_db_storage_type and datetime_formatter options are not nil" do
+        context "when aggregate_db_storage_type is not nil" do
           should "pass those options to element_helper in list attribute handler" do
             elasticsearch_store.aggregate_has_many(:names, :string)
 
             attribute_handler_options = elasticsearch_store.aggregated_attribute_handlers[:names].element_helper.options
 
             assert_equal :elasticsearch, attribute_handler_options[:aggregate_db_storage_type]
-            assert_kind_of Proc, attribute_handler_options[:datetime_formatter]
           end
         end
 
@@ -330,7 +328,7 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
             assert_equal @passport.id, @instance.passport_id
           end
 
-          context "when aggregate_db_storage_type and datetime_formatter attributes are not nil" do
+          context "when aggregate_db_storage_type attribute is not nil" do
             should "pass the options to foreign key attribute handler" do
               elasticsearch_store.aggregate_belongs_to(:passport, class_name: "Passport")
               elasticsearch_store.send(:define_method, :aggregate_owner) { @aggregate_owner ||= OwnerStub.new }
@@ -339,7 +337,6 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
 
               assert_equal "Passport", attribute_handler_options[:class_name]
               assert_equal :elasticsearch, attribute_handler_options[:aggregate_db_storage_type]
-              assert_kind_of Proc, attribute_handler_options[:datetime_formatter]
             end
           end
         end

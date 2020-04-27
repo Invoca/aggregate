@@ -37,9 +37,9 @@ class Aggregate::Attribute::DateTimeTest < ActiveSupport::TestCase
     end
   end
 
-  context "with :datetime_formatter option" do
-    should "format the datetime by calling the datetime_formatter method" do
-      ad   = Aggregate::AttributeHandler.factory("testme", :datetime, datetime_formatter: formatter_proc)
+  context "with :formatter option" do
+    should "format the datetime by calling the formatter method" do
+      ad   = Aggregate::AttributeHandler.factory("testme", :datetime, formatter: formatter_proc)
       time = Time.at(1_544_732_833).in_time_zone("Pacific Time (US & Canada)")
 
       assert_equal "12/13/18   8:27 PM", ad.from_value(time.iso8601).utc.to_s
@@ -57,9 +57,9 @@ class Aggregate::Attribute::DateTimeTest < ActiveSupport::TestCase
     end
   end
 
-  context "with :format option and :datetime_formatter options" do
-    should "prefer :format over :datetime_formatter" do
-      ad   = Aggregate::AttributeHandler.factory("testme", :datetime, format: :short, datetime_formatter: formatter_proc)
+  context "with :format option and :formatter options" do
+    should "prefer :format over :formatter" do
+      ad   = Aggregate::AttributeHandler.factory("testme", :datetime, format: :short, formatter: formatter_proc)
       time = Time.at(1_544_732_833).in_time_zone("Pacific Time (US & Canada)")
 
       assert_equal "12/13/18   8:27 PM", ad.from_value(time.iso8601).utc.to_s
@@ -67,9 +67,9 @@ class Aggregate::Attribute::DateTimeTest < ActiveSupport::TestCase
     end
   end
 
-  context "with :datetime_formatter and :aggregate_db_storage_type options" do
-    should "prefer :datetime_formatter over :aggregate_db_storage_type" do
-      ad   = Aggregate::AttributeHandler.factory("testme", :datetime, aggregate_db_storage_type: :elasticsearch, datetime_formatter: formatter_proc)
+  context "with :formatter and :aggregate_db_storage_type options" do
+    should "prefer :formatter over :aggregate_db_storage_type" do
+      ad   = Aggregate::AttributeHandler.factory("testme", :datetime, aggregate_db_storage_type: :elasticsearch, formatter: formatter_proc)
       time = Time.at(1_544_732_833).in_time_zone("Pacific Time (US & Canada)")
 
       assert_equal "12/13/18   8:27 PM", ad.from_value(time.iso8601).utc.to_s
@@ -89,8 +89,8 @@ class Aggregate::Attribute::DateTimeTest < ActiveSupport::TestCase
       Time.zone = old_time_zone
     end
   end
-end
 
-def formatter_proc
-  ->(datetime) { datetime.to_i }
+  def formatter_proc
+    ->(datetime) { datetime.to_i }
+  end
 end
