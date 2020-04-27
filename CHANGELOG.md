@@ -1,5 +1,13 @@
-# Changelog
+# CHANGELOG for `aggregate`
+
+Inspired by [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
+
+Note: This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
 All notable changes to this project will be documented in this file.
+## [1.2.1] - 2020-04-27
+- Replace hobo_support with invoca_utils
+
 ## [1.2] - 2019-07-03
 ### Changed
 - Change `store_hash_as_json` hash option to default to `true` for regardless of `aggregate_db_storage_type`
@@ -19,3 +27,10 @@ All notable changes to this project will be documented in this file.
 ## [0.2.0] - 2019-01-14
 ### Added
 - Added initial entry in ChangeLog (see README at this point for gem details)
+
+[1.2.1]: https://github.com/Invoca/aggregate/compare/v1.2...v1.2.1
+[1.2]: https://github.com/Invoca/aggregate/compare/v1.1...v1.2
+[1.1]: https://github.com/Invoca/aggregate/compare/v1.0.1...v1.1
+[1.0.1]: https://github.com/Invoca/aggregate/compare/v1.0.0...v1.0.1
+[1.0.0]: https://github.com/Invoca/aggregate/compare/v0.2.0...v1.0.0
+

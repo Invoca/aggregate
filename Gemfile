@@ -7,7 +7,6 @@ gemspec
 gem "jquery-rails"
 
 group :development do
-  gem 'invoca-utils', '0.0.2'
   gem 'sqlite3'
 end
 
