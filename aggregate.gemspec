@@ -14,6 +14,7 @@ Gem::Specification.new do |s|
   s.homepage    = "http://github.com/invoca"
   s.summary     = "A no-sql style document store using mysql"
   s.description = "Store hashes of attributes on active record models.  Add attributes without requiring migrations"
+  s.metadata['allowed_push_host'] = "https://gem.fury.io/invoca"
 
   s.files = Dir["{app,config,db,lib}/**/*"] + ["MIT-LICENSE", "Rakefile", "README.md"]
   s.test_files = Dir["test/**/*"]
