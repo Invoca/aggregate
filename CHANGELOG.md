@@ -5,6 +5,10 @@ Inspired by [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 Note: This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 All notable changes to this project will be documented in this file.
+## [1.2.2] - 2020-04-28
+### Changed
+- Bumped invoca-utils to 0.3.0
+
 ## [1.2.1] - 2020-04-27
 - Replace hobo_support with invoca_utils
 
@@ -28,6 +32,7 @@ All notable changes to this project will be documented in this file.
 ### Added
 - Added initial entry in ChangeLog (see README at this point for gem details)
 
+[1.2.2]: https://github.com/Invoca/money/compare/v1.2.1...v1.2.2
 [1.2.1]: https://github.com/Invoca/aggregate/compare/v1.2...v1.2.1
 [1.2]: https://github.com/Invoca/aggregate/compare/v1.1...v1.2
 [1.1]: https://github.com/Invoca/aggregate/compare/v1.0.1...v1.1
