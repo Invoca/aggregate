@@ -13,7 +13,7 @@ class Aggregate::Attribute::DateTime < Aggregate::Attribute::Builtin
     if @options[:format]
       value.utc.to_s(@options[:format])
     elsif @options.dig(:aggregate_db_storage_type) == :elasticsearch
-      value.utc.iso8601
+      value.utc.iso8601(3)
     else
       value.utc.rfc822
     end
