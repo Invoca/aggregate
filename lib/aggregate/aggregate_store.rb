@@ -29,8 +29,8 @@ module Aggregate
         agg_attribute = Aggregate::AttributeHandler.belongs_to_factory("#{name}_id", full_attr_handler_options(options))
         aggregated_attribute_handlers[name] = agg_attribute
 
-        define_method(name)                       { load_aggregate_attribute(agg_attribute)._?.value }
-        define_method("#{name}_id")               { load_aggregate_attribute(agg_attribute)._?.id }
+        define_method(name)                       { load_aggregate_attribute(agg_attribute)&.value }
+        define_method("#{name}_id")               { load_aggregate_attribute(agg_attribute)&.id }
         define_method("#{name}=")                 { |value| save_aggregate_attribute(agg_attribute, value) }
         define_method("#{name}_id=")              { |value| save_aggregate_attribute(agg_attribute, value) }
         define_method("#{name}_changed?")         { aggregate_attribute_changed?(agg_attribute) }
@@ -77,7 +77,7 @@ module Aggregate
 
     def set_changed
       @changed = true
-      aggregate_owner._?.set_changed
+      aggregate_owner&.set_changed
     end
 
     def to_store
@@ -174,7 +174,7 @@ module Aggregate
     end
 
     def aggregate_attribute_changed?(agg_attribute)
-      aggregate_changes[agg_attribute.name] || aggregate_values[agg_attribute.name].try.changed?
+      aggregate_changes[agg_attribute.name] || aggregate_values[agg_attribute.name].try(:changed?)
     end
 
     def aggregate_attribute_before_type_cast(agg_attribute)
@@ -209,7 +209,7 @@ module Aggregate
     end
 
     def set_aggregate_owner(_agg_attribute, aggregate_value)
-      [aggregate_value].flatten.each { |v| v.try.aggregate_owner = self }
+      [aggregate_value].flatten.each { |v| v.try(:aggregate_owner=, self) }
     end
   end
 end

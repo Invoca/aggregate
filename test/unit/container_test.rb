@@ -82,7 +82,7 @@ class Aggregate::ContainerTest < ActiveSupport::TestCase
     set_callback(:aggregate_load, :after, :fixup1)
 
     def fixup1
-      if first_shipment._?.tracking_number == "9999"
+      if first_shipment&.tracking_number == "9999"
         first_shipment.tracking_number = "8888"
       end
 
@@ -121,7 +121,7 @@ class Aggregate::ContainerTest < ActiveSupport::TestCase
     set_callback(:aggregate_load, :after, :fixup1)
 
     def fixup1
-      if first_shipment._?.tracking_number == "9999"
+      if first_shipment&.tracking_number == "9999"
         first_shipment.tracking_number = "8888"
       end
 

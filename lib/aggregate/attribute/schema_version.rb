@@ -11,11 +11,11 @@ class Aggregate::Attribute::SchemaVersion < Aggregate::Attribute::Base
   end
 
   def from_value(value)
-    value._?.to_s
+    value&.to_s
   end
 
   def from_store(value)
-    value._?.to_s
+    value&.to_s
   end
 
   def to_store(_value)

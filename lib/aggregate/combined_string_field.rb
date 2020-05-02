@@ -15,7 +15,7 @@ module Aggregate::CombinedStringField
 
     def write(owner, attribute_name, value_param, attribute_manager)
       value = attribute_manager ? attribute_manager.assign(value_param).to_json : value_param.to_s
-      !value._?.include?("\n") or raise ArgumentError, "Cannot store newlines in combined fields storing #{value.inspect} in #{attribute_name}"
+      !value&.include?("\n") or raise ArgumentError, "Cannot store newlines in combined fields storing #{value.inspect} in #{attribute_name}"
       owner.instance_eval("@#{host_attribute}_combined_field_changes ||= {}", __FILE__, __LINE__)
       owner.instance_eval("@#{host_attribute}_combined_field_changes['#{attribute_name}'] = true", __FILE__, __LINE__)
 
