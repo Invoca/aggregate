@@ -5,6 +5,10 @@ Inspired by [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 Note: This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 All notable changes to this project will be documented in this file.
+## [2.0.1] - Unreleased
+- Remove indirect dependency on hobo_support by upgrading large_text_field dependency
+- Replace previously missed usage hobo_support methods with Ruby and Rails provided equivalents
+
 ## [2.0.0] - 2020-04-29
 ### Changed
 - Change `Aggregate::Attribute::DateTime` to use 3 decimal places (millisecond precision) when `:aggregate_db_storage_type == :elasticsearch`
@@ -36,6 +40,8 @@ All notable changes to this project will be documented in this file.
 ### Added
 - Added initial entry in ChangeLog (see README at this point for gem details)
 
+[2.0.1]: https://github.com/Invoca/money/compare/v2.0.0...v2.0.1
+[2.0.0]: https://github.com/Invoca/money/compare/v1.2.2...v2.0.0
 [1.2.2]: https://github.com/Invoca/money/compare/v1.2.1...v1.2.2
 [1.2.1]: https://github.com/Invoca/aggregate/compare/v1.2...v1.2.1
 [1.2]: https://github.com/Invoca/aggregate/compare/v1.1...v1.2
