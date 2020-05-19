@@ -29,8 +29,8 @@ pipeline {
   }
 
   post {
-    success { updateGitHubStatus('clean-build', 'success', "Running unit tests") }
-    failure { updateGitHubStatus('clean-build', 'failure', "Running unit tests") }
+    success { updateGitHubStatus('clean-build', 'success', "Unit tests passed") }
+    failure { updateGitHubStatus('clean-build', 'failure', "Unit tests failed") }
   }
 }
 
