@@ -14,4 +14,4 @@ gem 'rubocop', require: false
 gem 'shoulda',   '3.5.0'
 gem 'sqlite3'
 gem 'test-unit', '3.1.3'
-gem 'test_after_commit'
+gem 'test_after_commit', require: false

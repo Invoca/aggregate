@@ -10,3 +10,4 @@ test/dummy/.sass-cache
 .rubocop-http*
 .DS_Store
 test/reports
+gemfiles/*.lock
