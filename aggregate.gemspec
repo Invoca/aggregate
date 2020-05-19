@@ -22,5 +22,5 @@ Gem::Specification.new do |s|
   s.add_dependency "activerecord",     "~> 4.0"
   s.add_dependency "encryptor",        "~> 3.0"
   s.add_dependency "invoca-utils",     "~> 0.3"
-  s.add_dependency "large_text_field", "~> 0.3"
+  s.add_dependency "large_text_field", "~> 1.0"
 end
