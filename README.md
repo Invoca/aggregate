@@ -2,6 +2,10 @@
 
 This Gem allows a no-sql style document store to be stored on your rails models in sql databases.
 
+## Dependencies
+- Ruby ~> 2.6
+- ActiveRecord >= 4.2, < 7
+
 ### Getting Started
 
 In you Gemfile add:
