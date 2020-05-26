@@ -32,7 +32,10 @@ class Passport < ActiveRecord::Base
   aggregate_attribute :state,            :string,   required: true
   aggregate_attribute :birthdate,        :datetime, required: true
   aggregate_attribute :height,           :decimal
-  aggregate_attribute :weight,           :decimal
+  aggregate_attribute :weight,           :float
+  aggregate_attribute :other_details,    :hash
+  aggregate_attribute :has_id,           :boolean
+  aggregate_attribute :steps,            :integer
   aggregate_attribute :photo,            "PassportPhoto"
   aggregate_has_many  :foreign_visits,   "ForeignVisit"
   ...
