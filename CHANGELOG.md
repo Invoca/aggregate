@@ -6,7 +6,7 @@ Note: This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0
 
 All notable changes to this project will be documented in this file.
 
-## [2.1.0] - Unreleased
+## [2.1.0] - 2020-05-28
 ### Added
 - Added support for rails 5 and 6.
 - Added appraisal tests for all supported rails version: 4/5/6
