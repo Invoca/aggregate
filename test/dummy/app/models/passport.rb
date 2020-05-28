@@ -1,11 +1,6 @@
 # frozen_string_literal: true
 
 class Passport < ActiveRecord::Base
-  # This is stored in the database
-  attr_accessible :name
-
-  attr_accessible :gender, :city, :state, :birthdate, :height, :weight, :photo, :foreign_visits, :stamps, :password
-
   include Aggregate::Container
   store_aggregates_using_large_text_field
 

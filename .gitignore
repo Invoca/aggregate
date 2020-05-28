@@ -9,3 +9,5 @@ test/dummy/.sass-cache
 .idea
 .rubocop-http*
 .DS_Store
+test/reports
+gemfiles/*.lock

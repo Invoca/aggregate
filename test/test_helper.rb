@@ -13,6 +13,9 @@ require "shoulda"
 require "minitest/unit"
 require "pry"
 
+require "minitest/reporters"
+Minitest::Reporters.use! [Minitest::Reporters::ProgressReporter.new, Minitest::Reporters::JUnitReporter.new]
+
 Rails.backtrace_cleaner.remove_silencers!
 # Rails.backtrace_cleaner.add_silencer { |line| line =~ /active_support/}
 # Rails.backtrace_cleaner.add_silencer { |line| line =~ /shoulda/}
