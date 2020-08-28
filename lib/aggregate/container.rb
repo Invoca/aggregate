@@ -8,6 +8,10 @@ module Aggregate
     include ActiveSupport::Callbacks
     include Aggregate::AggregateStore
 
+    if Rails::VERSION::MAJOR > 4
+      include ActiveRecord::DefineCallbacks
+    end
+
     class StorageAlreadyDefined < ArgumentError; end
 
     # rubocop:disable Metrics/BlockLength

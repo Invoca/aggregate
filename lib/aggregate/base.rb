@@ -16,6 +16,10 @@ module Aggregate
     include ActiveRecord::Reflection
     include Comparable
 
+    if Rails::VERSION::MAJOR > 4
+      include ActiveRecord::DefineCallbacks
+    end
+
     validate :validate_aggregates
 
     define_callbacks :before_validation, :aggregate_load, :aggregate_load_check_schema
