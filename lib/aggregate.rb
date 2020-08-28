@@ -2,6 +2,9 @@
 
 require "encryptor"
 require "active_record"
+if ActiveRecord::VERSION::MAJOR > 4
+  require 'active_record/define_callbacks'
+end
 
 require "aggregate/bitfield"
 
