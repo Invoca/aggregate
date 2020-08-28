@@ -16,7 +16,7 @@ module Aggregate
     include ActiveRecord::Reflection
     include Comparable
 
-    if Rails::VERSION::MAJOR > 4
+    if ActiveRecord::VERSION::MAJOR > 4
       include ActiveRecord::DefineCallbacks
     end
 

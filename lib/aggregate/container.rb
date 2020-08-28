@@ -8,7 +8,7 @@ module Aggregate
     include ActiveSupport::Callbacks
     include Aggregate::AggregateStore
 
-    if Rails::VERSION::MAJOR > 4
+    if ActiveRecord::VERSION::MAJOR > 4
       include ActiveRecord::DefineCallbacks
     end
 
