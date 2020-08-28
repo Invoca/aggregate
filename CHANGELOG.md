@@ -6,6 +6,11 @@ Note: This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0
 
 All notable changes to this project will be documented in this file.
 
+## [2.1.1] - Unreleased
+### Fixed
+- Fixed bug in Rails 5+ where `Aggregate::Base` and `Aggregate::Container` no longer had access to
+callbacks defined by `ActiveRecord`
+
 ## [2.1.0] - 2020-05-28
 ### Added
 - Added support for rails 5 and 6.
@@ -48,6 +53,7 @@ All notable changes to this project will be documented in this file.
 ### Added
 - Added initial entry in ChangeLog (see README at this point for gem details)
 
+[2.1.1]: https://github.com/Invoca/aggregate/compare/v2.1.0...v2.1.1
 [2.1.0]: https://github.com/Invoca/aggregate/compare/v2.0.1...v2.1.0
 [2.0.1]: https://github.com/Invoca/aggregate/compare/v2.0.0...v2.0.1
 [2.0.0]: https://github.com/Invoca/aggregate/compare/v1.2.2...v2.0.0
