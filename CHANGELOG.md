@@ -6,7 +6,7 @@ Note: This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0
 
 All notable changes to this project will be documented in this file.
 
-## [2.1.1] - Unreleased
+## [2.1.1] - 2020-08-31
 ### Fixed
 - Fixed bug in Rails 5+ where `Aggregate::Base` and `Aggregate::Container` no longer had access to
 callbacks defined by `ActiveRecord`
