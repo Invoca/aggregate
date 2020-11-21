@@ -846,6 +846,16 @@ class Aggregate::ContainerTest < ActiveSupport::TestCase
       assert_not passport.changed?
     end
 
+    should "correctly display changes across transactions" do
+      passport = sample_passport
+      passport.weight = 50
+      assert_equal ({ "weight" => [100, 50] }), passport.aggregate_attribute_changes
+      passport.save!
+
+      passport.weight = 75
+      assert_equal ({ "weight" => [50, 75] }), passport.aggregate_attribute_changes
+    end
+
     should "load the decoded aggregate store on destroy if using large text field" do
       passport = sample_passport
       assert_not passport.reload.instance_variable_get(:@decoded_aggregate_store_loaded)

@@ -109,6 +109,7 @@ module Aggregate
     def reset_changed_cache
       @changed = nil
       @aggregate_changes = nil
+      @aggregate_initial_values = @aggregate_values.dup
     end
 
     def aggregate_store_data
