@@ -63,7 +63,7 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
         @store.send(:define_method, :run_callbacks) { |_foo| true }
       end
 
-      should "respond to changed? apropriately when the instance is a active record object" do
+      should "respond to changed? appropriately when the instance is an active record object" do
         # change trigged by a active record attribute change
 
         passport = sample_passport
@@ -84,7 +84,7 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
         assert !passport.changed?
       end
 
-      should "respond to changed? appropriatetly when instance is not a active record object" do
+      should "respond to changed? appropriately when instance is not an active record object" do
         assert !@instance.changed?
 
         @instance.name = "blah"
@@ -145,6 +145,20 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
             "name" => ["abc", "The Count"]
           }
           assert_equal expected_changes, @instance.aggregate_attribute_changes
+        end
+
+        should "return correct changes when an instance is changed more than once" do
+          @instance.name = "First Change"
+          expected_first_changes = {
+            "name" => ["abc", "First Change"]
+          }
+          assert_equal expected_first_changes, @instance.aggregate_attribute_changes
+
+          @instance.name = "Second Change"
+          expected_second_changes = {
+            "name" => ["First Change", "Second Change"]
+          }
+          assert_equal expected_second_changes, @instance.aggregate_attribute_changes
         end
 
         should "be empty hash if there are no changes" do

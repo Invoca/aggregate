@@ -6,6 +6,10 @@ Note: This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0
 
 All notable changes to this project will be documented in this file.
 
+## [2.1.2] - Unreleased
+### Fixed
+- Fixed a bug where `Aggregate::AggregateStore#aggregate_attribute_changes` would show incorrect changes if more than one change had been made
+
 ## [2.1.1] - 2020-08-31
 ### Fixed
 - Fixed bug in Rails 5+ where `Aggregate::Base` and `Aggregate::Container` no longer had access to

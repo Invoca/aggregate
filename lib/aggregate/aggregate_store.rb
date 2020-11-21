@@ -163,7 +163,9 @@ module Aggregate
 
     def save_aggregate_attribute(agg_attribute, value)
       aggregate = agg_attribute.from_value(value)
-      if aggregate != load_aggregate_attribute(agg_attribute)
+      previous_aggregate = load_aggregate_attribute(agg_attribute)
+      if aggregate != previous_aggregate
+        aggregate_initial_values[agg_attribute.name] = previous_aggregate
         aggregate_values_before_cast[agg_attribute.name] = value
         aggregate_values[agg_attribute.name] = aggregate
         aggregate_changes[agg_attribute.name] = true
