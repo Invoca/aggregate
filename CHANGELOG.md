@@ -6,7 +6,7 @@ Note: This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0
 
 All notable changes to this project will be documented in this file.
 
-## [2.1.2] - Unreleased
+## [2.1.2] - 2020-11-23
 ### Fixed
 - Fixed a bug where `Aggregate::AggregateStore#aggregate_attribute_changes` would show incorrect changes across database transactions
 
