@@ -21,6 +21,7 @@ module Aggregate
       send(:define_callbacks, :aggregate_load_schema)
       send(:define_callbacks, :aggregate_load_check_schema)
       set_callback :commit, :after, :reset_changed_cache
+      set_callback :aggregate_load_check_schema, :after, :reset_changed_cache
       class_attribute :aggregate_storage_field
       class_attribute :migrate_from_storage_field
 

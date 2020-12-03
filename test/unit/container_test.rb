@@ -99,9 +99,11 @@ class Aggregate::ContainerTest < ActiveSupport::TestCase
       @upgraded_from_schema_version ||= []
       @upgraded_from_schema_version << current_version.inspect.to_s
       @value_at_upgrade = test_string
+      self.after_schema_fixup = current_version
     end
 
     aggregate_attribute :test_string, :string
+    aggregate_attribute :after_schema_fixup, :string
     aggregate_attribute :first_shipment, "Aggregate::ContainerTest::TestShippingRecord"
     aggregate_attribute :second_shipment, "Aggregate::ContainerTest::TestShippingRecord"
   end
@@ -734,6 +736,30 @@ class Aggregate::ContainerTest < ActiveSupport::TestCase
 
         assert_equal ["\"1.9\""], @doc.upgraded_from_schema_version
         assert_equal "2.0", @doc.to_store["data_schema_version"]
+      end
+
+      should "not mark schema migration attribute changes as changes" do
+        json = {
+          'first_shipment' => {
+            'tracking_number'  => '9999',
+            'weight_in_ounces' => 5,
+            'ship_from'        => {
+              'full_name'   => 'Lisa Smith',
+              'address_one' => '1812 Clearview Road',
+              'address_two' => '',
+              'zip'         => '93101'
+            }
+          },
+          "data_schema_version" => "1.9"
+        }.to_json
+
+        @doc = TestPurchase.new(json)
+        @doc.first_shipment
+
+        assert_equal "1.9", @doc.after_schema_fixup
+        refute @doc.after_schema_fixup_changed?
+        @doc.after_schema_fixup = "2.0"
+        assert_equal ["1.9", "2.0"], @doc.aggregate_attribute_changes["after_schema_fixup"]
       end
 
       should "not fire schema version callbacks if schema matches" do
