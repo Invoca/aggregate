@@ -10,7 +10,8 @@ All notable changes to this project will be documented in this file.
 ### Fixed
 - Fixed a bug where `Aggregate::AggregateStore#aggregate_attribute_changes` and `Aggregate::AggregateStore#changed?` would show incorrect changes.
 Ensures that the correct state is represented when a field is changed from and back to it's initial value.
-  
+- Fixed a bug where changes to aggregate attributes during an aggregate schema fixup were being marked as changes.
+  - These are seen as data migrations and thus are not changes to the model itself, but a transformation
 
 ## [2.1.2] - 2020-11-23
 ### Fixed
