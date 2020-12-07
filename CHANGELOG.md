@@ -6,7 +6,7 @@ Note: This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0
 
 All notable changes to this project will be documented in this file.
 
-## [2.1.3] - Unrelease
+## [2.1.3] - 2020-12-07
 ### Fixed
 - Fixed a bug where `Aggregate::AggregateStore#aggregate_attribute_changes` and `Aggregate::AggregateStore#changed?` would show incorrect changes.
 Ensures that the correct state is represented when a field is changed from and back to it's initial value.
