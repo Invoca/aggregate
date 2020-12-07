@@ -76,7 +76,7 @@ module Aggregate
     end
 
     def set_changed
-      @changed = true
+      @changed = aggregate_values != aggregate_initial_values
       aggregate_owner&.set_changed
     end
 
@@ -164,9 +164,10 @@ module Aggregate
     def save_aggregate_attribute(agg_attribute, value)
       aggregate = agg_attribute.from_value(value)
       if aggregate != load_aggregate_attribute(agg_attribute)
-        aggregate_values_before_cast[agg_attribute.name] = value
-        aggregate_values[agg_attribute.name] = aggregate
-        aggregate_changes[agg_attribute.name] = true
+        name = agg_attribute.name
+        aggregate_values_before_cast[name] = value
+        aggregate_values[name]             = aggregate
+        aggregate_changes[name]            = aggregate != aggregate_initial_values[name]
         set_aggregate_owner(agg_attribute, aggregate)
         set_changed
       end
@@ -174,7 +175,7 @@ module Aggregate
     end
 
     def aggregate_attribute_changed?(agg_attribute)
-      aggregate_changes[agg_attribute.name] || aggregate_values[agg_attribute.name].try(:changed?)
+      aggregate_changes[agg_attribute.name] || Array.wrap(aggregate_values[agg_attribute.name]).any? { |value| value.try(:changed?) }
     end
 
     def aggregate_attribute_before_type_cast(agg_attribute)

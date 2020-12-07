@@ -6,6 +6,14 @@ Note: This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0
 
 All notable changes to this project will be documented in this file.
 
+## [2.1.3] - Unrelease
+### Fixed
+- Fixed a bug where `Aggregate::AggregateStore#aggregate_attribute_changes` and `Aggregate::AggregateStore#changed?` would show incorrect changes.
+Ensures that the correct state is represented when a field is changed from and back to it's initial value.
+- Fixed a bug where changes to aggregate attributes during an aggregate schema fixup were being marked as changes.
+  - These are seen as data migrations and thus are not changes to the model itself, but a transformation
+- Fixed a bug where `aggregate_has_many` attribute was not being marked as changed if one of its containing values changed  
+
 ## [2.1.2] - 2020-11-23
 ### Fixed
 - Fixed a bug where `Aggregate::AggregateStore#aggregate_attribute_changes` would show incorrect changes across database transactions

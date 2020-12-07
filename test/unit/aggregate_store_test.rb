@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative '../test_helper'
+require 'test_after_commit'
 
 class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
 
@@ -91,6 +92,96 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
         assert @instance.changed?
       end
 
+      context "when an aggregate field is changed from and back to its initial value" do
+        context "and owner is an Active Record object" do
+          context "and there were no other aggregate field changes" do
+            setup do
+              @passport = sample_passport
+              refute @passport.changed?
+              original_foreign_visits = @passport.foreign_visits
+              @passport.foreign_visits = [ForeignVisit.new(country: "Canada"), ForeignVisit.new(country: "Mexico")]
+              assert @passport.changed?
+              @passport.foreign_visits = original_foreign_visits
+            end
+
+            should "be falsy" do
+              refute @passport.changed?
+            end
+          end
+
+          context "and there were other aggregate field changes" do
+            setup do
+              @passport = sample_passport
+              refute @passport.changed?
+              original_foreign_visits = @passport.foreign_visits
+              @passport.city = "Emond's Field"
+              @passport.foreign_visits = [ForeignVisit.new(country: "Malkier"), ForeignVisit.new(country: "Cairhien")]
+              assert @passport.changed?
+              @passport.foreign_visits = original_foreign_visits
+            end
+
+            should "be truthy" do
+              assert @passport.changed?
+            end
+          end
+        end
+
+        context "and owner is not an Active Record object" do
+          setup do
+            refute @instance.changed?
+          end
+
+          context "and there were no other aggregate field changes" do
+            setup do
+              original_name = @instance.name
+              @instance.name = "Nynaeve"
+              assert @instance.changed?
+              @instance.name = original_name
+            end
+
+            should "be falsy" do
+              refute @instance.changed?
+            end
+          end
+
+          context "and there were other aggregate field changes" do
+            setup do
+              @store.aggregate_attribute(:age, :string)
+
+              @instance = @store.new
+              @instance.age = 20
+              original_name = @instance.name
+              @instance.name = "Nynaeve"
+              assert @instance.changed?
+              @instance.name = original_name
+            end
+
+            should "be truthy" do
+              assert @instance.changed?
+            end
+          end
+        end
+      end
+
+      context "for object with aggregate_has_many attribute" do
+        setup do
+          @passport = sample_passport
+          @passport.update_attributes!(foreign_visits: [ForeignVisit.new(country: "Cairhien")])
+        end
+
+        context "and one of the aggregate_has_many individual instances has changed" do
+          setup do
+            @passport.foreign_visits.first.country = "Caemlyn"
+          end
+
+          should "correctly mark the attribute as changed" do
+            # TODO: uncomment this when we address this bug
+            # assert @passport.changed?, "passport not changed"
+            assert @passport.foreign_visits_changed?, "foreign visits not changed"
+          end
+        end
+      end
+
       should "load from a store when constructed" do
         assert_equal "abc", @instance.name
       end
@@ -141,7 +232,7 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
           @instance.age = 999
 
           expected_changes = {
-            "age"  => [nil, 999],
+            "age" => [nil, 999],
             "name" => ["abc", "The Count"]
           }
           assert_equal expected_changes, @instance.aggregate_attribute_changes
@@ -149,6 +240,18 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
 
         should "be empty hash if there are no changes" do
           assert_equal({}, @instance.aggregate_attribute_changes)
+        end
+
+        context "when field changes to and from initial value" do
+          setup do
+            original_value = @instance.name
+            @instance.name = "Perrin"
+            @instance.name = original_value
+          end
+
+          should "not include the field" do
+            assert_equal({}, @instance.aggregate_attribute_changes)
+          end
         end
       end
 
@@ -161,28 +264,28 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
           @instance.new_record = true
           mock.instance_of(Aggregate::Attribute::String).validation_errors("abc") { ["had_error"] }
           @instance.validate_aggregates
-          assert_equal [%w[name had_error]], @instance.errors.messages
+          assert_equal [['name', 'had_error']], @instance.errors.messages
         end
 
         should "validate aggregates if they force it" do
           mock.instance_of(Aggregate::Attribute::String).force_validation? { true }
           mock.instance_of(Aggregate::Attribute::String).validation_errors("abc") { ["had_error"] }
           @instance.validate_aggregates
-          assert_equal [%w[name had_error]], @instance.errors.messages
+          assert_equal [['name', 'had_error']], @instance.errors.messages
         end
 
         should "validate aggregates if it changed" do
           @instance.name = "godzilla"
           mock.instance_of(Aggregate::Attribute::String).validation_errors("godzilla") { ["had_error"] }
           @instance.validate_aggregates
-          assert_equal [%w[name had_error]], @instance.errors.messages
+          assert_equal [['name', 'had_error']], @instance.errors.messages
         end
 
         should "validate aggregates if was accessed" do
           @instance.name
           mock.instance_of(Aggregate::Attribute::String).validation_errors("abc") { ["had_error"] }
           @instance.validate_aggregates
-          assert_equal [%w[name had_error]], @instance.errors.messages
+          assert_equal [['name', 'had_error']], @instance.errors.messages
         end
 
         should "not validate an aggregate otherwise" do
@@ -220,8 +323,8 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
           @store.send(:define_method, :new_record?) { @new_record }
           @store.send(:define_method, :run_callbacks) { |_foo| true }
 
-          @instance.names = %w[manny moe jack]
-          assert_equal %w[manny moe jack], @instance.names
+          @instance.names = ['manny', 'moe', 'jack']
+          assert_equal ['manny', 'moe', 'jack'], @instance.names
         end
 
         should "allow lists to be saved to disk" do
@@ -231,22 +334,22 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
           @store.send(:define_method, :run_callbacks) { |_foo| true }
           @instance = @store.new
 
-          @instance.names = %w[manny moe jack]
-          assert_equal %w[manny moe jack], @instance.names
+          @instance.names = ['manny', 'moe', 'jack']
+          assert_equal ['manny', 'moe', 'jack'], @instance.names
 
-          expected = { "names" => %w[manny moe jack] }
+          expected = { "names" => ['manny', 'moe', 'jack'] }
 
           assert_equal expected, @instance.to_store
         end
 
         should "allow lists to be loaded from to disk" do
           @store.send(:define_method, :aggregate_owner) { @aggregate_owner ||= OwnerStub.new }
-          @store.send(:define_method, :decoded_aggregate_store) { { "names" => %w[manny moe jack] } }
+          @store.send(:define_method, :decoded_aggregate_store) { { "names" => ['manny', 'moe', 'jack'] } }
           @store.send(:define_method, :new_record?) { @new_record }
           @store.send(:define_method, :run_callbacks) { |_foo| true }
           @instance = @store.new
 
-          assert_equal %w[manny moe jack], @instance.names
+          assert_equal ['manny', 'moe', 'jack'], @instance.names
         end
 
         context "lists of aggregates" do
