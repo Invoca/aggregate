@@ -175,7 +175,7 @@ module Aggregate
     end
 
     def aggregate_attribute_changed?(agg_attribute)
-      aggregate_changes[agg_attribute.name] || aggregate_values[agg_attribute.name].try(:changed?)
+      aggregate_changes[agg_attribute.name] || Array.wrap(aggregate_values[agg_attribute.name]).any? { |value| value.try(:changed?) }
     end
 
     def aggregate_attribute_before_type_cast(agg_attribute)

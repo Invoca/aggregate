@@ -163,6 +163,25 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
         end
       end
 
+      context "for object with aggregate_has_many attribute" do
+        setup do
+          @passport = sample_passport
+          @passport.update_attributes!(foreign_visits: [ForeignVisit.new(country: "Cairhien")])
+        end
+
+        context "and one of the aggregate_has_many individual instances has changed" do
+          setup do
+            @passport.foreign_visits.first.country = "Caemlyn"
+          end
+
+          should "correctly mark the attribute as changed" do
+            # TODO: uncomment this when we address this bug
+            # assert @passport.changed?, "passport not changed"
+            assert @passport.foreign_visits_changed?, "foreign visits not changed"
+          end
+        end
+      end
+
       should "load from a store when constructed" do
         assert_equal "abc", @instance.name
       end
@@ -213,7 +232,7 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
           @instance.age = 999
 
           expected_changes = {
-            "age"  => [nil, 999],
+            "age" => [nil, 999],
             "name" => ["abc", "The Count"]
           }
           assert_equal expected_changes, @instance.aggregate_attribute_changes
@@ -245,28 +264,28 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
           @instance.new_record = true
           mock.instance_of(Aggregate::Attribute::String).validation_errors("abc") { ["had_error"] }
           @instance.validate_aggregates
-          assert_equal [%w[name had_error]], @instance.errors.messages
+          assert_equal [['name', 'had_error']], @instance.errors.messages
         end
 
         should "validate aggregates if they force it" do
           mock.instance_of(Aggregate::Attribute::String).force_validation? { true }
           mock.instance_of(Aggregate::Attribute::String).validation_errors("abc") { ["had_error"] }
           @instance.validate_aggregates
-          assert_equal [%w[name had_error]], @instance.errors.messages
+          assert_equal [['name', 'had_error']], @instance.errors.messages
         end
 
         should "validate aggregates if it changed" do
           @instance.name = "godzilla"
           mock.instance_of(Aggregate::Attribute::String).validation_errors("godzilla") { ["had_error"] }
           @instance.validate_aggregates
-          assert_equal [%w[name had_error]], @instance.errors.messages
+          assert_equal [['name', 'had_error']], @instance.errors.messages
         end
 
         should "validate aggregates if was accessed" do
           @instance.name
           mock.instance_of(Aggregate::Attribute::String).validation_errors("abc") { ["had_error"] }
           @instance.validate_aggregates
-          assert_equal [%w[name had_error]], @instance.errors.messages
+          assert_equal [['name', 'had_error']], @instance.errors.messages
         end
 
         should "not validate an aggregate otherwise" do
@@ -304,8 +323,8 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
           @store.send(:define_method, :new_record?) { @new_record }
           @store.send(:define_method, :run_callbacks) { |_foo| true }
 
-          @instance.names = %w[manny moe jack]
-          assert_equal %w[manny moe jack], @instance.names
+          @instance.names = ['manny', 'moe', 'jack']
+          assert_equal ['manny', 'moe', 'jack'], @instance.names
         end
 
         should "allow lists to be saved to disk" do
@@ -315,22 +334,22 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
           @store.send(:define_method, :run_callbacks) { |_foo| true }
           @instance = @store.new
 
-          @instance.names = %w[manny moe jack]
-          assert_equal %w[manny moe jack], @instance.names
+          @instance.names = ['manny', 'moe', 'jack']
+          assert_equal ['manny', 'moe', 'jack'], @instance.names
 
-          expected = { "names" => %w[manny moe jack] }
+          expected = { "names" => ['manny', 'moe', 'jack'] }
 
           assert_equal expected, @instance.to_store
         end
 
         should "allow lists to be loaded from to disk" do
           @store.send(:define_method, :aggregate_owner) { @aggregate_owner ||= OwnerStub.new }
-          @store.send(:define_method, :decoded_aggregate_store) { { "names" => %w[manny moe jack] } }
+          @store.send(:define_method, :decoded_aggregate_store) { { "names" => ['manny', 'moe', 'jack'] } }
           @store.send(:define_method, :new_record?) { @new_record }
           @store.send(:define_method, :run_callbacks) { |_foo| true }
           @instance = @store.new
 
-          assert_equal %w[manny moe jack], @instance.names
+          assert_equal ['manny', 'moe', 'jack'], @instance.names
         end
 
         context "lists of aggregates" do
