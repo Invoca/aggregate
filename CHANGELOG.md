@@ -12,6 +12,7 @@ All notable changes to this project will be documented in this file.
 Ensures that the correct state is represented when a field is changed from and back to it's initial value.
 - Fixed a bug where changes to aggregate attributes during an aggregate schema fixup were being marked as changes.
   - These are seen as data migrations and thus are not changes to the model itself, but a transformation
+- Fixed a bug where `aggregate_has_many` attribute was not being marked as changed if one of its containing values changed  
 
 ## [2.1.2] - 2020-11-23
 ### Fixed
