@@ -67,7 +67,7 @@ module Aggregate
     end
 
     def to_a
-      (0...@string.length).map { |i| self.class.from_bit(@string[i]) }
+      (0...@string.length).map { |index| self.class.from_bit(@string[index]) }
     end
 
     def to_s
