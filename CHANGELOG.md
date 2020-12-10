@@ -6,6 +6,11 @@ Note: This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0
 
 All notable changes to this project will be documented in this file.
 
+## [2.2.0] - 2020-12-10
+### Added
+- Added support for assigning bitfield via array of mapped values.
+- Added `to_a` method which converts bitfield bits to an array of mapped values.
+
 ## [2.1.3] - 2020-12-07
 ### Fixed
 - Fixed a bug where `Aggregate::AggregateStore#aggregate_attribute_changes` and `Aggregate::AggregateStore#changed?` would show incorrect changes.

@@ -66,6 +66,10 @@ module Aggregate
       @string[index] = bit_value
     end
 
+    def to_a
+      (0...@string.length).map { |i| self.class.from_bit(@string[i]) }
+    end
+
     def to_s
       @string.gsub(/#{Regexp.escape(self.class.default_bit_value)}+\z/, "")
     end

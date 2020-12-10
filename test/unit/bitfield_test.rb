@@ -82,6 +82,13 @@ class Aggregate::BitfieldTest < ActiveSupport::TestCase
       end
     end
 
+    context "#to_a" do
+      should "return value as converted array" do
+        bitfield = Aggregate::Bitfield.with_options(@bitfield_options).new("tf t")
+        assert_equal [true, false, nil, true], bitfield.to_a
+      end
+    end
+
     context "length limited classes" do
       should "allow values below the limit" do
         bitfield = Aggregate::Bitfield.with_options(@bitfield_options.merge(limit: 10)).new("")

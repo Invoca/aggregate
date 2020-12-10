@@ -21,6 +21,11 @@ class Aggregate::Attribute::BitfieldTest < ActiveSupport::TestCase
     assert_equal "tf t", @ad.to_store(Aggregate::Bitfield.with_options(@default_bitfield_options.merge(limit: 4)).new("tf t"))
   end
 
+  should "convert array of values to mapped string" do
+    result = @ad.from_value([true, false, nil, true])
+    assert_equal Aggregate::Bitfield.with_options(@default_bitfield_options.merge(limit: 4)).new("tf t"), result
+  end
+
   should "allow custom mapping and default values" do
     options = {
       mapping: { 'a' => :awesome, 'p' => :pizza },
