@@ -43,7 +43,7 @@ class Aggregate::Attribute::Bitfield < Aggregate::Attribute::Base
   private
 
   def value_to_string(value)
-    value.is_a?(Array) ? value&.map { |v| klass.to_bit(v) }&.join : value&.to_s
+    value.respond_to?(:map) ? value.map { |v| klass.to_bit(v) }.join : value&.to_s
   end
 
   def klass
