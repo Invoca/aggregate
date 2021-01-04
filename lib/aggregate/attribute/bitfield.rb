@@ -20,7 +20,7 @@ class Aggregate::Attribute::Bitfield < Aggregate::Attribute::Base
   end
 
   def from_value(value)
-    klass.new(value&.to_s || "")
+    klass.new(value_to_string(value) || "")
   end
 
   def from_store(value)
@@ -41,6 +41,10 @@ class Aggregate::Attribute::Bitfield < Aggregate::Attribute::Base
   end
 
   private
+
+  def value_to_string(value)
+    value.respond_to?(:map) ? value.map { |v| klass.to_bit(v) }.join : value&.to_s
+  end
 
   def klass
     @klass ||= Aggregate::Bitfield.with_options(options)
