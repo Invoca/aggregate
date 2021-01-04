@@ -6,7 +6,7 @@ Note: This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0
 
 All notable changes to this project will be documented in this file.
 
-## [2.2.0] - 2020-12-10
+## [2.2.0] - 2021-01-04
 ### Added
 - Added support for assigning bitfield via array of mapped values.
 - Added `to_a` method which converts bitfield bits to an array of mapped values.
