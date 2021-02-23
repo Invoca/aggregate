@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
 require_relative '../test_helper'
-require 'test_after_commit'
+require 'rails_upgrade_helpers/version'
+require 'test_after_commit' if Rails::VERSION::MAJOR === 4
 
 class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
 
@@ -496,8 +497,13 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
             @store.send(:define_method, method) { raise "call #{method} on containing class" }
           end
 
+          callbacks_module = RailsUpgradeHelpers::Version.if_version(
+            rails_4: -> { ActiveRecord::Callbacks },
+            rails_5: -> { ActiveSupport::Callbacks }
+          )
+
           @store.send(:include, Aggregate::AggregateStore)
-          @store.send(:include, ActiveRecord::Callbacks)
+          @store.send(:include, callbacks_module)
           @store.send(:define_callbacks, :before_validation, :after_aggregate_load, :aggregate_load_check_schema)
           @store.send(:define_method, :aggregate_owner) { @aggregate_owner ||= OwnerStub.new }
           @store.send(:define_method, :decoded_aggregate_store) { { "names" => nil } }
