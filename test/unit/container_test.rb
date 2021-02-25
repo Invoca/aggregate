@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require_relative '../test_helper'
-require 'test_after_commit'
+require 'test_after_commit' if Rails::VERSION::MAJOR === 4
 
 class Aggregate::ContainerTest < ActiveSupport::TestCase
 
