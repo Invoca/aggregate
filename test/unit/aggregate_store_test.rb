@@ -127,40 +127,33 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
           refute @instance.saved_changes?
           @instance.name = "blah"
 
-          assert_raise NoMethodError do
-            @instance.public_send(save_method)
-          end
+          assert_raise(NoMethodError) { @instance.public_send(save_method) }
+          refute @instance.saved_changes?
         end
       end
 
       Rails::VERSION::MAJOR === 4 && ['save', 'save!'].each do |save_method|
-        should "respond to saved_changes? appropriately when the instance is a active record object using #{save_method}" do
+        should "raise NoMethodError when saved_changes? called when the instance is a active record object using #{save_method}" do
           # change triggered by a active record attribute change
 
           passport = sample_passport
           passport.name = "blah"
           passport.public_send(save_method)
 
-          assert_raise NoMethodError do
-            passport.saved_changes?
-          end
+          assert_raise(NoMethodError) { passport.saved_changes? }
 
           passport = Passport.find(passport.id)
 
           # change triggered by a aggregate attribute change
           passport.foreign_visits = [ForeignVisit.new(country: "Canada"), ForeignVisit.new(country: "Mexico")]
           passport.public_send(save_method)
-          assert_raise NoMethodError do
-            passport.saved_changes?
-          end
+          assert_raise(NoMethodError) { passport.saved_changes? }
         end
 
-        should "respond to saved_changes? appropriately when instance is not a active record object using #{save_method}" do
+        should "raise NoMethodError when saved_changes? called when instance is not a active record object using #{save_method}" do
           @instance.name = "blah"
-
-          assert_raise NoMethodError do
-            @instance.public_send(save_method)
-          end
+          assert_raise(NoMethodError) { @instance.public_send(save_method) }
+          assert_raise(NoMethodError) { @instance.saved_changes? }
         end
       end
 
