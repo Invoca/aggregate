@@ -9,6 +9,8 @@ module RailsUpgradeHelpers
           rails_4&.call
         when 5
           rails_5&.call
+        when 6
+          rails_5&.call
         else
           raise "Unexpected rails major version #{Rails::VERSION::MAJOR} expected 4 or 5"
         end

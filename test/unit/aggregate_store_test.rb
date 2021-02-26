@@ -92,7 +92,7 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
         assert @instance.changed?
       end
 
-      Rails::VERSION::MAJOR === 5 && ['save', 'save!'].each do |save_method|
+      Rails::VERSION::MAJOR > 4 && ['save', 'save!'].each do |save_method|
         should "respond to saved_changes? appropriately when the instance is a active record object using #{save_method}" do
           # change triggered by a active record attribute change
 
