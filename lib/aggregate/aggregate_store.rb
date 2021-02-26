@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'rails_upgrade_helpers/version'
+
 module Aggregate
   module AggregateStore
     REQUIRED_METHODS = [:aggregate_owner, :decoded_aggregate_store, :new_record?, :errors, :run_callbacks].freeze
@@ -71,13 +73,41 @@ module Aggregate
       model_class.extend ClassMethods
     end
 
+    def save
+      defined?(super) or raise NoMethodError, "undefined method 'save' for #{self}"
+      RailsUpgradeHelpers::Version.if_version(
+        rails_5: -> { set_saved_changes }
+      )
+      super
+    end
+
+    def save!
+      defined?(super) or raise NoMethodError, "undefined method 'save!' for #{self}"
+      RailsUpgradeHelpers::Version.if_version(
+        rails_5: -> { set_saved_changes }
+      )
+      super
+    end
+
     def changed?
       (defined?(super) && super) || @changed
+    end
+
+    def saved_changes?
+      RailsUpgradeHelpers::Version.if_version(
+        rails_4: -> { raise NoMethodError, "undefined method 'saved_changes?' for #{self}" }
+      )
+      (defined?(super) && super) || @saved_changes
     end
 
     def set_changed
       @changed = aggregate_values != aggregate_initial_values
       aggregate_owner&.set_changed
+    end
+
+    def set_saved_changes
+      @saved_changes = @changed
+      aggregate_owner&.set_saved_changes
     end
 
     def to_store

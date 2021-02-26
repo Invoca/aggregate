@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require_relative '../test_helper'
-require 'rails_upgrade_helpers/version'
 require 'test_after_commit' if Rails::VERSION::MAJOR === 4
 
 class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
@@ -65,8 +64,8 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
         @store.send(:define_method, :run_callbacks) { |_foo| true }
       end
 
-      should "respond to changed? apropriately when the instance is a active record object" do
-        # change trigged by a active record attribute change
+      should "respond to changed? appropriately when the instance is a active record object" do
+        # change triggered by a active record attribute change
 
         passport = sample_passport
         passport.name = "blah"
@@ -74,7 +73,7 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
 
         passport = Passport.find(passport.id)
 
-        # change trigged by a aggregate attribute change
+        # change triggered by a aggregate attribute change
         passport.foreign_visits = [ForeignVisit.new(country: "Canada"), ForeignVisit.new(country: "Mexico")]
         assert passport.changed?
 
@@ -86,11 +85,83 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
         assert !passport.changed?
       end
 
-      should "respond to changed? appropriatetly when instance is not a active record object" do
+      should "respond to changed? appropriately when instance is not a active record object" do
         assert !@instance.changed?
 
         @instance.name = "blah"
         assert @instance.changed?
+      end
+
+      Rails::VERSION::MAJOR === 5 && ['save', 'save!'].each do |save_method|
+        should "respond to saved_changes? appropriately when the instance is a active record object using #{save_method}" do
+          # change triggered by a active record attribute change
+
+          passport = sample_passport
+          passport.public_send(save_method)
+          refute passport.saved_changes?
+          passport.name = "blah"
+          refute passport.saved_changes?
+          passport.public_send(save_method)
+          assert passport.saved_changes?
+
+          passport = Passport.find(passport.id)
+
+          # change triggered by a aggregate attribute change
+          passport.foreign_visits = [ForeignVisit.new(country: "Canada"), ForeignVisit.new(country: "Mexico")]
+          passport.public_send(save_method)
+          assert passport.saved_changes?
+
+          passport = Passport.find(passport.id)
+
+          # not mark saved_changes if the aggregate value being assigned is same as before
+          visits = [ForeignVisit.new(country: "Spain"), ForeignVisit.new(country: "Japan")]
+          passport.foreign_visits = visits
+          passport.public_send(save_method)
+          assert passport.saved_changes?
+          passport.foreign_visits = visits
+          passport.public_send(save_method)
+          refute passport.saved_changes?
+        end
+
+        should "respond to saved_changes? appropriately when instance is not a active record object using #{save_method}" do
+          refute @instance.saved_changes?
+          @instance.name = "blah"
+
+          assert_raise NoMethodError do
+            @instance.public_send(save_method)
+          end
+        end
+      end
+
+      Rails::VERSION::MAJOR === 4 && ['save', 'save!'].each do |save_method|
+        should "respond to saved_changes? appropriately when the instance is a active record object using #{save_method}" do
+          # change triggered by a active record attribute change
+
+          passport = sample_passport
+          passport.name = "blah"
+          passport.public_send(save_method)
+
+          assert_raise NoMethodError do
+            passport.saved_changes?
+          end
+
+          passport = Passport.find(passport.id)
+
+          # change triggered by a aggregate attribute change
+          passport.foreign_visits = [ForeignVisit.new(country: "Canada"), ForeignVisit.new(country: "Mexico")]
+          passport.public_send(save_method)
+          assert_raise NoMethodError do
+            passport.saved_changes?
+          end
+        end
+
+        should "respond to saved_changes? appropriately when instance is not a active record object using #{save_method}" do
+          @instance.name = "blah"
+
+          assert_raise NoMethodError do
+            @instance.public_send(save_method)
+          end
+        end
       end
 
       context "when an aggregate field is changed from and back to its initial value" do
@@ -497,13 +568,8 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
             @store.send(:define_method, method) { raise "call #{method} on containing class" }
           end
 
-          callbacks_module = RailsUpgradeHelpers::Version.if_version(
-            rails_4: -> { ActiveRecord::Callbacks },
-            rails_5: -> { ActiveSupport::Callbacks }
-          )
-
           @store.send(:include, Aggregate::AggregateStore)
-          @store.send(:include, callbacks_module)
+          @store.send(:include, ActiveSupport::Callbacks)
           @store.send(:define_callbacks, :before_validation, :after_aggregate_load, :aggregate_load_check_schema)
           @store.send(:define_method, :aggregate_owner) { @aggregate_owner ||= OwnerStub.new }
           @store.send(:define_method, :decoded_aggregate_store) { { "names" => nil } }
