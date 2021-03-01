@@ -8,6 +8,9 @@ module Aggregate
     include ActiveSupport::Callbacks
     include Aggregate::AggregateStore
 
+    if ActiveRecord::VERSION::MAJOR > 4
+      include ActiveRecord::DefineCallbacks
+    end
 
     class StorageAlreadyDefined < ArgumentError; end
 

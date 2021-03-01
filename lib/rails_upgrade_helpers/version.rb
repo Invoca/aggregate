@@ -1,18 +1,18 @@
 # frozen_string_literal: true
 
-module RailsUpgradeHelpers
+module ActiveRecordHelpers
   class Version
     class << self
-      def if_version(rails_4: nil, rails_5: nil, rails_6: nil)
-        case Rails::VERSION::MAJOR
+      def if_version(active_record_4: nil, active_record_5: nil, active_record_6: nil)
+        case ActiveRecord::VERSION::MAJOR
         when 4
-          rails_4&.call
+          active_record_4&.call
         when 5
-          rails_5&.call
+          active_record_5&.call
         when 6
-          rails_6&.call
+          active_record_6&.call
         else
-          raise "Unexpected rails major version #{Rails::VERSION::MAJOR} expected 4 or 5"
+          raise "Unexpected rails major version #{active_record_4::VERSION::MAJOR} expected 4 or 5"
         end
       end
     end

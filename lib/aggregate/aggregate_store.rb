@@ -75,18 +75,18 @@ module Aggregate
 
     def save
       defined?(super) &&
-        RailsUpgradeHelpers::Version.if_version(
-          rails_5: -> { set_saved_changes },
-          rails_6: -> { set_saved_changes }
+        ActiveRecordHelpers::Version.if_version(
+          active_record_5: -> { set_saved_changes },
+          active_record_6: -> { set_saved_changes }
         )
       super
     end
 
     def save!
       defined?(super) &&
-        RailsUpgradeHelpers::Version.if_version(
-          rails_5: -> { set_saved_changes },
-          rails_6: -> { set_saved_changes }
+        ActiveRecordHelpers::Version.if_version(
+          active_record_5: -> { set_saved_changes },
+          active_record_6: -> { set_saved_changes }
         )
       super
     end
@@ -96,8 +96,8 @@ module Aggregate
     end
 
     def saved_changes?
-      RailsUpgradeHelpers::Version.if_version(
-        rails_4: -> { raise NoMethodError, "undefined method 'saved_changes?' for #{self}" }
+      ActiveRecordHelpers::Version.if_version(
+        active_record_4: -> { raise NoMethodError, "undefined method 'saved_changes?' for #{self}" }
       )
       (defined?(super) && super) || @saved_changes
     end
