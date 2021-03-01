@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
 require_relative '../test_helper'
-require 'test_after_commit' if Rails::VERSION::MAJOR === 4
+Aggregate::ActiveRecordHelpers::Version.if_version(
+  active_record_4: -> { require 'test_after_commit' }
+)
 
 class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
 

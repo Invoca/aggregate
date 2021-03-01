@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'rails_upgrade_helpers/version'
-
 module Aggregate
   module AggregateStore
     REQUIRED_METHODS = [:aggregate_owner, :decoded_aggregate_store, :new_record?, :errors, :run_callbacks].freeze
