@@ -96,49 +96,59 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
 
       Aggregate::ActiveRecordHelpers::Version.if_version(
         active_record_gt_4: -> {
-          should "respond to saved_changes? appropriately when the instance is a active record object" do
-            # change triggered by a active record attribute change
+          context "that is an Active Record Object" do
+            setup do
+              @passport = sample_passport
+              @passport.reload
+            end
 
-            passport = sample_passport
-            passport.save
-            refute passport.saved_changes?
-            passport.name = "blah"
-            refute passport.saved_changes?
-            passport.save
-            assert passport.saved_changes?
-            passport.reload
-            refute passport.saved_changes?
+            context "when change triggered by a active record attribute change" do
+              should "respond to saved_changes? appropriately" do
+                refute @passport.saved_changes?
+                @passport.name = "blah"
+                refute @passport.saved_changes?
+                @passport.save
+                assert @passport.saved_changes?
+                @passport.reload
+                refute @passport.saved_changes?
+              end
+            end
 
-            # change triggered by a aggregate attribute change
-            passport = Passport.find(passport.id)
-            passport.foreign_visits = [ForeignVisit.new(country: "Canada"), ForeignVisit.new(country: "Mexico")]
-            passport.save
-            assert passport.saved_changes?
-            passport.reload
-            refute passport.saved_changes?
+            context "when change triggered by a aggregate attribute change" do
+              should "respond to saved_changes? appropriately" do
+                @passport.foreign_visits = [ForeignVisit.new(country: "Canada"), ForeignVisit.new(country: "Mexico")]
+                @passport.save
+                assert @passport.saved_changes?
+                @passport.reload
+                refute @passport.saved_changes?
+              end
+            end
 
-            passport = Passport.find(passport.id)
+            context "when the aggregate value being assigned is same as before" do
+              should "not mark saved_changes" do
+                visits = [ForeignVisit.new(country: "Spain"), ForeignVisit.new(country: "Japan")]
+                @passport.foreign_visits = visits
+                @passport.save
+                assert @passport.saved_changes?
+                @passport.foreign_visits = visits
+                @passport.save
+                refute @passport.saved_changes?
+                refute @passport.foreign_visits.first.saved_changes?
+              end
+            end
 
-            # not mark saved_changes if the aggregate value being assigned is same as before
-            visits = [ForeignVisit.new(country: "Spain"), ForeignVisit.new(country: "Japan")]
-            passport.foreign_visits = visits
-            passport.save
-            assert passport.saved_changes?
-            passport.foreign_visits = visits
-            passport.save
-            refute passport.saved_changes?
-          end
-
-          should "respond to saved_changes? appropriately when instance is not a active record object" do
-            refute @instance.saved_changes?
-            @instance.name = "blah"
-
-            assert_raise(NoMethodError) { @instance.save }
-            refute @instance.saved_changes?
+            context "when child attribute instance is not a active record object" do
+              should "respond to saved_changes? appropriately " do
+                @passport.foreign_visits = [ForeignVisit.new(country: "Egypt"), ForeignVisit.new(country: "Russia")]
+                @passport.save
+                assert @passport.saved_changes?
+                # assert @passport.foreign_visits.first.saved_changes?
+              end
+            end
           end
         },
         active_record_4: -> {
-          should "raise NoMethodError when saved_changes? called when the instance is a active record object using" do
+          should "raise NoMethodError when saved_changes? called when the instance is a active record object" do
             # change triggered by a active record attribute change
 
             passport = sample_passport
@@ -152,7 +162,7 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
             # change triggered by a aggregate attribute change
             passport.foreign_visits = [ForeignVisit.new(country: "Canada"), ForeignVisit.new(country: "Mexico")]
             passport.save
-            assert_raise(NoMethodError) { passport.saved_changes? }
+            assert_raise(NoMethodError) { passport.foreign_visits.first.saved_changes? }
           end
 
           should "raise NoMethodError when saved_changes? called when instance is not a active record object" do
@@ -325,6 +335,77 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
           end
         end
       end
+
+      Aggregate::ActiveRecordHelpers::Version.if_version(
+        active_record_gt_4: -> {
+          context "#aggregate_attribute_saved_changes" do
+            setup do
+              @passport = sample_passport
+              @passport.photo = PassportPhoto.new(color: false)
+              @passport.save
+              @passport.reload
+            end
+
+            should "return rails like changes for aggregates" do
+              @passport.photo.color = true
+              @passport.city = "Capetown"
+
+              expected_owner_changes = {
+                "city" => ["Santa Barbara", "Capetown"]
+              }
+              expected_photo_changes = {
+                "color" => [false, true]
+              }
+
+              assert_equal({}, @passport.aggregate_attribute_saved_changes)
+              assert_equal({}, @passport.photo.aggregate_attribute_saved_changes)
+
+              @passport.save
+
+              assert_equal expected_owner_changes, @passport.aggregate_attribute_saved_changes
+              assert_equal expected_photo_changes, @passport.photo.aggregate_attribute_saved_changes
+            end
+
+            should "be empty hash if there are no changes" do
+              assert_equal({}, @passport.aggregate_attribute_saved_changes)
+            end
+
+            context "when field changes to and from initial value" do
+              setup do
+                # visits = [ForeignVisit.new(country: "Spain"), ForeignVisit.new(country: "Japan")]
+                # @passport.foreign_visits = visits
+                # @passport.save
+                # @passport.foreign_visits = visits
+                # @passport.save
+                @passport.photo.color = false
+                @passport.save
+                @passport.photo.color = false
+                @passport.save
+              end
+
+              should "not include the field" do
+                assert_equal({}, @passport.aggregate_attribute_saved_changes)
+                assert_equal({}, @passport.photo.aggregate_attribute_saved_changes)
+              end
+            end
+          end
+        },
+        active_record_4: -> {
+          context "#aggregate_attribute_changes" do
+            setup do
+              @passport = sample_passport
+              @passport.photo = PassportPhoto.new(color: false)
+              @passport.city = "Capetown"
+              @passport.save
+            end
+
+            should "raise NoMethodError" do
+              assert_raise(NoMethodError) { @passport.aggregate_attribute_saved_changes }
+              assert_raise(NoMethodError) { @passport.photo.aggregate_attribute_saved_changes }
+            end
+          end
+        }
+      )
 
       context "validate_aggregates" do
         setup do
@@ -531,7 +612,7 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
 
             @flight = Flight.create!(
               flight_number: "123xy",
-              passengers: [{ name: "Millie", passport: @p_millie }, { name: "Lisa", passport: @p_lisa }, { name: "Bob", passport: @p_bob }]
+              passengers: [Passenger.new(name: "Millie", passport: @p_millie), Passenger.new(name: "Lisa", passport: @p_lisa), Passenger.new(name: "Bob", passport: @p_bob)]
             )
           end
 

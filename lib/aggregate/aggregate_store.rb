@@ -79,7 +79,7 @@ module Aggregate
       ActiveRecordHelpers::Version.if_version(
         active_record_4: -> { raise NoMethodError, "undefined method 'saved_changes?' for #{self}" }
       )
-      (defined?(super) && super) || @saved_changes
+      (defined?(super) && super) || @changed_on_save
     end
 
     def set_changed
@@ -88,8 +88,22 @@ module Aggregate
     end
 
     def set_saved_changes
-      @saved_changes = @changed
-      aggregate_owner&.set_saved_changes
+      @changed_on_save = @changed
+      @saved_aggregate_changes = aggregate_attribute_changes
+      set_saved_changes_child_attributes
+    end
+
+    def set_saved_changes_child_attributes
+      aggregate_attributes.each_key do |key|
+        aggregate_attribute = get_aggregate_attribute(key)
+        set_saved_single_aggregate_attribute(aggregate_attribute)
+      end
+    end
+
+    def set_saved_single_aggregate_attribute(aggregate)
+      if aggregate.respond_to? :set_saved_changes
+        aggregate.set_saved_changes
+      end
     end
 
     def to_store
@@ -134,6 +148,13 @@ module Aggregate
         changed or next
         [field, [aggregate_initial_values[field], aggregate_values_before_cast[field]]]
       end
+    end
+
+    def aggregate_attribute_saved_changes
+      ActiveRecordHelpers::Version.if_version(
+        active_record_4: -> { raise NoMethodError, "undefined method 'aggregate_attribute_saved_changes' for #{self}" }
+      )
+      @saved_aggregate_changes || {}
     end
 
     def get_aggregate_attribute(name)

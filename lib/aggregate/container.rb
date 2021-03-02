@@ -105,7 +105,8 @@ module Aggregate
       @aggregate_values = nil
       @aggregate_initial_values = nil
       @aggregate_values_before_cast = nil
-      @saved_changes = nil
+      @changed_on_save = nil
+      @saved_aggregate_changes = {}
       reset_changed_cache
     end
 
