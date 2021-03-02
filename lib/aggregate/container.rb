@@ -22,6 +22,7 @@ module Aggregate
       send(:define_callbacks, :aggregate_load_check_schema)
       set_callback :commit, :after, :reset_changed_cache
       set_callback :aggregate_load_check_schema, :after, :reset_changed_cache
+      set_callback :save, :after, :set_saved_changes
       class_attribute :aggregate_storage_field
       class_attribute :migrate_from_storage_field
 
@@ -104,6 +105,7 @@ module Aggregate
       @aggregate_values = nil
       @aggregate_initial_values = nil
       @aggregate_values_before_cast = nil
+      @saved_changes = nil
       reset_changed_cache
     end
 

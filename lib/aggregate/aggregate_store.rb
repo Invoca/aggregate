@@ -71,24 +71,6 @@ module Aggregate
       model_class.extend ClassMethods
     end
 
-    def save
-      defined?(super) &&
-        ActiveRecordHelpers::Version.if_version(
-          active_record_5: -> { set_saved_changes },
-          active_record_6: -> { set_saved_changes }
-        )
-      super
-    end
-
-    def save!
-      defined?(super) &&
-        ActiveRecordHelpers::Version.if_version(
-          active_record_5: -> { set_saved_changes },
-          active_record_6: -> { set_saved_changes }
-        )
-      super
-    end
-
     def changed?
       (defined?(super) && super) || @changed
     end
