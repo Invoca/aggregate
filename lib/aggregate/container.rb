@@ -8,9 +8,9 @@ module Aggregate
     include ActiveSupport::Callbacks
     include Aggregate::AggregateStore
 
-    if ActiveRecord::VERSION::MAJOR > 4
-      include ActiveRecord::DefineCallbacks
-    end
+    ActiveRecordHelpers::Version.if_version(
+      active_record_gt_4: -> { include ActiveRecord::DefineCallbacks }
+    )
 
     class StorageAlreadyDefined < ArgumentError; end
 
@@ -22,7 +22,9 @@ module Aggregate
       send(:define_callbacks, :aggregate_load_check_schema)
       set_callback :commit, :after, :reset_changed_cache
       set_callback :aggregate_load_check_schema, :after, :reset_changed_cache
-      set_callback :save, :after, :set_saved_changes
+      ActiveRecordHelpers::Version.if_version(
+        active_record_gt_4: -> { set_callback :save, :after, :set_saved_changes }
+      )
       class_attribute :aggregate_storage_field
       class_attribute :migrate_from_storage_field
 

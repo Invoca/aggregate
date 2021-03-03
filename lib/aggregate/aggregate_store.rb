@@ -209,7 +209,8 @@ module Aggregate
     end
 
     def aggregate_attribute_saved_changed?(agg_attribute)
-      Array.wrap(aggregate_values[agg_attribute.name]).any? { |value| value.try(:saved_changes?) }
+      aggregate_attribute_saved_changes.include?(agg_attribute.name) ||
+        Array.wrap(aggregate_values[agg_attribute.name]).any? { |value| value.try(:saved_changes?) }
     end
 
     def aggregate_attribute_before_type_cast(agg_attribute)

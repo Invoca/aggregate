@@ -269,7 +269,7 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
             Aggregate::ActiveRecordHelpers::Version.if_version(
               active_record_gt_4: -> {
                 assert @passport.saved_change_to_foreign_visits?
-                refute @passport.foreign_visits.first.saved_change_to_country?
+                assert @passport.foreign_visits.first.saved_change_to_country?
               },
               active_record_4: -> {
                 assert_raise(NoMethodError) { @passport.saved_change_to_foreign_visits? }
@@ -337,7 +337,7 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
           active_record_gt_4: -> {
             assert passport.saved_change_to_name?
             assert passport.saved_change_to_photo?
-            refute passport.photo.saved_change_to_color?
+            assert passport.photo.saved_change_to_color?
           }
         )
       end
