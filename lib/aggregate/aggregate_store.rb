@@ -103,13 +103,6 @@ module Aggregate
       set_saved_changes_child_attributes
     end
 
-    def set_saved_changes_child_attributes
-      self.class.aggregated_attribute_handlers.each do |_, aa|
-        agg_value = load_aggregate_attribute(aa)
-        aa.assign_saved_changes(agg_value)
-      end
-    end
-
     def to_store
       self.class.aggregated_attribute_handlers.build_hash do |_, aa|
         agg_value = load_aggregate_attribute(aa)
@@ -252,6 +245,13 @@ module Aggregate
 
     def set_aggregate_owner(_agg_attribute, aggregate_value)
       [aggregate_value].flatten.each { |v| v.try(:aggregate_owner=, self) }
+    end
+
+    def set_saved_changes_child_attributes
+      self.class.aggregated_attribute_handlers.each do |_, aa|
+        agg_value = load_aggregate_attribute(aa)
+        aa.assign_saved_changes(agg_value)
+      end
     end
   end
 end
