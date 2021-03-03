@@ -52,9 +52,11 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
       assert @instance.respond_to?(:name)
       assert @instance.respond_to?(:name=)
       assert @instance.respond_to?(:name_changed?)
-      assert @instance.respond_to?(:saved_change_to_name?)
       assert @instance.respond_to?(:build_name)
       assert @instance.respond_to?(:name_before_type_cast)
+      Aggregate::ActiveRecordHelpers::Version.if_version(
+        active_record_gt_4: -> { assert @instance.respond_to?(:saved_change_to_name?) }
+      )
     end
 
     context "an instance" do
@@ -264,8 +266,16 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
 
           should "correctly mark the attribute as changed when saved" do
             @passport.save
-            assert @passport.saved_change_to_foreign_visits?
-            refute @passport.foreign_visits.first.saved_change_to_country?
+            Aggregate::ActiveRecordHelpers::Version.if_version(
+              active_record_gt_4: -> {
+                assert @passport.saved_change_to_foreign_visits?
+                refute @passport.foreign_visits.first.saved_change_to_country?
+              },
+              active_record_4: -> {
+                assert_raise(NoMethodError) { @passport.saved_change_to_foreign_visits? }
+                assert_raise(NoMethodError) { @passport.foreign_visits.first.saved_change_to_country? }
+              }
+            )
           end
         end
       end
@@ -308,16 +318,28 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
         passport.photo = PassportPhoto.new(color: false)
         passport.save
         passport.reload
-        refute passport.saved_change_to_name?
-        refute passport.photo.saved_change_to_color?
+        Aggregate::ActiveRecordHelpers::Version.if_version(
+          active_record_gt_4: -> {
+            refute passport.saved_change_to_name?
+            refute passport.photo.saved_change_to_color?
+          },
+          active_record_4: -> {
+            assert_raise(NoMethodError) { passport.saved_change_to_name? }
+            assert_raise(NoMethodError) { passport.photo.saved_change_to_color? }
+          }
+        )
 
         passport.name = "godzilla"
         passport.photo.color = true
         passport.save
 
-        assert passport.saved_change_to_name?
-        assert passport.saved_change_to_photo?
-        refute passport.photo.saved_change_to_color?
+        Aggregate::ActiveRecordHelpers::Version.if_version(
+          active_record_gt_4: -> {
+            assert passport.saved_change_to_name?
+            assert passport.saved_change_to_photo?
+            refute passport.photo.saved_change_to_color?
+          }
+        )
       end
 
       should "marshal the attributes in to_store" do

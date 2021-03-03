@@ -55,7 +55,7 @@ class Aggregate::Attribute::List < Aggregate::Attribute::Base
     (!value || value.is_a?(Array)) or raise "wrong value type #{value.inspect}"
   end
 
-  def set_saved_changes(agg_value)
+  def assign_saved_changes(agg_value)
     agg_value.each do |value|
       value.try(:set_saved_changes)
     end

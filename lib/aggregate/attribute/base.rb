@@ -59,7 +59,7 @@ module Aggregate
         options[:force_validation]
       end
 
-      def set_saved_changes(agg_value)
+      def assign_saved_changes(agg_value)
         agg_value.try(:set_saved_changes)
       end
     end
