@@ -12,6 +12,7 @@ module Aggregate
         define_method(name)                       { load_aggregate_attribute(agg_attribute) }
         define_method("#{name}=")                 { |value| save_aggregate_attribute(agg_attribute, value) }
         define_method("#{name}_changed?")         { aggregate_attribute_changed?(agg_attribute) }
+        define_method("saved_change_to_#{name}?") { aggregate_attribute_saved_changed?(agg_attribute) }
         define_method("build_#{name}")            { |*args| save_aggregate_attribute(agg_attribute, agg_attribute.new(*args)) }
         define_method("#{name}_before_type_cast") { aggregate_attribute_before_type_cast(agg_attribute) }
       end
@@ -23,6 +24,7 @@ module Aggregate
         define_method(name)                       { load_aggregate_attribute(agg_attribute) }
         define_method("#{name}=")                 { |value| save_aggregate_attribute(agg_attribute, value) }
         define_method("#{name}_changed?")         { aggregate_attribute_changed?(agg_attribute) }
+        define_method("saved_change_to_#{name}?") { aggregate_attribute_saved_changed?(agg_attribute) }
       end
 
       def aggregate_belongs_to(name, options = {})
@@ -94,15 +96,9 @@ module Aggregate
     end
 
     def set_saved_changes_child_attributes
-      aggregate_attributes.each_key do |key|
-        aggregate_attribute = get_aggregate_attribute(key)
-        set_saved_single_aggregate_attribute(aggregate_attribute)
-      end
-    end
-
-    def set_saved_single_aggregate_attribute(aggregate)
-      if aggregate.respond_to? :set_saved_changes
-        aggregate.set_saved_changes
+      self.class.aggregated_attribute_handlers.each do |_, aa|
+        agg_value = load_aggregate_attribute(aa)
+        aa.set_saved_changes(agg_value)
       end
     end
 
@@ -209,6 +205,10 @@ module Aggregate
 
     def aggregate_attribute_changed?(agg_attribute)
       aggregate_changes[agg_attribute.name] || Array.wrap(aggregate_values[agg_attribute.name]).any? { |value| value.try(:changed?) }
+    end
+
+    def aggregate_attribute_saved_changed?(agg_attribute)
+      Array.wrap(aggregate_values[agg_attribute.name]).any? { |value| value.try(:saved_changes?) }
     end
 
     def aggregate_attribute_before_type_cast(agg_attribute)

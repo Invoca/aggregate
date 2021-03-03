@@ -54,4 +54,10 @@ class Aggregate::Attribute::List < Aggregate::Attribute::Base
   def assert_is_list(value)
     (!value || value.is_a?(Array)) or raise "wrong value type #{value.inspect}"
   end
+
+  def set_saved_changes(agg_value)
+    agg_value.each do |value|
+      value.try(:set_saved_changes)
+    end
+  end
 end

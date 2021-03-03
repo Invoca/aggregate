@@ -52,6 +52,7 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
       assert @instance.respond_to?(:name)
       assert @instance.respond_to?(:name=)
       assert @instance.respond_to?(:name_changed?)
+      assert @instance.respond_to?(:saved_change_to_name?)
       assert @instance.respond_to?(:build_name)
       assert @instance.respond_to?(:name_before_type_cast)
     end
@@ -133,7 +134,7 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
                 @passport.foreign_visits = visits
                 @passport.save
                 refute @passport.saved_changes?
-                refute @passport.foreign_visits.first.saved_changes?
+                # refute @passport.foreign_visits.first.saved_changes?    # instances think they are new because they were created above
               end
             end
 
@@ -142,7 +143,7 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
                 @passport.foreign_visits = [ForeignVisit.new(country: "Egypt"), ForeignVisit.new(country: "Russia")]
                 @passport.save
                 assert @passport.saved_changes?
-                # assert @passport.foreign_visits.first.saved_changes?
+                assert @passport.foreign_visits.first.saved_changes?
               end
             end
           end
@@ -260,6 +261,12 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
             # assert @passport.changed?, "passport not changed"
             assert @passport.foreign_visits_changed?, "foreign visits not changed"
           end
+
+          should "correctly mark the attribute as changed when saved" do
+            @passport.save
+            assert @passport.saved_change_to_foreign_visits?
+            refute @passport.foreign_visits.first.saved_change_to_country?
+          end
         end
       end
 
@@ -294,6 +301,23 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
         assert @instance.name_changed?
         assert_equal "godzilla", @instance.name_before_type_cast
         assert @instance.aggregate_owner.change_called
+      end
+
+      should "keep track of saved changes to the attribute" do
+        passport = sample_passport
+        passport.photo = PassportPhoto.new(color: false)
+        passport.save
+        passport.reload
+        refute passport.saved_change_to_name?
+        refute passport.photo.saved_change_to_color?
+
+        passport.name = "godzilla"
+        passport.photo.color = true
+        passport.save
+
+        assert passport.saved_change_to_name?
+        assert passport.saved_change_to_photo?
+        refute passport.photo.saved_change_to_color?
       end
 
       should "marshal the attributes in to_store" do
@@ -342,11 +366,13 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
             setup do
               @passport = sample_passport
               @passport.photo = PassportPhoto.new(color: false)
+              @passport.foreign_visits = [ForeignVisit.new(country: "Canada"), ForeignVisit.new(country: "Mexico")]
               @passport.save
               @passport.reload
             end
 
             should "return rails like changes for aggregates" do
+              @passport.foreign_visits.first.country = "Greece"
               @passport.photo.color = true
               @passport.city = "Capetown"
 
@@ -356,14 +382,19 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
               expected_photo_changes = {
                 "color" => [false, true]
               }
+              expected_visit_changes = {
+                "country" => ["Canada", "Greece"]
+              }
 
               assert_equal({}, @passport.aggregate_attribute_saved_changes)
               assert_equal({}, @passport.photo.aggregate_attribute_saved_changes)
+              assert_equal({}, @passport.foreign_visits.first.aggregate_attribute_saved_changes)
 
               @passport.save
 
               assert_equal expected_owner_changes, @passport.aggregate_attribute_saved_changes
               assert_equal expected_photo_changes, @passport.photo.aggregate_attribute_saved_changes
+              assert_equal expected_visit_changes, @passport.foreign_visits.first.aggregate_attribute_saved_changes
             end
 
             should "be empty hash if there are no changes" do
@@ -372,11 +403,6 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
 
             context "when field changes to and from initial value" do
               setup do
-                # visits = [ForeignVisit.new(country: "Spain"), ForeignVisit.new(country: "Japan")]
-                # @passport.foreign_visits = visits
-                # @passport.save
-                # @passport.foreign_visits = visits
-                # @passport.save
                 @passport.photo.color = false
                 @passport.save
                 @passport.photo.color = false
