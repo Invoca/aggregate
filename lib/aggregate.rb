@@ -6,6 +6,7 @@ if ActiveRecord::VERSION::MAJOR > 4
   require 'active_record/define_callbacks'
 end
 
+require "aggregate/active_record_upgrade_helpers/version"
 require "aggregate/bitfield"
 
 require "aggregate/attribute/base"

@@ -14,6 +14,11 @@ module Aggregate
         define_method("#{name}_changed?")         { aggregate_attribute_changed?(agg_attribute) }
         define_method("build_#{name}")            { |*args| save_aggregate_attribute(agg_attribute, agg_attribute.new(*args)) }
         define_method("#{name}_before_type_cast") { aggregate_attribute_before_type_cast(agg_attribute) }
+        ActiveRecordHelpers::Version.if_version(
+          active_record_gt_4: -> {
+            define_method("saved_change_to_#{name}?") { aggregate_attribute_saved_changed?(agg_attribute) }
+          }
+        )
       end
 
       def aggregate_has_many(name, class_name, options = {})
@@ -23,6 +28,11 @@ module Aggregate
         define_method(name)                       { load_aggregate_attribute(agg_attribute) }
         define_method("#{name}=")                 { |value| save_aggregate_attribute(agg_attribute, value) }
         define_method("#{name}_changed?")         { aggregate_attribute_changed?(agg_attribute) }
+        ActiveRecordHelpers::Version.if_version(
+          active_record_gt_4: -> {
+            define_method("saved_change_to_#{name}?") { aggregate_attribute_saved_changed?(agg_attribute) }
+          }
+        )
       end
 
       def aggregate_belongs_to(name, options = {})
@@ -75,9 +85,22 @@ module Aggregate
       (defined?(super) && super) || @changed
     end
 
+    def saved_changes?
+      ActiveRecordHelpers::Version.if_version(
+        active_record_4: -> { raise NoMethodError, "undefined method 'saved_changes?' for #{self}" }
+      )
+      (defined?(super) && super) || @changed_on_save
+    end
+
     def set_changed
       @changed = aggregate_values != aggregate_initial_values
       aggregate_owner&.set_changed
+    end
+
+    def set_saved_changes
+      @changed_on_save = @changed
+      @saved_aggregate_changes = aggregate_attribute_changes
+      set_saved_changes_child_attributes
     end
 
     def to_store
@@ -122,6 +145,13 @@ module Aggregate
         changed or next
         [field, [aggregate_initial_values[field], aggregate_values_before_cast[field]]]
       end
+    end
+
+    def aggregate_attribute_saved_changes
+      ActiveRecordHelpers::Version.if_version(
+        active_record_4: -> { raise NoMethodError, "undefined method 'aggregate_attribute_saved_changes' for #{self}" }
+      )
+      @saved_aggregate_changes || {}
     end
 
     def get_aggregate_attribute(name)
@@ -178,6 +208,11 @@ module Aggregate
       aggregate_changes[agg_attribute.name] || Array.wrap(aggregate_values[agg_attribute.name]).any? { |value| value.try(:changed?) }
     end
 
+    def aggregate_attribute_saved_changed?(agg_attribute)
+      aggregate_attribute_saved_changes.include?(agg_attribute.name) ||
+        Array.wrap(aggregate_values[agg_attribute.name]).any? { |value| value.try(:saved_changes?) }
+    end
+
     def aggregate_attribute_before_type_cast(agg_attribute)
       load_aggregate_attribute(agg_attribute)
       aggregate_values_before_cast[agg_attribute.name] || aggregate_initial_values[agg_attribute.name]
@@ -211,6 +246,13 @@ module Aggregate
 
     def set_aggregate_owner(_agg_attribute, aggregate_value)
       [aggregate_value].flatten.each { |v| v.try(:aggregate_owner=, self) }
+    end
+
+    def set_saved_changes_child_attributes
+      self.class.aggregated_attribute_handlers.each do |_, aa|
+        agg_value = load_aggregate_attribute(aa)
+        aa.assign_saved_changes(agg_value)
+      end
     end
   end
 end

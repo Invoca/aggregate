@@ -6,6 +6,12 @@ Note: This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0
 
 All notable changes to this project will be documented in this file.
 
+## [2.3.0.pre.1] - UNRELEASED
+### Added
+- Added support for `saved_changes?` in `Aggregate::AggregateStore` for rails 5.
+- Added `saved_changes?` method which returns boolean of whether or not changes were made on the most recent save.
+- Added `aggregate_attribute_saved_changes` method which returns a hash of the most recent saved changes for the aggregate attributes.
+
 ## [2.2.0] - 2021-01-04
 ### Added
 - Added support for assigning bitfield via array of mapped values.
