@@ -6,6 +6,15 @@ Note: This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0
 
 All notable changes to this project will be documented in this file.
 
+## [2.3.1.pre.1] - UNRELEASED
+### Fixed
+- Fixed a bug where `Aggregate::AggregateStore` saved change methods would not show correct changes for
+  all scenarios:
+  - `#saved_changes?`
+  - `#aggregate_attribute_saved_changes`
+  - `#saved_change_to_{attribute}?`
+- When a one of the methods is called while the save is still in progess, the change will show correctly
+
 ## [2.3.0] - 2021-03-04
 ### Added
 - Added support for `saved_changes?` in `Aggregate::AggregateStore` for rails 5.
