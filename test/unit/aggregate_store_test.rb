@@ -367,7 +367,7 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
             end
           },
           active_record_4: -> {
-            should "raise NoMetthodError for attribute saved changes methods" do
+            should "raise NoMethodError for attribute saved changes methods" do
               assert_raise(NoMethodError) { @passport.saved_change_to_name? }
               assert_raise(NoMethodError) { @passport.saved_change_to_photo? }
               assert_raise(NoMethodError) { @passport.photo.saved_change_to_color? }

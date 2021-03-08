@@ -89,7 +89,7 @@ module Aggregate
       ActiveRecordHelpers::Version.if_version(
         active_record_4: -> { raise NoMethodError, "undefined method 'saved_changes?' for #{self}" }
       )
-      save_in_progress_check
+      ensure_saved_changes_up_to_date
       (defined?(super) && super) || @changed_on_save
     end
 
@@ -152,7 +152,7 @@ module Aggregate
       ActiveRecordHelpers::Version.if_version(
         active_record_4: -> { raise NoMethodError, "undefined method 'aggregate_attribute_saved_changes' for #{self}" }
       )
-      save_in_progress_check
+      ensure_saved_changes_up_to_date
       @saved_aggregate_changes || {}
     end
 
@@ -211,7 +211,7 @@ module Aggregate
     end
 
     def aggregate_attribute_saved_changed?(agg_attribute)
-      save_in_progress_check
+      ensure_saved_changes_up_to_date
       aggregate_attribute_saved_changes.include?(agg_attribute.name) ||
         Array.wrap(aggregate_values[agg_attribute.name]).any? { |value| value.try(:saved_changes?) }
     end
@@ -271,7 +271,7 @@ module Aggregate
       end_save
     end
 
-    def save_in_progress_check
+    def ensure_saved_changes_up_to_date
       if @aggregate_save_in_progress
         save_changes
       end
