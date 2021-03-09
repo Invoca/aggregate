@@ -148,6 +148,16 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
                 assert @passport.foreign_visits.first.saved_changes?
               end
             end
+
+            context "when save still in progress" do
+              should "still mark saved_changes? correctly" do
+                @passport.foreign_visits = [ForeignVisit.new(country: "Canada"), ForeignVisit.new(country: "Mexico")]
+                refute @passport.saved_changes?
+
+                @passport.send(:start_save)
+                assert @passport.saved_changes?
+              end
+            end
           end
         },
         active_record_4: -> {
@@ -264,19 +274,27 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
             assert @passport.foreign_visits_changed?, "foreign visits not changed"
           end
 
-          should "correctly mark the attribute as changed when saved" do
-            @passport.save
-            Aggregate::ActiveRecordHelpers::Version.if_version(
-              active_record_gt_4: -> {
+          Aggregate::ActiveRecordHelpers::Version.if_version(
+            active_record_gt_4: -> {
+              should "correctly mark the attribute as changed when saved" do
+                @passport.save
                 assert @passport.saved_change_to_foreign_visits?
                 assert @passport.foreign_visits.first.saved_change_to_country?
-              },
-              active_record_4: -> {
+              end
+
+              should "correctly mark the attribute as changed when save still in progress" do
+                @passport.send(:start_save)
+                assert @passport.saved_change_to_foreign_visits?
+                assert @passport.foreign_visits.first.saved_change_to_country?
+              end
+            },
+            active_record_4: -> {
+              should "raise NoMethodError for saved change attribute methods" do
                 assert_raise(NoMethodError) { @passport.saved_change_to_foreign_visits? }
                 assert_raise(NoMethodError) { @passport.foreign_visits.first.saved_change_to_country? }
-              }
-            )
-          end
+              end
+            }
+          )
         end
       end
 
@@ -313,31 +331,47 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
         assert @instance.aggregate_owner.change_called
       end
 
-      should "keep track of saved changes to the attribute" do
-        passport = sample_passport
-        passport.photo = PassportPhoto.new(color: false)
-        passport.save
-        passport.reload
+      context "for individual attribute saved changes" do
+        setup do
+          @passport = sample_passport
+          @passport.photo = PassportPhoto.new(color: false)
+          @passport.save
+          @passport.reload
+        end
+
         Aggregate::ActiveRecordHelpers::Version.if_version(
           active_record_gt_4: -> {
-            refute passport.saved_change_to_name?
-            refute passport.photo.saved_change_to_color?
+            should "keep track of saved changes to the attribute" do
+              refute @passport.saved_change_to_name?
+              refute @passport.saved_change_to_photo?
+              refute @passport.photo.saved_change_to_color?
+
+              @passport.name = "godzilla"
+              @passport.photo.color = true
+              @passport.save
+
+              assert @passport.saved_change_to_name?
+              assert @passport.saved_change_to_photo?
+              assert @passport.photo.saved_change_to_color?
+            end
+
+            should "keep track of saved changes when save is in progress" do
+              refute @passport.photo.saved_change_to_color?
+              refute @passport.saved_change_to_photo?
+
+              @passport.photo.color = true
+              @passport.photo.send(:start_save)
+
+              assert @passport.photo.saved_change_to_color?
+              assert @passport.saved_change_to_photo?
+            end
           },
           active_record_4: -> {
-            assert_raise(NoMethodError) { passport.saved_change_to_name? }
-            assert_raise(NoMethodError) { passport.photo.saved_change_to_color? }
-          }
-        )
-
-        passport.name = "godzilla"
-        passport.photo.color = true
-        passport.save
-
-        Aggregate::ActiveRecordHelpers::Version.if_version(
-          active_record_gt_4: -> {
-            assert passport.saved_change_to_name?
-            assert passport.saved_change_to_photo?
-            assert passport.photo.saved_change_to_color?
+            should "raise NoMethodError for attribute saved changes methods" do
+              assert_raise(NoMethodError) { @passport.saved_change_to_name? }
+              assert_raise(NoMethodError) { @passport.saved_change_to_photo? }
+              assert_raise(NoMethodError) { @passport.photo.saved_change_to_color? }
+            end
           }
         )
       end
@@ -434,6 +468,16 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
               should "not include the field" do
                 assert_equal({}, @passport.aggregate_attribute_saved_changes)
                 assert_equal({}, @passport.photo.aggregate_attribute_saved_changes)
+              end
+            end
+
+            context "when save still in progress" do
+              should "still mark aggregate_attribute_saved_changes? correctly" do
+                assert_equal({}, @passport.aggregate_attribute_saved_changes)
+                @passport.photo.color = true
+                @passport.photo.send(:start_save)
+
+                assert_equal({ "color" => [false, true] }, @passport.photo.aggregate_attribute_saved_changes)
               end
             end
           end

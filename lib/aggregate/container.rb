@@ -23,7 +23,10 @@ module Aggregate
       set_callback :commit, :after, :reset_changed_cache
       set_callback :aggregate_load_check_schema, :after, :reset_changed_cache
       ActiveRecordHelpers::Version.if_version(
-        active_record_gt_4: -> { set_callback :save, :after, :set_saved_changes }
+        active_record_gt_4: -> {
+          set_callback :save, :before, :start_save
+          set_callback :save, :after, :save_changes
+        }
       )
       class_attribute :aggregate_storage_field
       class_attribute :migrate_from_storage_field
