@@ -6,7 +6,7 @@ Note: This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0
 
 All notable changes to this project will be documented in this file.
 
-## [2.3.1.pre.2] - UNRELEASED
+## [2.3.1] - 2021-03-09
 ### Fixed
 - Fixed a bug where `Aggregate::AggregateStore` saved change methods would not show correct changes for
   all scenarios:
