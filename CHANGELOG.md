@@ -6,6 +6,18 @@ Note: This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0
 
 All notable changes to this project will be documented in this file.
 
+## [2.3.2] - UNRELEASED
+### Fixed
+- Fixed an issue for Rails 5 where autosave associations weren't being recognized to be saved when the only changes on the object are aggregate attributes.
+  - This was primarily an issue with objects that utilize storing their aggregate data via LargeTextField and trying to have that object be autosaved by saving the object's parent relationship object.
+
+E.g.
+
+```ruby
+advertiser_campaign.future_terms.build_commission_budget_terms({...})
+advertiser_campaign.save! # This would not save the commission budget terms aggregate attribute on the future campaign terms
+```
+
 ## [2.3.1] - 2021-03-09
 ### Fixed
 - Fixed a bug where `Aggregate::AggregateStore` saved change methods would not show correct changes for
@@ -32,7 +44,7 @@ All notable changes to this project will be documented in this file.
 Ensures that the correct state is represented when a field is changed from and back to it's initial value.
 - Fixed a bug where changes to aggregate attributes during an aggregate schema fixup were being marked as changes.
   - These are seen as data migrations and thus are not changes to the model itself, but a transformation
-- Fixed a bug where `aggregate_has_many` attribute was not being marked as changed if one of its containing values changed  
+- Fixed a bug where `aggregate_has_many` attribute was not being marked as changed if one of its containing values changed
 
 ## [2.1.2] - 2020-11-23
 ### Fixed
@@ -85,6 +97,12 @@ callbacks defined by `ActiveRecord`
 ### Added
 - Added initial entry in ChangeLog (see README at this point for gem details)
 
+[2.3.2]: https://github.com/Invoca/aggregate/compare/v2.3.1...v2.3.2
+[2.3.1]: https://github.com/Invoca/aggregate/compare/v2.3.0...v2.3.1
+[2.3.0]: https://github.com/Invoca/aggregate/compare/v2.2.0...v2.3.0
+[2.2.0]: https://github.com/Invoca/aggregate/compare/v2.1.3...v2.2.0
+[2.1.3]: https://github.com/Invoca/aggregate/compare/v2.1.2...v2.1.3
+[2.1.2]: https://github.com/Invoca/aggregate/compare/v2.1.1...v2.1.2
 [2.1.1]: https://github.com/Invoca/aggregate/compare/v2.1.0...v2.1.1
 [2.1.0]: https://github.com/Invoca/aggregate/compare/v2.0.1...v2.1.0
 [2.0.1]: https://github.com/Invoca/aggregate/compare/v2.0.0...v2.0.1
@@ -95,4 +113,3 @@ callbacks defined by `ActiveRecord`
 [1.1]: https://github.com/Invoca/aggregate/compare/v1.0.1...v1.1
 [1.0.1]: https://github.com/Invoca/aggregate/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/Invoca/aggregate/compare/v0.2.0...v1.0.0
-
