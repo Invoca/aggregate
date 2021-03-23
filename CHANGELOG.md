@@ -6,7 +6,11 @@ Note: This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0
 
 All notable changes to this project will be documented in this file.
 
-## [2.3.1] - 2021-03-09
+## 2.4.0 - 2021-03-23
+### Removed
+- Removed support for Rails 6.1+, since some requires moved around. Instead, for now we're stopping at < 6.1.
+
+## 2.3.1 - 2021-03-09
 ### Fixed
 - Fixed a bug where `Aggregate::AggregateStore` saved change methods would not show correct changes for
   all scenarios:
@@ -15,18 +19,18 @@ All notable changes to this project will be documented in this file.
   - `#saved_change_to_{attribute}?`
 - When a one of the methods is called while the save is still in progess, the change will show correctly
 
-## [2.3.0] - 2021-03-04
+## 2.3.0 - 2021-03-04
 ### Added
 - Added support for `saved_changes?` in `Aggregate::AggregateStore` for rails 5.
 - Added `saved_changes?` method which returns boolean of whether or not changes were made on the most recent save.
 - Added `aggregate_attribute_saved_changes` method which returns a hash of the most recent saved changes for the aggregate attributes.
 
-## [2.2.0] - 2021-01-04
+## 2.2.0 - 2021-01-04
 ### Added
 - Added support for assigning bitfield via array of mapped values.
 - Added `to_a` method which converts bitfield bits to an array of mapped values.
 
-## [2.1.3] - 2020-12-07
+## 2.1.3 - 2020-12-07
 ### Fixed
 - Fixed a bug where `Aggregate::AggregateStore#aggregate_attribute_changes` and `Aggregate::AggregateStore#changed?` would show incorrect changes.
 Ensures that the correct state is represented when a field is changed from and back to it's initial value.
@@ -34,7 +38,7 @@ Ensures that the correct state is represented when a field is changed from and b
   - These are seen as data migrations and thus are not changes to the model itself, but a transformation
 - Fixed a bug where `aggregate_has_many` attribute was not being marked as changed if one of its containing values changed  
 
-## [2.1.2] - 2020-11-23
+## 2.1.2 - 2020-11-23
 ### Fixed
 - Fixed a bug where `Aggregate::AggregateStore#aggregate_attribute_changes` would show incorrect changes across database transactions
 
@@ -95,4 +99,3 @@ callbacks defined by `ActiveRecord`
 [1.1]: https://github.com/Invoca/aggregate/compare/v1.0.1...v1.1
 [1.0.1]: https://github.com/Invoca/aggregate/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/Invoca/aggregate/compare/v0.2.0...v1.0.0
-
