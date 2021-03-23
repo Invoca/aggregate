@@ -6,7 +6,7 @@ Note: This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0
 
 All notable changes to this project will be documented in this file.
 
-## [2.3.2] - UNRELEASED
+## [2.4.1] - UNRELEASED
 ### Fixed
 - Fixed an issue for Rails 5 where autosave associations weren't being recognized to be saved when the only changes on the object are aggregate attributes.
   - This was primarily an issue with objects that utilize storing their aggregate data via LargeTextField and trying to have that object be autosaved by saving the object's parent relationship object.
@@ -17,6 +17,10 @@ E.g.
 advertiser_campaign.future_terms.build_commission_budget_terms({...})
 advertiser_campaign.save! # This would not save the commission budget terms aggregate attribute on the future campaign terms
 ```
+
+## [2.4.0] - 2021-03-23
+### Removed
+- Removed support for Rails 6.1+, since some requires moved around. Instead, for now we're stopping at < 6.1.
 
 ## [2.3.1] - 2021-03-09
 ### Fixed
@@ -97,7 +101,8 @@ callbacks defined by `ActiveRecord`
 ### Added
 - Added initial entry in ChangeLog (see README at this point for gem details)
 
-[2.3.2]: https://github.com/Invoca/aggregate/compare/v2.3.1...v2.3.2
+[2.4.1]: https://github.com/Invoca/aggregate/compare/v2.4.0...v2.4.1
+[2.4.0]: https://github.com/Invoca/aggregate/compare/v2.3.1...v2.4.0
 [2.3.1]: https://github.com/Invoca/aggregate/compare/v2.3.0...v2.3.1
 [2.3.0]: https://github.com/Invoca/aggregate/compare/v2.2.0...v2.3.0
 [2.2.0]: https://github.com/Invoca/aggregate/compare/v2.1.3...v2.2.0
