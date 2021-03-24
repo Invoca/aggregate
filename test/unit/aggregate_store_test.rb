@@ -162,7 +162,7 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
             end
 
             context "#changed_for_autosave?" do
-              context "when change triggered by a active record attribute change" do
+              context "when change triggered by an active record attribute change" do
                 should "respond appropriately" do
                   refute @passport.changed_for_autosave?
                   @passport.name = "blah"
