@@ -6,7 +6,7 @@ Note: This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0
 
 All notable changes to this project will be documented in this file.
 
-## [2.4.1] - UNRELEASED
+## [2.4.1] - 2021-04-12
 ### Fixed
 - Fixed an issue for Rails 5 where autosave associations weren't being recognized to be saved when the only changes on the object are aggregate attributes.
   - This was primarily an issue with objects that utilize storing their aggregate data via LargeTextField and trying to have that object be autosaved by saving the object's parent relationship object.
