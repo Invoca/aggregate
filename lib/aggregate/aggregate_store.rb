@@ -81,6 +81,15 @@ module Aggregate
       model_class.extend ClassMethods
     end
 
+    ActiveRecordHelpers::Version.if_version(
+      active_record_gt_4: -> do
+        def changed_for_autosave?
+          defined?(super) or raise NoMethodError, "undefined method 'changed_for_autosave?' for #{self}"
+          super || @changed
+        end
+      end
+    )
+
     def changed?
       (defined?(super) && super) || @changed
     end

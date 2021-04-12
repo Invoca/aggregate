@@ -105,57 +105,121 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
               @passport.reload
             end
 
-            context "when change triggered by a active record attribute change" do
-              should "respond to saved_changes? appropriately" do
-                refute @passport.saved_changes?
-                @passport.name = "blah"
-                refute @passport.saved_changes?
-                @passport.save
-                assert @passport.saved_changes?
-                @passport.reload
-                refute @passport.saved_changes?
+            context "#saved_changes?" do
+              context "when change triggered by a active record attribute change" do
+                should "respond appropriately" do
+                  refute @passport.saved_changes?
+                  @passport.name = "blah"
+                  refute @passport.saved_changes?
+                  @passport.save
+                  assert @passport.saved_changes?
+                  @passport.reload
+                  refute @passport.saved_changes?
+                end
+              end
+
+              context "when change triggered by a aggregate attribute change" do
+                should "respond appropriately" do
+                  @passport.foreign_visits = [ForeignVisit.new(country: "Canada"), ForeignVisit.new(country: "Mexico")]
+                  @passport.save
+                  assert @passport.saved_changes?
+                  @passport.reload
+                  refute @passport.saved_changes?
+                end
+              end
+
+              context "when the aggregate value being assigned is same as before" do
+                should "not be marked" do
+                  visits = [ForeignVisit.new(country: "Spain"), ForeignVisit.new(country: "Japan")]
+                  @passport.foreign_visits = visits
+                  @passport.save
+                  assert @passport.saved_changes?
+                  @passport.foreign_visits = visits
+                  @passport.save
+                  refute @passport.saved_changes?
+                  # refute @passport.foreign_visits.first.saved_changes?    # instances think they are new because they were created above
+                end
+              end
+
+              context "when child attribute instance is not a active record object" do
+                should "respond appropriately " do
+                  @passport.foreign_visits = [ForeignVisit.new(country: "Egypt"), ForeignVisit.new(country: "Russia")]
+                  @passport.save
+                  assert @passport.saved_changes?
+                  assert @passport.foreign_visits.first.saved_changes?
+                end
+              end
+
+              context "when save still in progress" do
+                should "be marked correctly" do
+                  @passport.foreign_visits = [ForeignVisit.new(country: "Canada"), ForeignVisit.new(country: "Mexico")]
+                  refute @passport.saved_changes?
+
+                  @passport.send(:start_save)
+                  assert @passport.saved_changes?
+                end
               end
             end
 
-            context "when change triggered by a aggregate attribute change" do
-              should "respond to saved_changes? appropriately" do
-                @passport.foreign_visits = [ForeignVisit.new(country: "Canada"), ForeignVisit.new(country: "Mexico")]
-                @passport.save
-                assert @passport.saved_changes?
-                @passport.reload
-                refute @passport.saved_changes?
+            context "#changed_for_autosave?" do
+              context "when change triggered by an active record attribute change" do
+                should "respond appropriately" do
+                  refute @passport.changed_for_autosave?
+                  @passport.name = "blah"
+                  assert @passport.changed_for_autosave?
+
+                  @passport.save
+                  refute @passport.changed_for_autosave?
+                  @passport.reload
+                  refute @passport.changed_for_autosave?
+                end
               end
-            end
 
-            context "when the aggregate value being assigned is same as before" do
-              should "not mark saved_changes" do
-                visits = [ForeignVisit.new(country: "Spain"), ForeignVisit.new(country: "Japan")]
-                @passport.foreign_visits = visits
-                @passport.save
-                assert @passport.saved_changes?
-                @passport.foreign_visits = visits
-                @passport.save
-                refute @passport.saved_changes?
-                # refute @passport.foreign_visits.first.saved_changes?    # instances think they are new because they were created above
+              context "when change triggered by a aggregate attribute change" do
+                should "respond appropriately" do
+                  refute @passport.changed_for_autosave?
+                  @passport.foreign_visits = [ForeignVisit.new(country: "Canada"), ForeignVisit.new(country: "Mexico")]
+                  assert @passport.changed_for_autosave?
+
+                  @passport.save
+                  refute @passport.changed_for_autosave?
+                  @passport.reload
+                  refute @passport.changed_for_autosave?
+                end
               end
-            end
 
-            context "when child attribute instance is not a active record object" do
-              should "respond to saved_changes? appropriately " do
-                @passport.foreign_visits = [ForeignVisit.new(country: "Egypt"), ForeignVisit.new(country: "Russia")]
-                @passport.save
-                assert @passport.saved_changes?
-                assert @passport.foreign_visits.first.saved_changes?
+              context "when the aggregate value being assigned is same as before" do
+                should "not be marked" do
+                  visits = [ForeignVisit.new(country: "Spain"), ForeignVisit.new(country: "Japan")]
+                  @passport.foreign_visits = visits
+                  @passport.save
+                  refute @passport.changed_for_autosave?
+
+                  @passport.foreign_visits = visits
+                  refute @passport.changed_for_autosave?
+
+                  @passport.save
+                  refute @passport.changed_for_autosave?
+                end
               end
-            end
 
-            context "when save still in progress" do
-              should "still mark saved_changes? correctly" do
-                @passport.foreign_visits = [ForeignVisit.new(country: "Canada"), ForeignVisit.new(country: "Mexico")]
-                refute @passport.saved_changes?
+              context "when child attribute instance does not have super defined (is not a active record object)" do
+                should "raise an error" do
+                  @passport.foreign_visits = [ForeignVisit.new(country: "Egypt"), ForeignVisit.new(country: "Russia")]
+                  assert_raise(NoMethodError, /undefined method 'changed_for_autosave\?' for/) do
+                    @passport.foreign_visits.first.changed_for_autosave?
+                  end
+                end
+              end
 
-                @passport.send(:start_save)
-                assert @passport.saved_changes?
+              context "when save still in progress" do
+                should "be marked correctly" do
+                  @passport.foreign_visits = [ForeignVisit.new(country: "Canada"), ForeignVisit.new(country: "Mexico")]
+                  assert @passport.changed_for_autosave?
+
+                  @passport.send(:start_save)
+                  assert @passport.changed_for_autosave?
+                end
               end
             end
           end
