@@ -73,4 +73,8 @@ class Aggregate::Attribute::BitfieldTest < ActiveSupport::TestCase
       Aggregate::AttributeHandler.factory("testme", :bitfield, limit: 4, mapping: { 't' => true, 'f' => true, ' ' => nil })
     end
   end
+
+  should "return true on skip_default?" do
+    assert @ad.skip_default?
+  end
 end

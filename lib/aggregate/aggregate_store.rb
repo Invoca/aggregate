@@ -119,7 +119,7 @@ module Aggregate
 
         # Optimization: only write out values if they are not nil, if there is no schema migration and
         # the default value is nil. (Schema migrations and defaults depend on writing the value.)
-        if respond_to?(:data_schema_version) || !aa.default.nil? || !agg_value.nil?
+        if respond_to?(:data_schema_version) || store_value?(aa, agg_value)
           [aa.name, aa.to_store(agg_value)]
         end
       end
@@ -284,6 +284,14 @@ module Aggregate
       if @aggregate_save_in_progress
         save_changes
       end
+    end
+
+    def store_value?(aggregate_attribute, value)
+      skip_on_default =
+        if aggregate_attribute.respond_to?(:skip_default?)
+          aggregate_attribute.skip_default?
+        end
+      !((aggregate_attribute.default.nil? || skip_on_default) && aggregate_attribute.default == value)
     end
   end
 end

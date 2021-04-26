@@ -40,6 +40,10 @@ class Aggregate::Attribute::Bitfield < Aggregate::Attribute::Base
     []
   end
 
+  def skip_default?
+    true
+  end
+
   private
 
   def value_to_string(value)
