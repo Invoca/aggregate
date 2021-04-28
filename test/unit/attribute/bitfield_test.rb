@@ -5,7 +5,7 @@ require_relative '../../test_helper'
 class Aggregate::Attribute::BitfieldTest < ActiveSupport::TestCase
 
   setup do
-    @ad = Aggregate::AttributeHandler.factory("testme", :bitfield, limit: 4)
+    @ad = Aggregate::AttributeHandler.factory("testme", :bitfield, limit: 4, write_default_values: false)
     @default_bitfield_options = { mapping: { 't' => true, 'f' => false, ' ' => nil }, default: nil }
   end
 
@@ -74,7 +74,7 @@ class Aggregate::Attribute::BitfieldTest < ActiveSupport::TestCase
     end
   end
 
-  should "return true on skip_default?" do
-    assert @ad.skip_default?
+  should "return false on write_default_values? if set to false" do
+    refute @ad.write_default_values?
   end
 end

@@ -7,8 +7,12 @@ Note: This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0
 All notable changes to this project will be documented in this file.
 
 ## [2.4.2] - 2021-04-26
+### Added
+- New option for attributes: `write_default_values` (default `false`)` that decides whether to write default values to the database.
 ### Changed
-- Stopped writing bitfield attribute names to the database when the value is nil/default.
+- `Aggregate::AggregateStorage#to_store`
+  - Default values for attributes will only be returned in the hash if `write_default_values` is set to true, even for non-nil values.
+  
 
 ## [2.4.1] - 2021-04-12
 ### Fixed

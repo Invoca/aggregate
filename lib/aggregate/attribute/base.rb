@@ -8,11 +8,12 @@ module Aggregate
 
       def self.available_options
         [
-          :default,                  # The default value for this attribute.  Default is nil.
-          :limit,                    # Specifies the allowed values for this attribute.
-          :required,                 # If true, this attribute cannot be nil, default is false.
-          :force_validation,         # If true, this attribute will be validated even if it was not loaded, default is false.
-          :aggregate_db_storage_type # Attribute used to determine how to store certain types of attributes, default is nil.
+          :default,                   # The default value for this attribute.  Default is nil.
+          :limit,                     # Specifies the allowed values for this attribute.
+          :required,                  # If true, this attribute cannot be nil, default is false.
+          :force_validation,          # If true, this attribute will be validated even if it was not loaded, default is false.
+          :aggregate_db_storage_type, # Attribute used to determine how to store certain types of attributes, default is nil.
+          :write_default_values       # Defaults to true, used to skip storing default values when false.
         ]
       end
 
@@ -61,6 +62,10 @@ module Aggregate
 
       def assign_saved_changes(agg_value)
         agg_value.try(:set_saved_changes)
+      end
+
+      def write_default_values?
+        options[:write_default_values]
       end
     end
   end

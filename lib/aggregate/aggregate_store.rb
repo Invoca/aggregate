@@ -287,11 +287,7 @@ module Aggregate
     end
 
     def store_value?(aggregate_attribute, value)
-      skip_on_default =
-        if aggregate_attribute.respond_to?(:skip_default?)
-          aggregate_attribute.skip_default?
-        end
-      !((aggregate_attribute.default.nil? || skip_on_default) && aggregate_attribute.default == value)
+      aggregate_attribute.default != value || aggregate_attribute.write_default_values?
     end
   end
 end

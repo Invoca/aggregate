@@ -72,5 +72,9 @@ class Aggregate::Attribute::BaseTest < ActiveSupport::TestCase
       ad = Aggregate::AttributeHandler.factory("testme", "string", force_validation: true)
       assert ad.force_validation?
     end
+
+    should "return false for store_default_value?" do
+      refute Aggregate::AttributeHandler.factory("testme", "string", {}).write_default_values?
+    end
   end
 end
