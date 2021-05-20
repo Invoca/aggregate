@@ -78,8 +78,12 @@ module Aggregate
       to_s <=> other.to_s
     end
 
-    def nil?
+    def empty?
       to_s == ""
+    end
+
+    def nil?
+      super || empty?
     end
   end
 end
