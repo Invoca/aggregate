@@ -12,6 +12,7 @@ module Aggregate
         define_method(name)                       { load_aggregate_attribute(agg_attribute) }
         define_method("#{name}=")                 { |value| save_aggregate_attribute(agg_attribute, value) }
         define_method("#{name}_changed?")         { aggregate_attribute_changed?(agg_attribute) }
+        define_method("#{name}_set?")             { aggregate_attribute_set?(agg_attribute) }
         define_method("build_#{name}")            { |*args| save_aggregate_attribute(agg_attribute, agg_attribute.new(*args)) }
         define_method("#{name}_before_type_cast") { aggregate_attribute_before_type_cast(agg_attribute) }
         ActiveRecordHelpers::Version.if_version(
@@ -28,6 +29,7 @@ module Aggregate
         define_method(name)                       { load_aggregate_attribute(agg_attribute) }
         define_method("#{name}=")                 { |value| save_aggregate_attribute(agg_attribute, value) }
         define_method("#{name}_changed?")         { aggregate_attribute_changed?(agg_attribute) }
+        define_method("#{name}_set?")             { aggregate_attribute_set?(agg_attribute) }
         ActiveRecordHelpers::Version.if_version(
           active_record_gt_4: -> {
             define_method("saved_change_to_#{name}?") { aggregate_attribute_saved_changed?(agg_attribute) }
@@ -44,6 +46,7 @@ module Aggregate
         define_method("#{name}=")                 { |value| save_aggregate_attribute(agg_attribute, value) }
         define_method("#{name}_id=")              { |value| save_aggregate_attribute(agg_attribute, value) }
         define_method("#{name}_changed?")         { aggregate_attribute_changed?(agg_attribute) }
+        define_method("#{name}_set?")             { aggregate_attribute_set?(agg_attribute) }
       end
 
       def aggregate_schema_version(version_number, update_callback)
@@ -119,7 +122,7 @@ module Aggregate
 
         # Optimization: only write out values if they are not nil, if there is no schema migration and
         # the default value is nil. (Schema migrations and defaults depend on writing the value.)
-        if respond_to?(:data_schema_version) || !aa.default.nil? || !agg_value.nil?
+        if respond_to?(:data_schema_version) || !aa.default.nil? || !agg_value.nil? || aggregate_sets[aa.name]
           [aa.name, aa.to_store(agg_value)]
         end
       end
@@ -204,6 +207,7 @@ module Aggregate
 
     def save_aggregate_attribute(agg_attribute, value)
       aggregate = agg_attribute.from_value(value)
+      aggregate_sets[agg_attribute.name] = true
       if aggregate != load_aggregate_attribute(agg_attribute)
         name = agg_attribute.name
         aggregate_values_before_cast[name] = value
@@ -219,6 +223,10 @@ module Aggregate
       aggregate_changes[agg_attribute.name] || Array.wrap(aggregate_values[agg_attribute.name]).any? { |value| value.try(:changed?) }
     end
 
+    def aggregate_attribute_set?(agg_attribute)
+      aggregate_sets[agg_attribute.name]
+    end
+
     def aggregate_attribute_saved_changed?(agg_attribute)
       ensure_saved_changes_up_to_date
       aggregate_attribute_saved_changes.include?(agg_attribute.name) ||
@@ -231,6 +239,8 @@ module Aggregate
     end
 
     def load_aggregate_from_store(agg_attribute)
+      name = agg_attribute.name.to_s
+      aggregate_sets[name] = decoded_aggregate_store.has_key?(name)
       agg_attribute.from_store(decoded_aggregate_store[agg_attribute.name.to_s]).tap do |aggregate|
         set_aggregate_owner(agg_attribute, aggregate)
       end
@@ -242,6 +252,10 @@ module Aggregate
 
     def aggregate_initial_values
       @aggregate_initial_values ||= {}
+    end
+
+    def aggregate_sets
+      @aggregate_sets ||= {}
     end
 
     def aggregate_changes

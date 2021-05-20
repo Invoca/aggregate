@@ -52,6 +52,7 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
       assert @instance.respond_to?(:name)
       assert @instance.respond_to?(:name=)
       assert @instance.respond_to?(:name_changed?)
+      assert @instance.respond_to?(:name_set?)
       assert @instance.respond_to?(:build_name)
       assert @instance.respond_to?(:name_before_type_cast)
       Aggregate::ActiveRecordHelpers::Version.if_version(
@@ -95,6 +96,28 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
 
         @instance.name = "blah"
         assert @instance.changed?
+      end
+
+      should "correctly mark the attribute as set if set" do
+        passport = sample_passport
+        assert_nil passport.height
+        refute passport.height_set?
+
+        passport.height = nil
+        assert passport.height_set?
+      end
+
+      should "correctly mark the attribute as set if loaded from the aggregate_store after being saved" do
+        passport = sample_passport
+        assert_nil passport.height
+        refute passport.height_set?
+
+        passport.height = nil
+        passport.save
+        passport.reload
+
+        assert_nil passport.height
+        assert passport.height_set?
       end
 
       Aggregate::ActiveRecordHelpers::Version.if_version(
@@ -332,10 +355,11 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
             @passport.foreign_visits.first.country = "Caemlyn"
           end
 
-          should "correctly mark the attribute as changed" do
+          should "correctly mark the attribute as changed and set" do
             # TODO: uncomment this when we address this bug
             # assert @passport.changed?, "passport not changed"
             assert @passport.foreign_visits_changed?, "foreign visits not changed"
+            assert @passport.foreign_visits_set?, "foreign visits not set"
           end
 
           Aggregate::ActiveRecordHelpers::Version.if_version(
@@ -383,14 +407,16 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
         assert_equal "def", @instance.name
       end
 
-      should "keep track of changes to the attribute" do
+      should "keep track of changes and sets to the attribute" do
         assert !@instance.name_changed?
+        assert !@instance.name_set?
         assert !@instance.aggregate_owner.change_called
         assert_equal "abc", @instance.name_before_type_cast
 
         @instance.name = "godzilla"
 
         assert @instance.name_changed?
+        assert @instance.name_set?
         assert_equal "godzilla", @instance.name_before_type_cast
         assert @instance.aggregate_owner.change_called
       end

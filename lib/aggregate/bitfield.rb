@@ -77,5 +77,9 @@ module Aggregate
     def <=>(other)
       to_s <=> other.to_s
     end
+
+    def nil?
+      to_s == ""
+    end
   end
 end
