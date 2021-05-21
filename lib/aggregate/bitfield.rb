@@ -82,8 +82,6 @@ module Aggregate
       to_s == ""
     end
 
-    def nil?
-      super || empty?
-    end
+    alias :nil? :empty?
   end
 end
