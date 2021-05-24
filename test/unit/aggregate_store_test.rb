@@ -359,7 +359,6 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
             # TODO: uncomment this when we address this bug
             # assert @passport.changed?, "passport not changed"
             assert @passport.foreign_visits_changed?, "foreign visits not changed"
-            assert @passport.foreign_visits_set?, "foreign visits not set"
           end
 
           Aggregate::ActiveRecordHelpers::Version.if_version(
