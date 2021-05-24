@@ -6,6 +6,10 @@ Note: This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0
 
 All notable changes to this project will be documented in this file.
 
+## [2.5.0] - 2021-05-24
+### Added
+- Added attribute option `track_all_values` to track if an attribute is explicitly set to `nil`.
+
 ## [2.4.1] - 2021-04-12
 ### Fixed
 - Fixed an issue for Rails 5 where autosave associations weren't being recognized to be saved when the only changes on the object are aggregate attributes.
@@ -101,6 +105,7 @@ callbacks defined by `ActiveRecord`
 ### Added
 - Added initial entry in ChangeLog (see README at this point for gem details)
 
+[2.5.0]: https://github.com/Invoca/aggregate/compare/v2.4.1...v2.5.0
 [2.4.1]: https://github.com/Invoca/aggregate/compare/v2.4.0...v2.4.1
 [2.4.0]: https://github.com/Invoca/aggregate/compare/v2.3.1...v2.4.0
 [2.3.1]: https://github.com/Invoca/aggregate/compare/v2.3.0...v2.3.1

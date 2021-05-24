@@ -122,7 +122,7 @@ module Aggregate
 
         # Optimization: only write out values if they are not nil, if there is no schema migration and
         # the default value is nil. (Schema migrations and defaults depend on writing the value.)
-        if respond_to?(:data_schema_version) || !aa.default.nil? || !agg_value.nil? || aggregate_sets[aa.name]
+        if respond_to?(:data_schema_version) || !aa.default.nil? || !agg_value.nil? || (aa.track_all_values? && aggregate_sets[aa.name])
           [aa.name, aa.to_store(agg_value)]
         end
       end
@@ -207,7 +207,7 @@ module Aggregate
 
     def save_aggregate_attribute(agg_attribute, value)
       aggregate = agg_attribute.from_value(value)
-      aggregate_sets[agg_attribute.name] = true
+      track_aggregate_set(agg_attribute, true)
       if aggregate != load_aggregate_attribute(agg_attribute)
         name = agg_attribute.name
         aggregate_values_before_cast[name] = value
@@ -224,7 +224,7 @@ module Aggregate
     end
 
     def aggregate_attribute_set?(agg_attribute)
-      aggregate_sets[agg_attribute.name]
+      !!aggregate_sets[agg_attribute.name]
     end
 
     def aggregate_attribute_saved_changed?(agg_attribute)
@@ -240,7 +240,7 @@ module Aggregate
 
     def load_aggregate_from_store(agg_attribute)
       name = agg_attribute.name.to_s
-      aggregate_sets[name] = decoded_aggregate_store.has_key?(name)
+      track_aggregate_set(agg_attribute, decoded_aggregate_store.has_key?(name))
       agg_attribute.from_store(decoded_aggregate_store[agg_attribute.name.to_s]).tap do |aggregate|
         set_aggregate_owner(agg_attribute, aggregate)
       end
@@ -272,6 +272,12 @@ module Aggregate
 
     def set_aggregate_owner(_agg_attribute, aggregate_value)
       [aggregate_value].flatten.each { |v| v.try(:aggregate_owner=, self) }
+    end
+
+    def track_aggregate_set(agg_attribute, value)
+      if agg_attribute.track_all_values?
+        aggregate_sets[agg_attribute.name] = value
+      end
     end
 
     def set_saved_changes_child_attributes

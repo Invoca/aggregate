@@ -35,7 +35,7 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
     setup do
       @store = Class.new
       @store.send(:include, Aggregate::AggregateStore)
-      @store.aggregate_attribute(:name, :string)
+      @store.aggregate_attribute(:name, :string, track_all_values: true)
     end
 
     should "pass aggregate_db_storage_type option to all attribute handlers if aggregate_db_storage_type is not nil" do
