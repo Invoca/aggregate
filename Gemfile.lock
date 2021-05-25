@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    aggregate (2.5.0.pre.gkent.0)
+    aggregate (2.5.0.pre.gkent.1)
       activerecord (>= 4.2, < 6.1)
       encryptor (~> 3.0)
       invoca-utils (~> 0.3)

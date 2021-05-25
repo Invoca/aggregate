@@ -149,7 +149,9 @@ module Aggregate
       self.class.aggregated_attribute_handlers.build_hash do |_, attr|
         value  = load_aggregate_attribute(attr)
         result = value.is_a?(Aggregate::AggregateStore) ? value.aggregate_attributes : value
-        [attr.name, result]
+        unless result.nil? && attr.track_all_values? && !aggregate_sets[attr.name]
+          [attr.name, result]
+        end
       end
     end
 
