@@ -72,7 +72,6 @@ class PassportTest < ActiveSupport::TestCase
           "city"           => "Santa Barbara",
           "foreign_visits" => [{ "country" => "Canada" }, { "country" => "Mexico" }],
           "gender"         => "female",
-          "stamps"         => nil,
           "state"          => "California",
           "weight"         => "100.0"
         }

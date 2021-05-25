@@ -89,6 +89,28 @@ class Aggregate::BitfieldTest < ActiveSupport::TestCase
       end
     end
 
+    context "#empty?" do
+      should "return true if string is empty" do
+        bitfield = Aggregate::Bitfield.with_options(@bitfield_options.merge(limit: 5)).new("")
+        assert_equal true, bitfield.empty?
+      end
+
+      should "return false if string is not empty" do
+        bitfield = Aggregate::Bitfield.with_options(@bitfield_options.merge(limit: 5)).new("tf t")
+        assert_equal false, bitfield.empty?
+      end
+    end
+
+    context "#nil?" do
+      should "alias to empty?" do
+        bitfield = Aggregate::Bitfield.with_options(@bitfield_options.merge(limit: 5)).new("tf t")
+        assert_equal false, bitfield.nil?
+
+        bitfield = Aggregate::Bitfield.with_options(@bitfield_options.merge(limit: 5)).new("")
+        assert_equal true, bitfield.nil?
+      end
+    end
+
     context "length limited classes" do
       should "allow values below the limit" do
         bitfield = Aggregate::Bitfield.with_options(@bitfield_options.merge(limit: 10)).new("")

@@ -77,5 +77,11 @@ module Aggregate
     def <=>(other)
       to_s <=> other.to_s
     end
+
+    def empty?
+      to_s == ""
+    end
+
+    alias nil? empty?
   end
 end
