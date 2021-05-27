@@ -6,10 +6,9 @@ Note: This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0
 
 All notable changes to this project will be documented in this file.
 
-## [2.4.2] - 2021-05-26
+## [2.4.2] - 2021-05-27
 ### Fixed
 - Fixed a bug where bitfield attributes were unnecessarily storing nulls in the aggregate store when empty.
-
 
 ## [2.4.1] - 2021-04-12
 ### Fixed
