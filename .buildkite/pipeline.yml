@@ -6,7 +6,6 @@ steps:
     queue: ruby
     ruby: 2.6.5
   env:
-    BUNDLE_GEMFILE: Gemfile
     JUNIT_OUTPUT_DIR: test/reports/current
   commands:
   - apt-get update && apt-get install -y libsqlite3-dev
@@ -21,13 +20,13 @@ steps:
     queue: ruby
     ruby: 2.6.5
   env:
-    BUNDLE_GEMFILE: gemfiles/rails_4.gemfile
     JUNIT_OUTPUT_DIR: test/reports/rails_4
   commands:
   - apt-get update && apt-get install -y libsqlite3-dev
   - bundle install
+  - bundle exec appraisal install
   - bundle exec rake db:migrate
-  - bundle exec rake test
+  - bundle exec appraisal rails-4 rake test
   artifact_paths:
   - test/reports/**/*
 - label: ":ruby: Rails 5"
@@ -36,13 +35,13 @@ steps:
     queue: ruby
     ruby: 2.6.5
   env:
-    BUNDLE_GEMFILE: gemfiles/rails_5.gemfile
     JUNIT_OUTPUT_DIR: test/reports/rails_5
   commands:
   - apt-get update && apt-get install -y libsqlite3-dev
   - bundle install
+  - bundle exec appraisal install
   - bundle exec rake db:migrate
-  - bundle exec rake test
+  - bundle exec appraisal rails-5 rake test
   artifact_paths:
   - test/reports/**/*
 - label: ":ruby: Rails 6"
@@ -51,13 +50,13 @@ steps:
     queue: ruby
     ruby: 2.6.5
   env:
-    BUNDLE_GEMFILE: gemfiles/rails_6.gemfile
     JUNIT_OUTPUT_DIR: test/reports/rails_6
   commands:
   - apt-get update && apt-get install -y libsqlite3-dev
   - bundle install
+  - bundle exec appraisal install
   - bundle exec rake db:migrate
-  - bundle exec rake test
+  - bundle exec appraisal rails-6 rake test
   artifact_paths:
   - test/reports/**/*
 
