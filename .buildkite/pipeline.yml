@@ -10,6 +10,7 @@ steps:
     JUNIT_OUTPUT_DIR: test/reports/current
   commands:
   - bundle install
+  - bundle exec rake db:migrate
   - bundle exec rake test
   artifact_paths:
   - test/reports/**/*
@@ -23,6 +24,7 @@ steps:
     JUNIT_OUTPUT_DIR: test/reports/rails_4
   commands:
   - bundle install
+  - bundle exec rake db:migrate
   - bundle exec rake test
   artifact_paths:
   - test/reports/**/*
@@ -36,6 +38,7 @@ steps:
     JUNIT_OUTPUT_DIR: test/reports/rails_5
   commands:
   - bundle install
+  - bundle exec rake db:migrate
   - bundle exec rake test
   artifact_paths:
   - test/reports/**/*
@@ -49,6 +52,7 @@ steps:
     JUNIT_OUTPUT_DIR: test/reports/rails_6
   commands:
   - bundle install
+  - bundle exec rake db:migrate
   - bundle exec rake test
   artifact_paths:
   - test/reports/**/*
