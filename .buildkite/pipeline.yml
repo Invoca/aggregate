@@ -9,6 +9,7 @@ steps:
     BUNDLE_GEMFILE: Gemfile
     JUNIT_OUTPUT_DIR: test/reports/current
   commands:
+  - apt-get update && apt-get install -y libsqlite3-dev
   - bundle install
   - bundle exec rake db:migrate
   - bundle exec rake test
@@ -23,6 +24,7 @@ steps:
     BUNDLE_GEMFILE: gemfiles/rails_4.gemfile
     JUNIT_OUTPUT_DIR: test/reports/rails_4
   commands:
+  - apt-get update && apt-get install -y libsqlite3-dev
   - bundle install
   - bundle exec rake db:migrate
   - bundle exec rake test
@@ -37,6 +39,7 @@ steps:
     BUNDLE_GEMFILE: gemfiles/rails_5.gemfile
     JUNIT_OUTPUT_DIR: test/reports/rails_5
   commands:
+  - apt-get update && apt-get install -y libsqlite3-dev
   - bundle install
   - bundle exec rake db:migrate
   - bundle exec rake test
@@ -51,6 +54,7 @@ steps:
     BUNDLE_GEMFILE: gemfiles/rails_6.gemfile
     JUNIT_OUTPUT_DIR: test/reports/rails_6
   commands:
+  - apt-get update && apt-get install -y libsqlite3-dev
   - bundle install
   - bundle exec rake db:migrate
   - bundle exec rake test
