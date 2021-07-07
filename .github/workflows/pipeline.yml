@@ -7,7 +7,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ruby: 2.6
+        ruby: [2.6]
         gemfile:
         - Gemfile
         - gemfiles/rails_4.gemfile
@@ -19,7 +19,7 @@ jobs:
     - uses: actions/checkout@v2
     - uses: ruby/setup-ruby@v1
       with:
-        ruby-versions: ${{ matrix.ruby }}
+        ruby-version: ${{ matrix.ruby }}
         bundler: 1.17.3
         bundler-cache: true
     - name: Unit Tests
