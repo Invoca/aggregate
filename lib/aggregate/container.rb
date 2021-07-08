@@ -8,10 +8,6 @@ module Aggregate
     include ActiveSupport::Callbacks
     include Aggregate::AggregateStore
 
-    ActiveRecordHelpers::Version.if_version(
-      active_record_gt_4: -> { include ActiveRecord::DefineCallbacks }
-    )
-
     class StorageAlreadyDefined < ArgumentError; end
 
     # rubocop:disable Metrics/BlockLength
