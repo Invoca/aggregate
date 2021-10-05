@@ -46,6 +46,31 @@ class Passport < ActiveRecord::Base
 end
 ```
 
+#### Warning about ActiveRecord Callbacks Ordering
+
+When `store_aggregates_using` is called it will define a `before_save` callback that is responsible for serializing all aggregate attributes into the storage field (e.g. `aggregate_storage` in the above example). That means that if you want to assign/change values for an aggregate attribute in a callback, it needs to be done in a `before_save` that is defined **before** `stores_aggregates_using` is called.
+
+See [the Rails docs](https://guides.rubyonrails.org/active_record_callbacks.html#available-callbacks) for more info on available callbacks.
+
+Here's a trivial example:
+
+```ruby
+class Passport < ActiveRecord::Base
+  include Aggregate::Container
+
+  # ...
+
+  before_save :update_birthdate
+  store_aggregates_using :aggregate_storage
+
+  # ...
+
+  def update_birthdate
+    self.birthdate = Time.now
+  end
+end
+```
+
 ### Nesting Aggregate classes
 Aggregate attributes can be full ruby classes with their own attributes and validations.  For example, the passport above has a "photo" attribute of type "PassportPhoto".  This is an aggregate class.  To define aggregate class, create a ruby class that derives from Aggregate::Base and defines attributes.  For example here is the definition of passport photo.
 
