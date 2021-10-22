@@ -6,6 +6,10 @@ Note: This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0
 
 All notable changes to this project will be documented in this file.
 
+## [2.4.3] - 2021-10-21
+### Fixed
+- Bug where `Aggregate::Container#reload` didn't accept arguments even though `ActiveRecord::Persistence` does.
+
 ## [2.4.2] - 2021-05-27
 ### Fixed
 - Fixed a bug where bitfield attributes were unnecessarily storing nulls in the aggregate store when empty.
@@ -105,6 +109,7 @@ callbacks defined by `ActiveRecord`
 ### Added
 - Added initial entry in ChangeLog (see README at this point for gem details)
 
+[2.4.3]: https://github.com/Invoca/aggregate/compare/v2.4.2...v2.4.3
 [2.4.2]: https://github.com/Invoca/aggregate/compare/v2.4.1...v2.4.2
 [2.4.1]: https://github.com/Invoca/aggregate/compare/v2.4.0...v2.4.1
 [2.4.0]: https://github.com/Invoca/aggregate/compare/v2.3.1...v2.4.0
