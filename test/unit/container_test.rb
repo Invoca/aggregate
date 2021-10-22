@@ -32,7 +32,7 @@ class Aggregate::ContainerTest < ActiveSupport::TestCase
       @before_save << args
     end
 
-    def reload
+    def reload(options = nil)
       @reload_called = true
     end
 
@@ -852,6 +852,10 @@ class Aggregate::ContainerTest < ActiveSupport::TestCase
       assert_nil @doc.first_shipment
       assert_equal true, @doc.instance_variable_get("@reload_called")
       assert_equal "56789", @doc.test_string
+    end
+
+    should "allow arguments to be passed into reload" do
+      TestDirectStore.new.reload(test_arg: "test")
     end
 
     should "raise an exception if attempting to define a class with multiple stores" do
