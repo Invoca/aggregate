@@ -6,6 +6,10 @@ Note: This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0
 
 All notable changes to this project will be documented in this file.
 
+## [2.4.4] - 2021-10-22
+### Fixed
+- Update gemspec to require >= 1.0.2 for `large_text_field` gem to support reloading with a single argument.
+
 ## [2.4.3] - 2021-10-21
 ### Fixed
 - Bug where `Aggregate::Container#reload` didn't accept arguments even though `ActiveRecord::Persistence` does.

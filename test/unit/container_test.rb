@@ -862,6 +862,13 @@ class Aggregate::ContainerTest < ActiveSupport::TestCase
       assert_equal args, doc.instance_variable_get("@reload_options")
     end
 
+    should "allow arguments to be passed into reload for Largetextfield stored aggregate storage" do
+      doc  = TestPurchase.new
+      args = { test_arg: "test" }
+      doc.reload(args)
+      assert_equal args, doc.instance_variable_get("@reload_options")
+    end
+
     should "raise an exception if attempting to define a class with multiple stores" do
       assert_raises Aggregate::Container::StorageAlreadyDefined do
         class MultipleStores < ActiveRecordStub
