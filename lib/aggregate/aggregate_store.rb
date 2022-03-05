@@ -67,7 +67,16 @@ module Aggregate
           end
       end
 
+      # Defined to be optionally overwritten
       def aggregate_db_storage_type; end
+
+      # Defined to be optionally overwritten
+      #
+      # If the decoded aggregate store (serialized data) is missing the aggregate attribute key, what value
+      # should be returned? If this method returns truthy, it should return the attribute's default value.
+      # If this method returns falsey, it should return nil.
+      # See #load_aggregate_attribute for more details on how it's used.
+      def aggregate_treat_undefined_attributes_as_default_value?; end
 
       private
 
@@ -179,12 +188,7 @@ module Aggregate
 
     def load_aggregate_attribute(agg_attribute)
       unless aggregate_values.key?(agg_attribute.name)
-        value =
-          if decoded_aggregate_store
-            load_aggregate_from_store(agg_attribute)
-          else
-            agg_attribute.default
-          end
+        value = load_aggregate_from_store?(agg_attribute) ? load_aggregate_from_store(agg_attribute) : agg_attribute.default
         aggregate_values[agg_attribute.name] = value
         aggregate_initial_values[agg_attribute.name] = value
 
@@ -192,6 +196,13 @@ module Aggregate
         notify_if_first_access
       end
       aggregate_values[agg_attribute.name]
+    end
+
+    # Returns truthy if the value of the attribute should be loaded from the decoded aggregate store (serialized data).
+    # Returns falsey if the attribute should use its default value.
+    def load_aggregate_from_store?(agg_attribute)
+      decoded_aggregate_store &&
+        (decoded_aggregate_store.key?(agg_attribute.name.to_s) || !self.class.aggregate_treat_undefined_attributes_as_default_value?)
     end
 
     def notify_if_first_access
