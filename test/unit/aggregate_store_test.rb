@@ -818,6 +818,30 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
           @instance = @store.new
         end
       end
+
+      context "when decoded aggregate store" do
+        subject { @store.new }
+
+        setup do
+          @store.aggregate_attribute(:age, :integer, default: 35)
+        end
+
+        [
+          { test_context: "does not exist", description: "return default attribute value", decoded_store: nil, expected_result: 35 },
+          { test_context: "has a key for the attribute", description: "return value from decoded aggregate store", decoded_store: { "name" => "abc", "age" => 50 }, expected_result: 50 },
+          { test_context: "does not have a key for the attribute", description: "return default attribute value", decoded_store: { "name" => "abc" }, expected_result: 35 }
+        ].each do |test_context:, description:, decoded_store:, expected_result:|
+          context test_context do
+            setup do
+              @store.send(:define_method, :decoded_aggregate_store) { decoded_store }
+            end
+
+            should description do
+              assert_equal expected_result, subject.age
+            end
+          end
+        end
+      end
     end
   end
 end

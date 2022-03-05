@@ -179,12 +179,7 @@ module Aggregate
 
     def load_aggregate_attribute(agg_attribute)
       unless aggregate_values.key?(agg_attribute.name)
-        value =
-          if decoded_aggregate_store
-            load_aggregate_from_store(agg_attribute)
-          else
-            agg_attribute.default
-          end
+        value = decoded_aggregate_store&.key?(agg_attribute.name.to_s) ? load_aggregate_from_store(agg_attribute) : agg_attribute.default
         aggregate_values[agg_attribute.name] = value
         aggregate_initial_values[agg_attribute.name] = value
 

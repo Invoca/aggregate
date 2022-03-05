@@ -89,7 +89,7 @@ class Aggregate::BaseTest < ActiveSupport::TestCase
         @instance = @agg.from_json(hash)
 
         assert_nil @instance.name
-        assert_nil @instance.address
+        assert_equal "no address", @instance.address
         assert_nil @instance.zip
         assert @instance.new_record?
       end
@@ -99,7 +99,7 @@ class Aggregate::BaseTest < ActiveSupport::TestCase
         @instance = @agg.from_json(hash)
 
         assert_equal "Bob", @instance.name
-        assert_nil @instance.address
+        assert_equal "no address", @instance.address
         assert_equal 93_101, @instance.zip
         assert @instance.new_record?
       end
