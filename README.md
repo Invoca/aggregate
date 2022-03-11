@@ -97,6 +97,24 @@ end
 ```
 You could then set and navigate the association.
 
+### Treating Missing Attribute Keys as the Default Value
+By default, if the stored serialized data representing the attributes is missing an attributes key, the value for that attribute will be `nil`.
+
+This can be problematic when adding a new attribute but you already have stored serialized data somewhere, such as in a database column.
+
+If you would instead like to have attributes that are missing their key in the serialized data return the attribute default value, you can define `aggregate_treat_undefined_attributes_as_default_value?` on your aggregate container as true.
+
+```ruby
+class User < ApplicationRecord
+  include Aggregate::Container
+
+  def self.aggregate_treat_undefined_attributes_as_default_value?
+    true
+  end
+end
+```
+
+
 ### Storing aggregates on large text fields
 Aggregates can be stored on large text fields.  To do this, replace the **store_aggregates_using** call with a **store_aggregates_using_large_text_field**.
 
