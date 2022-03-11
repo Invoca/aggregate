@@ -6,7 +6,7 @@ Note: This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0
 
 All notable changes to this project will be documented in this file.
 
-## [2.4.5] - UNRELEASED
+## [2.4.5] - 2022-03-11
 ### Added
 - Addresses issue [#149](https://github.com/Invoca/aggregate/issues/149). Add `aggregate_treat_undefined_attributes_as_default_value?` functionality to support treating attributes that are missing keys in the decoded aggregate store (serialized data) as the attribute's default value. See README for more details.
 
