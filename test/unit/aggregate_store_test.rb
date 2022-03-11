@@ -834,7 +834,8 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
           [
             { description: "return default attribute value", decoded_store: nil, expected_result: 35 },
             { description: "return value from decoded aggregate store", decoded_store: { "name" => "abc", "age" => 50 }, expected_result: 50 },
-            { description: "return default attribute value", decoded_store: { "name" => "abc" }, expected_result: 35 }
+            { description: "return default attribute value", decoded_store: { "name" => "abc" }, expected_result: 35 },
+            { description: "return default attribute value", decoded_store: [], expected_result: 35 }
           ].each do |description:, decoded_store:, expected_result:|
             context "with decoded_aggregate_store as #{decoded_store.inspect}" do
               setup do

@@ -202,7 +202,7 @@ module Aggregate
     # Returns falsey if the attribute should use its default value.
     def load_aggregate_from_store?(agg_attribute)
       decoded_aggregate_store &&
-        (decoded_aggregate_store.key?(agg_attribute.name.to_s) || !self.class.aggregate_treat_undefined_attributes_as_default_value?)
+        (decoded_aggregate_store.try(:key?, agg_attribute.name.to_s) || !self.class.aggregate_treat_undefined_attributes_as_default_value?)
     end
 
     def notify_if_first_access

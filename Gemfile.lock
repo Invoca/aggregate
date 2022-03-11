@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    aggregate (2.4.5.pre.1)
+    aggregate (2.4.5.pre.3)
       activerecord (>= 4.2, < 6.1)
       encryptor (~> 3.0)
       invoca-utils (~> 0.3)
