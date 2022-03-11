@@ -6,6 +6,10 @@ Note: This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0
 
 All notable changes to this project will be documented in this file.
 
+## [2.4.5] - UNRELEASED
+### Added
+- Addresses issue [#149](https://github.com/Invoca/aggregate/issues/149). Add `aggregate_treat_undefined_attributes_as_default_value?` functionality to support treating attributes that are missing keys in the decoded aggregate store (serialized data) as the attribute's default value. See README for more details.
+
 ## [2.4.4] - 2021-10-22
 ### Fixed
 - Update gemspec to require >= 1.0.2 for `large_text_field` gem to support reloading with a single argument.
@@ -113,6 +117,8 @@ callbacks defined by `ActiveRecord`
 ### Added
 - Added initial entry in ChangeLog (see README at this point for gem details)
 
+[2.4.5]: https://github.com/Invoca/aggregate/compare/v2.4.4...v2.4.5
+[2.4.4]: https://github.com/Invoca/aggregate/compare/v2.4.3...v2.4.4
 [2.4.3]: https://github.com/Invoca/aggregate/compare/v2.4.2...v2.4.3
 [2.4.2]: https://github.com/Invoca/aggregate/compare/v2.4.1...v2.4.2
 [2.4.1]: https://github.com/Invoca/aggregate/compare/v2.4.0...v2.4.1

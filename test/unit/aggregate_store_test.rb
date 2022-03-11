@@ -818,6 +818,57 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
           @instance = @store.new
         end
       end
+
+      context ".aggregate_treat_undefined_attributes_as_default_value?" do
+        subject { @store.new }
+
+        setup do
+          @store.aggregate_attribute(:age, :integer, default: 35)
+        end
+
+        context "when truthy" do
+          setup do
+            @store.send(:define_singleton_method, :aggregate_treat_undefined_attributes_as_default_value?) { true }
+          end
+
+          [
+            { description: "return default attribute value", decoded_store: nil, expected_result: 35 },
+            { description: "return value from decoded aggregate store", decoded_store: { "name" => "abc", "age" => 50 }, expected_result: 50 },
+            { description: "return default attribute value", decoded_store: { "name" => "abc" }, expected_result: 35 },
+            { description: "return default attribute value", decoded_store: [], expected_result: 35 }
+          ].each do |description:, decoded_store:, expected_result:|
+            context "with decoded_aggregate_store as #{decoded_store.inspect}" do
+              setup do
+                @store.send(:define_method, :decoded_aggregate_store) { decoded_store }
+              end
+
+              should description do
+                assert_equal expected_result, subject.age
+              end
+            end
+          end
+        end
+
+        context "when falsey" do
+          # This should be the default behavior, so no setup is needed.
+
+          [
+            { description: "return default attribute value", decoded_store: nil, expected_result: 35 },
+            { description: "return value from decoded aggregate store", decoded_store: { "name" => "abc", "age" => 50 }, expected_result: 50 },
+            { description: "return nil", decoded_store: { "name" => "abc" }, expected_result: nil }
+          ].each do |description:, decoded_store:, expected_result:|
+            context "with decoded_aggregate_store as #{decoded_store.inspect}" do
+              setup do
+                @store.send(:define_method, :decoded_aggregate_store) { decoded_store }
+              end
+
+              should description do
+                assert_equal expected_result, subject.age
+              end
+            end
+          end
+        end
+      end
     end
   end
 end
