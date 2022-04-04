@@ -5,6 +5,7 @@ gemspec
 
 # jquery-rails is used by the dummy application
 gem "appraisal"
+gem "bigdecimal", '~> 1.4'
 gem "jquery-rails"
 gem 'minitest',  '~> 5.1'
 gem 'minitest-reporters'
