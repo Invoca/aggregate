@@ -38,10 +38,24 @@ module Aggregate
           set_callback(:destroy, :before, :decoded_aggregate_store, prepend: true)
         end
 
-        def store_aggregates_using(storage_field, migrate_from_storage_field: nil)
+        def store_aggregates_using(storage_field, migrate_from_storage_field: nil, migrate_from_large_text_field: nil)
+          if migrate_from_storage_field && migrate_from_large_text_field
+            raise ArgumentError, "migrate_from_storage_field and migrate_from_large_text_field can not be used at the same time"
+          end
+
+          if storage_field == migrate_from_storage_field || storage_field == migrate_from_large_text_field
+            raise ArgumentError, "storage_field may not be the same as the migration field"
+          end
+
           raise_if_aggregate_storage_field_already_defined
+
+          if migrate_from_large_text_field
+            include LargeTextField::Owner
+            large_text_field migrate_from_large_text_field
+          end
+
           self.aggregate_storage_field = storage_field
-          self.migrate_from_storage_field = migrate_from_storage_field
+          self.migrate_from_storage_field = migrate_from_storage_field || migrate_from_large_text_field
           set_callback(:save, :before, :write_aggregates)
         end
 
