@@ -19,7 +19,7 @@ Gem::Specification.new do |s|
   s.files = Dir["{app,config,db,lib}/**/*"] + ["MIT-LICENSE", "Rakefile", "README.md"]
   s.test_files = Dir["test/**/*"]
 
-  s.add_dependency "activerecord",     ">= 5.2", "< 6.1"
+  s.add_dependency "activerecord",     ">= 6.0"
   s.add_dependency "encryptor",        "~> 3.0"
   s.add_dependency "invoca-utils",     "~> 0.3"
   s.add_dependency "large_text_field", ">= 1.0.2"

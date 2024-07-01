@@ -5,6 +5,7 @@ gemspec
 
 # jquery-rails is used by the dummy application
 gem "appraisal"
+gem "appraisal-matrix"
 gem "bigdecimal"
 gem "jquery-rails"
 gem 'minitest',  '~> 5.1'
@@ -13,6 +14,6 @@ gem 'pry'
 gem 'rr',        '1.1.2'
 gem 'rubocop', require: false
 gem 'shoulda'
-gem 'sqlite3'
+gem 'sqlite3', "~> 1.4"
 gem 'test-unit', '3.1.3'
 gem 'test_after_commit', require: false
