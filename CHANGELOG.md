@@ -6,6 +6,23 @@ Note: This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0
 
 All notable changes to this project will be documented in this file.
 
+## [2.5.0] - Unreleased
+- Allow ActiveRecord versions >= 6.0
+- Require Ruby >= 3.1
+### Changed
+#### Aggregate::Attribute::DateTime
+- Change usage of `.to_s(format)` to `.to_formatted_s(format)`, which is required in Rails 7.1
+
+#### Aggregate::Base
+- Add method `self.type_for_attribute` to allow validations to pass for Rails 7.1
+- Change inclusion of `ActiveRecord::DefineCallbacks` to only Rails 6.0 and below (Rails 6.1 and beyond automatically include this)
+
+#### Aggregate::Container
+- Removed unnecessary `ActiveRecordHelpers::Version` usage
+
+### Removed
+- Removed `ActiveRecordHelpers::Version` which is no longer needed.
+
 ## [2.4.5] - 2022-03-11
 ### Added
 - Addresses issue [#149](https://github.com/Invoca/aggregate/issues/149). Add `aggregate_treat_undefined_attributes_as_default_value?` functionality to support treating attributes that are missing keys in the decoded aggregate store (serialized data) as the attribute's default value. See README for more details.
