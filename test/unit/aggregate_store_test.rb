@@ -324,7 +324,7 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
       context "for object with aggregate_has_many attribute" do
         setup do
           @passport = sample_passport
-          @passport.update_attributes!(foreign_visits: [ForeignVisit.new(country: "Cairhien")])
+          @passport.update!(foreign_visits: [ForeignVisit.new(country: "Cairhien")])
         end
 
         context "and one of the aggregate_has_many individual instances has changed" do

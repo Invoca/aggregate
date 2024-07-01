@@ -37,6 +37,8 @@ class Aggregate::ContainerTest < ActiveSupport::TestCase
       @reload_called = true
     end
 
+    def self.type_for_attribute(*); end
+
     define_callbacks :save, :commit, :destroy
   end
 
@@ -542,7 +544,7 @@ class Aggregate::ContainerTest < ActiveSupport::TestCase
             old_time_zone = Time.zone
             Time.zone     = "Eastern Time (US & Canada)"
             @doc          = TestPurchase.new(json)
-            assert_equal "04/18/12   8:50 PM", @doc.first_shipment.shipped_at.to_s
+            assert_equal "04/18/12   8:50 PM", @doc.first_shipment.shipped_at.to_formatted_s
             assert_equal "Thu, 19 Apr 2012 00:50:08 -0000", @doc.to_store["first_shipment"]["shipped_at"]
           ensure
             Time.zone = old_time_zone
@@ -552,7 +554,7 @@ class Aggregate::ContainerTest < ActiveSupport::TestCase
             old_time_zone = Time.zone
             Time.zone     = "Pacific Time (US & Canada)"
             @doc          = TestPurchase.new(json)
-            assert_equal "04/18/12   5:50 PM", @doc.first_shipment.shipped_at.to_s
+            assert_equal "04/18/12   5:50 PM", @doc.first_shipment.shipped_at.to_formatted_s
 
             assert_equal "Thu, 19 Apr 2012 00:50:08 -0000", @doc.to_store["first_shipment"]["shipped_at"]
           ensure
@@ -566,10 +568,10 @@ class Aggregate::ContainerTest < ActiveSupport::TestCase
           assert_nil @doc.first_shipment.shipped_at
           @doc.first_shipment.shipped_at = Time.now
 
-          assert_equal "03/10/08  12:00 AM", @doc.first_shipment.shipped_at.to_s
+          assert_equal "03/10/08  12:00 AM", @doc.first_shipment.shipped_at.to_formatted_s
 
           @doc.first_shipment.shipped_at = "2012-04-26"
-          assert_equal "04/26/12  12:00 AM", @doc.first_shipment.shipped_at.to_s
+          assert_equal "04/26/12  12:00 AM", @doc.first_shipment.shipped_at.to_formatted_s
           assert_equal "Thu, 26 Apr 2012 07:00:00 -0000", @doc.to_store["first_shipment"]["shipped_at"]
 
           @doc.first_shipment.shipped_at = ''
