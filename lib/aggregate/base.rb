@@ -27,6 +27,7 @@ module Aggregate
     class << self
       def aggregate_db_storage_type; end
 
+      # Needed in Rails 7.1 validations. `nil` is a valid return value.
       def type_for_attribute(*); end
     end
 
