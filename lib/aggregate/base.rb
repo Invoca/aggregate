@@ -16,7 +16,7 @@ module Aggregate
     include ActiveRecord::Reflection
     include Comparable
 
-    if ActiveRecord::VERSION::MAJOR > 4
+    if ActiveRecord.gem_version < "6.1"
       include ActiveRecord::DefineCallbacks
     end
 
@@ -26,6 +26,9 @@ module Aggregate
 
     class << self
       def aggregate_db_storage_type; end
+
+      # Needed in Rails 7.1 validations. `nil` is a valid return value.
+      def type_for_attribute(*); end
     end
 
     def initialize(arguments = {})

@@ -2,11 +2,10 @@
 
 require "encryptor"
 require "active_record"
-if ActiveRecord::VERSION::MAJOR > 4
+if ActiveRecord.gem_version < "6.1"
   require 'active_record/define_callbacks'
 end
 
-require "aggregate/active_record_upgrade_helpers/version"
 require "aggregate/bitfield"
 
 require "aggregate/attribute/base"

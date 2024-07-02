@@ -14,11 +14,7 @@ module Aggregate
         define_method("#{name}_changed?")         { aggregate_attribute_changed?(agg_attribute) }
         define_method("build_#{name}")            { |*args| save_aggregate_attribute(agg_attribute, agg_attribute.new(*args)) }
         define_method("#{name}_before_type_cast") { aggregate_attribute_before_type_cast(agg_attribute) }
-        ActiveRecordHelpers::Version.if_version(
-          active_record_gt_4: -> {
-            define_method("saved_change_to_#{name}?") { aggregate_attribute_saved_changed?(agg_attribute) }
-          }
-        )
+        define_method("saved_change_to_#{name}?") { aggregate_attribute_saved_changed?(agg_attribute) }
       end
 
       def aggregate_has_many(name, class_name, options = {})
@@ -28,11 +24,7 @@ module Aggregate
         define_method(name)                       { load_aggregate_attribute(agg_attribute) }
         define_method("#{name}=")                 { |value| save_aggregate_attribute(agg_attribute, value) }
         define_method("#{name}_changed?")         { aggregate_attribute_changed?(agg_attribute) }
-        ActiveRecordHelpers::Version.if_version(
-          active_record_gt_4: -> {
-            define_method("saved_change_to_#{name}?") { aggregate_attribute_saved_changed?(agg_attribute) }
-          }
-        )
+        define_method("saved_change_to_#{name}?") { aggregate_attribute_saved_changed?(agg_attribute) }
       end
 
       def aggregate_belongs_to(name, options = {})
@@ -90,23 +82,16 @@ module Aggregate
       model_class.extend ClassMethods
     end
 
-    ActiveRecordHelpers::Version.if_version(
-      active_record_gt_4: -> do
-        def changed_for_autosave?
-          defined?(super) or raise NoMethodError, "undefined method 'changed_for_autosave?' for #{self}"
-          super || @changed
-        end
-      end
-    )
+    def changed_for_autosave?
+      defined?(super) or raise NoMethodError, "undefined method 'changed_for_autosave?' for #{self}"
+      super || @changed
+    end
 
     def changed?
       (defined?(super) && super) || @changed
     end
 
     def saved_changes?
-      ActiveRecordHelpers::Version.if_version(
-        active_record_4: -> { raise NoMethodError, "undefined method 'saved_changes?' for #{self}" }
-      )
       ensure_saved_changes_up_to_date
       (defined?(super) && super) || @changed_on_save
     end
@@ -167,9 +152,6 @@ module Aggregate
     end
 
     def aggregate_attribute_saved_changes
-      ActiveRecordHelpers::Version.if_version(
-        active_record_4: -> { raise NoMethodError, "undefined method 'aggregate_attribute_saved_changes' for #{self}" }
-      )
       ensure_saved_changes_up_to_date
       @saved_aggregate_changes || {}
     end
