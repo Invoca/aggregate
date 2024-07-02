@@ -9,7 +9,7 @@ gem "jquery-rails"
 gem "minitest", "~> 5.1"
 gem "minitest-reporters"
 gem "pry"
-gem "rr", "1.1.2"
+gem "rr", "3.1.0"
 gem "rubocop", require: false
 gem "shoulda"
 gem "sqlite3", "~> 2.0"
