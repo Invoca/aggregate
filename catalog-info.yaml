@@ -1,0 +1,16 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: aggregate
+  title: Aggregate Gem
+  description: Ruby gem that allows a no-sql style document store to be stored on your rails models in sql databases.
+  annotations:
+    github.com/project-slug: Invoca/aggregate
+    endoflife.date/products: ruby@3.3
+  tags:
+  - ruby
+  - open-source
+spec:
+  type: library
+  lifecycle: production
+  owner: octothorpe
