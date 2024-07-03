@@ -1,7 +1,6 @@
 ---
 name: Update Appraisals
 on:
-  push: ~
   schedule:
     - cron: '0 13 * * 0' # Every Sunday at 1PM UTC
 permissions:
