@@ -484,6 +484,7 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
             assert_equal({}, @passport.aggregate_attribute_saved_changes)
             @passport.photo.color = true
             @passport.photo.send(:start_save)
+            raise "oops failed"
 
             assert_equal({ "color" => [false, true] }, @passport.photo.aggregate_attribute_saved_changes)
           end
