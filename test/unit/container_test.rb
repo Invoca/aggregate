@@ -71,11 +71,10 @@ class Aggregate::ContainerTest < ActiveSupport::TestCase
     include Aggregate::Container
     store_aggregates_using_large_text_field
 
-    attr_accessor :fixup1_called, :fixup2_called, :value_at_fixup1, :upgraded_from_schema_version, :value_at_upgrade
+    attr_accessor :fixup1_called, :fixup2_called, :value_at_fixup1, :upgraded_from_schema_version, :value_at_upgrade, :aggregate_field_store
 
     # Overrides value from Aggregate::Container
     attr_accessor :aggregate_store
-    attr_accessor :aggregate_field_store
 
     def initialize(aggregate_store_json = nil, aggregate_field_store_json = nil)
       @aggregate_store       = aggregate_store_json
@@ -878,6 +877,7 @@ class Aggregate::ContainerTest < ActiveSupport::TestCase
           store_aggregates_using_large_text_field
 
           attr_accessor :storage, :old_storage
+
           aggregate_attribute :test_string, :string
         end
       end
@@ -918,6 +918,7 @@ class Aggregate::ContainerTest < ActiveSupport::TestCase
           store_aggregates_using :storage, migrate_from_storage_field: :old_storage
 
           attr_accessor :storage, :old_storage
+
           aggregate_attribute :test_string, :string
         end
       end

@@ -27,8 +27,10 @@ module Aggregate
     class << self
       def aggregate_db_storage_type; end
 
-      # Needed in Rails 7.1 validations. `nil` is a valid return value.
-      def type_for_attribute(*); end
+      # Skips checking database for precision of fields.
+      def validates_numericality_of(*attr_names)
+        validates_with ActiveModel::Validations::NumericalityValidator, _merge_attributes(attr_names)
+      end
     end
 
     def initialize(arguments = {})
@@ -58,7 +60,7 @@ module Aggregate
     end
 
     def root_aggregate_owner
-      !aggregate_owner ? self : aggregate_owner.root_aggregate_owner
+      aggregate_owner ? aggregate_owner.root_aggregate_owner : self
     end
 
     def self.from_store(decoded_aggregate_store)

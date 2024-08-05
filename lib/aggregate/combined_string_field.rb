@@ -3,6 +3,7 @@
 module Aggregate::CombinedStringField
   class CombinedStringField
     attr_accessor :attributes, :host_attribute
+
     def initialize(attributes, host_attribute)
       @attributes = attributes
       @host_attribute = host_attribute
@@ -66,7 +67,7 @@ module Aggregate::CombinedStringField
     # rubocop:enable Metrics/MethodLength
     # rubocop:enable Metrics/AbcSize
 
-    %w[read_attribute _read_attribute].each do |method_name|
+    ['read_attribute', '_read_attribute'].each do |method_name|
       define_method(method_name) do |name|
         if name.in?(attribute_list.map { |a| [a].flatten.first.to_s })
           send(name)

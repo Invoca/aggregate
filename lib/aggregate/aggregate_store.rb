@@ -79,6 +79,7 @@ module Aggregate
 
     def self.included(model_class)
       attr_accessor :aggregate_list
+
       model_class.extend ClassMethods
     end
 
