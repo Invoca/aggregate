@@ -6,6 +6,7 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
 
   class OwnerStub
     attr_accessor :change_called
+
     def set_changed
       @change_called = true
     end
@@ -13,6 +14,7 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
 
   class ErrorsStub
     attr_accessor :messages
+
     def add(attr, message)
       (@messages ||= []) << [attr, message]
     end

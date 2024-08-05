@@ -44,7 +44,7 @@ class Aggregate::BitfieldTest < ActiveSupport::TestCase
       bitfield = Aggregate::Bitfield.with_options(@bitfield_options).new("")
 
       bitfield[10] = true
-      assert_equal([nil] * 10 + [true], (0..10).map { |i| bitfield[i] })
+      assert_equal(([nil] * 10) + [true], (0..10).map { |i| bitfield[i] })
     end
 
     should "trim trailing nils when reporting the string value" do

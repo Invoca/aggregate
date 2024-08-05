@@ -91,7 +91,7 @@ module Aggregate
     end
 
     def reload(options = nil)
-      result = super(options)
+      result = super
       reset_cache_data
       result
     end

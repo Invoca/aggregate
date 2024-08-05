@@ -80,7 +80,7 @@ class Aggregate::CombinedStringFieldTest < ActiveSupport::TestCase
       ex = assert_raises ArgumentError do
         @instance.first = "abc\n123"
       end
-      assert ex.message =~ /Cannot store newlines in combined fields storing \"abc\\n123\" in first/
+      assert ex.message =~ /Cannot store newlines in combined fields storing "abc\\n123" in first/
     end
 
     should "report if an attribute changed" do
