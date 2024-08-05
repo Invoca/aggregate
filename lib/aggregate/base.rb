@@ -27,7 +27,7 @@ module Aggregate
     class << self
       def aggregate_db_storage_type; end
 
-      # Skips checking database for precision of float attributes.
+      # Skips checking database for precision of fields.
       def validates_numericality_of(*attr_names)
         validates_with ActiveModel::Validations::NumericalityValidator, _merge_attributes(attr_names)
       end

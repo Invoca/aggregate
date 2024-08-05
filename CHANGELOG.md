@@ -6,7 +6,12 @@ Note: This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0
 
 All notable changes to this project will be documented in this file.
 
-## [2.5.0] - Unreleased
+## [2.5.1] - 2024-08-05
+### Fixed
+- Replaced override of type_for_attribute with overriding ActiveRecord's numericality validation to just use ActiveModel's numericality validation.
+  - This fixes an issue where we were trying to reach out to the database for the precision of the columns.
+
+## [2.5.0] - 2024-07-01
 - Allow ActiveRecord versions >= 6.0
 - Require Ruby >= 3.1
 ### Changed
