@@ -20,6 +20,9 @@ module Aggregate
       include ActiveRecord::DefineCallbacks
     end
 
+    # Override ActiveRecord's NumericalityValidator with ActiveModel's to ensure we don't hit the database.
+    NumericalityValidator = ActiveModel::Validations::NumericalityValidator
+
     validate :validate_aggregates
 
     define_callbacks :before_validation, :aggregate_load, :aggregate_load_check_schema
@@ -27,9 +30,9 @@ module Aggregate
     class << self
       def aggregate_db_storage_type; end
 
-      # Skips checking database for precision of fields.
+      # Override ActiveRecord's validates_numericality_of to use ActiveModel's NumericalityValidator.
       def validates_numericality_of(*attr_names)
-        validates_with ActiveModel::Validations::NumericalityValidator, _merge_attributes(attr_names)
+        validates_with NumericalityValidator, _merge_attributes(attr_names)
       end
     end
 

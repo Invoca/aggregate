@@ -6,6 +6,10 @@ Note: This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0
 
 All notable changes to this project will be documented in this file.
 
+## [2.5.2] - 2024-08-06
+### Fixed
+- Support usage of `validates <field>, numericality: {...}` form of numericality option on Rails 6.1
+
 ## [2.5.1] - 2024-08-05
 ### Fixed
 - Replaced override of type_for_attribute with overriding ActiveRecord's numericality validation to just use ActiveModel's numericality validation.
