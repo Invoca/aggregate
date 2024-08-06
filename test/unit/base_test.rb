@@ -4,6 +4,12 @@ require_relative '../test_helper'
 
 class Aggregate::BaseTest < ActiveSupport::TestCase
 
+  context "overrides" do
+    should "override numericality validator" do
+      assert_equal ActiveModel::Validations::NumericalityValidator, Aggregate::Base::NumericalityValidator
+    end
+  end
+
   context "Aggregate classes" do
     setup do
       @agg = Class.new(Aggregate::Base) { }

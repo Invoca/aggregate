@@ -64,7 +64,9 @@ class Aggregate::ContainerTest < ActiveSupport::TestCase
     attribute :shipped_at, :datetime
     attribute :postage_due, :decimal
 
+    # Creating duplicate validations to ensure we can handle both forms.
     validates_numericality_of :postage_due, greater_than_or_equal_to: 0, less_than_or_equal_to: 100
+    validates :postage_due, numericality: { greater_than_or_equal_to: 0, less_than_or_equal_to: 100 }
   end
 
   class TestPurchase < ActiveRecordStub
@@ -671,7 +673,7 @@ class Aggregate::ContainerTest < ActiveSupport::TestCase
       should "support rails validators" do
         @doc.first_shipment.postage_due = -1
         assert !@doc.first_shipment.valid?
-        assert_equal ["Postage due must be greater than or equal to 0"], @doc.first_shipment.errors.full_messages
+        assert_equal ["Postage due must be greater than or equal to 0"] * 2, @doc.first_shipment.errors.full_messages
       end
     end
 
