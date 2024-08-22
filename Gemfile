@@ -8,7 +8,7 @@ gem "appraisal"
 gem "appraisal-matrix"
 gem "bigdecimal"
 gem "jquery-rails"
-gem 'minitest',  '~> 5.1'
+gem 'minitest',  '~> 5.25'
 gem 'minitest-reporters'
 gem 'pry'
 gem 'rr',        '3.1.0'
