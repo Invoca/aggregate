@@ -11,6 +11,7 @@ module Aggregate
       define_method(method) { raise "call #{method} on containing class" }
     end
 
+    include ActiveModel::Validations
     include ActiveRecord::Validations
     include ActiveRecord::Callbacks
     include ActiveRecord::Reflection

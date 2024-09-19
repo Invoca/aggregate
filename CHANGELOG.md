@@ -6,6 +6,11 @@ Note: This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0
 
 All notable changes to this project will be documented in this file.
 
+## [2.5.3] - 2024-09-19
+### Fixed
+- Include `ActiveModel::Validations` in `Aggregate::Base` since `ActiveRecord::Validations` no longer includes it in rails 7.2.
+  - This is needed to include the `validate` method.
+
 ## [2.5.2] - 2024-08-06
 ### Fixed
 - Support usage of `validates <field>, numericality: {...}` form of numericality option on Rails 6.1
