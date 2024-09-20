@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    aggregate (2.5.2)
+    aggregate (2.5.3)
       activerecord (>= 6.0)
       encryptor (~> 3.0)
       invoca-utils (~> 0.3)
@@ -141,7 +141,7 @@ GEM
       minitest (>= 5.0)
       ruby-progressbar
     mutex_m (0.2.0)
-    net-imap (0.4.14)
+    net-imap (0.4.16)
       date
       net-protocol
     net-pop (0.1.2)
