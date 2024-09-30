@@ -14,6 +14,6 @@ gem 'pry'
 gem 'rr',        '3.1.1'
 gem 'rubocop', require: false
 gem 'shoulda'
-gem 'sqlite3', "~> 2.0"
+gem 'sqlite3', "~> 2.1"
 gem 'test_after_commit', require: false
 gem 'test-unit', '3.6.2'
