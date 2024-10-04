@@ -1,5 +1,8 @@
 name: Pipeline
-on: [push]
+on:
+  push:
+  schedule:
+  - cron: '0 1 * * 1' # Every Monday at 1AM UTC
 jobs:
   ruby-versions:
     runs-on: ubuntu-latest
