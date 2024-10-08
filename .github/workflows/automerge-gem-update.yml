@@ -1,0 +1,48 @@
+---
+name: Auto-merge Gem Update
+on:
+  pull_request:
+    types:
+      - opened
+    branches:
+      - master
+
+permissions: write-all
+
+jobs:
+  merge:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    if: github.actor == 'invoca-ops-ci'
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      PR_URL: ${{ github.event.pull_request.html_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Get Commit Author
+        run: |
+          SHA=$(gh pr view "$PR_URL" --json commits --jq '.commits[-1].oid')
+          COMMIT_AUTHOR=$(gh api "repos/${{ github.repository }}/commits/$SHA" --jq '.commit.author.name')
+          echo "COMMIT_AUTHOR=$COMMIT_AUTHOR" >> $GITHUB_ENV
+
+      - name: Enable auto-merge for Gem-update PRs
+        if: env.COMMIT_AUTHOR == 'gem-update'
+        run: gh pr merge --auto --merge "$PR_URL"
+
+      - name: Approve the PR
+        if: env.COMMIT_AUTHOR == 'gem-update'
+        run: gh pr review --approve "$PR_URL"
+
+      - name: Wait for status checks
+        if: env.COMMIT_AUTHOR == 'gem-update'
+        id: wait-for-status
+        uses: WyriHaximus/github-action-wait-for-status@v1.8
+        with:
+          ignoreActions: merge # the job id or name; to prevent the workflow from getting stuck waiting on itself
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Notify if checks failed
+        if: steps.wait-for-status.outputs.status == 'failure'
+        run: |
+          gh pr comment "$PR_URL" --body "@octothorpe Checks have failed"
