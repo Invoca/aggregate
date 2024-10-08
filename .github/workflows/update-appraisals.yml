@@ -16,10 +16,12 @@ jobs:
         with:
           bundler-cache: true
 
+      # Ensure we don't accumulate undesired Gemfiles
+      - name: Delete Existing Appraisal Gemfiles
+        run: rm gemfiles/*.gemfile
+
       - name: Update Appraisal Gemfiles
-        run: |
-          rm gemfiles/*.gemfile
-          bundle exec appraisal install
+        run: bundle exec appraisal install
 
       - name: Open a Pull Request
         uses: peter-evans/create-pull-request@v7
@@ -32,3 +34,4 @@ jobs:
           branch: update-appraisals
           branch-suffix: timestamp
           base: ${{ github.event.repository.default_branch }}
+          add-paths: "gemfiles/*"
