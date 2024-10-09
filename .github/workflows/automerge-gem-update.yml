@@ -45,4 +45,4 @@ jobs:
       - name: Notify if checks failed
         if: steps.wait-for-status.outputs.status == 'failure'
         run: |
-          gh pr comment "$PR_URL" --body "@octothorpe Checks have failed"
+          gh pr comment "$PR_URL" --body "Checks have failed"
