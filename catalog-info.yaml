@@ -27,6 +27,8 @@ metadata:
   - ruby
   - open-source
   - gem
+  - public
+  - rails-dependent
 spec:
   type: library
   lifecycle: production
