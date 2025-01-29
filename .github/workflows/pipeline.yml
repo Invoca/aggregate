@@ -30,6 +30,9 @@ jobs:
       matrix:
         ruby: ${{ fromJson(needs.ruby-versions.outputs.versions) }}
         gemfile: ${{ fromJson(needs.gemfile-paths.outputs.gemfiles) }}
+        exclude:
+        - ruby: 3.1
+          gemfile: gemfiles/activerecord_8_0.gemfile
     env:
       BUNDLE_GEMFILE: ${{ matrix.gemfile }}
     steps:
