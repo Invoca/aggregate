@@ -31,14 +31,14 @@ class Aggregate::CombinedStringFieldTest < ActiveSupport::TestCase
 
     context "write_attribute" do
       should "use defined accessor if attribute in list" do
-        mock(@instance, "first=").with("123")
+        expect(@instance).to receive(:first=).with("123")
         @instance.write_attribute("first", "123")
       end
     end
 
     context "read_attribute" do
       should "use defined accessor if attribute in list" do
-        mock(@instance).first { "123" }
+        expect(@instance).to receive(:first) { "123" }
         assert_equal "123", @instance.read_attribute("first")
       end
     end

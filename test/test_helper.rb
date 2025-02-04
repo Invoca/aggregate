@@ -8,7 +8,8 @@ require "aggregate"
 require File.expand_path('dummy/config/environment.rb', __dir__)
 require "rails/test_help"
 require "invoca/utils"
-require "rr"
+require 'rspec/mocks/minitest_integration'
+require 'rspec/expectations/minitest_integration'
 require "shoulda"
 require "minitest/unit"
 require "pry"

@@ -6,7 +6,7 @@ class Aggregate::Attribute::DateTimeTest < ActiveSupport::TestCase
 
   should "handle datetime" do
     ad = Aggregate::AttributeHandler.factory("testme", :datetime, {})
-    stub(Time).now { Time.zone.local(2008, 3, 10) }
+    allow(Time).to receive(:now) { Time.zone.local(2008, 3, 10) }
     assert_equal "04/18/12   5:50 PM", ad.from_value("2012/04/18 17:50:08 -0700").to_formatted_s
     assert_equal "03/10/08  12:00 AM", ad.from_value(Time.now).to_formatted_s
 

@@ -223,7 +223,7 @@ class Aggregate::BaseTest < ActiveSupport::TestCase
       end
 
       should "call the aggregate loaded method when the object is loaded" do
-        mock.instance_of(@agg).aggregate_loaded
+        expect_any_instance_of(@agg).to receive(:aggregate_loaded)
         @instance = @agg.from_store(name: "loaded")
         @instance.name
       end
