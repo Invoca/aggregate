@@ -175,7 +175,7 @@ class PassportTest < ActiveSupport::TestCase
       end
 
       should "correctly store JSON with properly hashed fields for encrypted data" do
-        stub(SecureRandom).random_bytes(12) { "\x8D\xE8E\x95\xB85\xF9~|$n#" }
+        allow(SecureRandom).to receive(:random_bytes).with(12) { "\x8D\xE8E\x95\xB85\xF9~|$n#" }
         expected_json = "{\\\"encrypted_data\\\":\\\"ng3gws8rbrUB+fjMQEl6ALUgVxfGFZf/BRyucnyYGrI9Imbkh0ppMitF0nxboXNj8uXWZtLU2u+uE6/Q4vhIbG9eKGtvzWUbWmSxeG+rxSJvM477WNf1vknsZ5UPkQMOTG+1\\\",\\\"initilization_vector\\\":\\\"jehFlbg1+X58JG4j\\\"}\"}"
 
         Aggregate.configure do |config|

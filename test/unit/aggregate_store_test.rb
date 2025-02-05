@@ -499,34 +499,34 @@ class Aggregate::AggregateStoreTest < ActiveSupport::TestCase
 
         should "validates aggregates if a new record" do
           @instance.new_record = true
-          mock.instance_of(Aggregate::Attribute::String).validation_errors("abc") { ["had_error"] }
+          expect_any_instance_of(Aggregate::Attribute::String).to receive(:validation_errors).with("abc") { ["had_error"] }
           @instance.validate_aggregates
           assert_equal [['name', 'had_error']], @instance.errors.messages
         end
 
         should "validate aggregates if they force it" do
-          mock.instance_of(Aggregate::Attribute::String).force_validation? { true }
-          mock.instance_of(Aggregate::Attribute::String).validation_errors("abc") { ["had_error"] }
+          expect_any_instance_of(Aggregate::Attribute::String).to receive(:force_validation?) { true }
+          expect_any_instance_of(Aggregate::Attribute::String).to receive(:validation_errors).with("abc") { ["had_error"] }
           @instance.validate_aggregates
           assert_equal [['name', 'had_error']], @instance.errors.messages
         end
 
         should "validate aggregates if it changed" do
           @instance.name = "godzilla"
-          mock.instance_of(Aggregate::Attribute::String).validation_errors("godzilla") { ["had_error"] }
+          expect_any_instance_of(Aggregate::Attribute::String).to receive(:validation_errors).with("godzilla") { ["had_error"] }
           @instance.validate_aggregates
           assert_equal [['name', 'had_error']], @instance.errors.messages
         end
 
         should "validate aggregates if was accessed" do
           @instance.name
-          mock.instance_of(Aggregate::Attribute::String).validation_errors("abc") { ["had_error"] }
+          expect_any_instance_of(Aggregate::Attribute::String).to receive(:validation_errors).with("abc") { ["had_error"] }
           @instance.validate_aggregates
           assert_equal [['name', 'had_error']], @instance.errors.messages
         end
 
         should "not validate an aggregate otherwise" do
-          dont_allow.instance_of(Aggregate::Attribute::String).validation_errors("abc")
+          expect_any_instance_of(Aggregate::Attribute::String).not_to receive(:validation_errors).with("abc")
           @instance.validate_aggregates
         end
       end

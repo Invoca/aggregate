@@ -519,7 +519,7 @@ class Aggregate::ContainerTest < ActiveSupport::TestCase
       end
       context "datetime" do
         setup do
-          stub(Time).now { Time.zone.local(2008, 3, 10) }
+          allow(Time).to receive(:now) { Time.zone.local(2008, 3, 10) }
         end
 
         should "support convert to the current time zone when loading" do

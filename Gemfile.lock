@@ -96,6 +96,7 @@ GEM
     connection_pool (2.4.1)
     crass (1.0.6)
     date (3.3.4)
+    diff-lcs (1.5.1)
     drb (2.2.1)
     encryptor (3.0.0)
     erubi (1.13.0)
@@ -206,7 +207,13 @@ GEM
     regexp_parser (2.9.2)
     reline (0.5.9)
       io-console (~> 0.5)
-    rr (3.1.1)
+    rspec-expectations (3.13.3)
+      diff-lcs (>= 1.2.0, < 2.0)
+      rspec-support (~> 3.13.0)
+    rspec-mocks (3.13.2)
+      diff-lcs (>= 1.2.0, < 2.0)
+      rspec-support (~> 3.13.0)
+    rspec-support (3.13.2)
     rubocop (1.66.1)
       json (~> 2.3)
       language_server-protocol (>= 3.17.0)
@@ -261,7 +268,8 @@ DEPENDENCIES
   minitest-reporters
   mutex_m (>= 0.3.0)
   pry
-  rr (= 3.1.1)
+  rspec-expectations
+  rspec-mocks
   rubocop
   shoulda
   sqlite3 (~> 2.1)
