@@ -5,7 +5,7 @@ on:
   - cron: '0 1 * * 1' # Every Monday at 1AM UTC
 jobs:
   tests:
-    uses: Invoca/ruby-test-matrix-workflow/.github/workflows/ruby-test-matrix.yml@38e053de09e137f02b8989062b5bf8ded8f5076e
+    uses: Invoca/ruby-test-matrix-workflow/.github/workflows/ruby-test-matrix.yml@fe2268102d40b5cb6224fadab176c5fa6ab01f61
     with:
       pre-test-hook: "bundle exec rails db:migrate"
       test-command: "bundle exec rake test"
