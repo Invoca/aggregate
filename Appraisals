@@ -2,7 +2,7 @@
 
 require "appraisal/matrix"
 
-appraisal_matrix(activerecord: "6.1") do |activerecord:|
+appraisal_matrix(activerecord: "7.0") do |activerecord:|
   if activerecord < "7.1"
     gem "sqlite3", "~> 1.4"
     gem "drb"
